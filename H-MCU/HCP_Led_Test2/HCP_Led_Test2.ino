@@ -1,10 +1,10 @@
-#define LED_GREEN 12
-#define LED_RED 13
-#define BUTTON 16
+#define LED_GREEN 4
+#define LED_RED 2
+#define BUTTON 10
 
 //#define CHANNEL 002
 //#define BAUD_RATE 1200
-
+ 
 bool state = true;
 bool state2 = true;
 
@@ -12,22 +12,13 @@ void setup()
 {
   pinMode(LED_GREEN, OUTPUT);
   pinMode(LED_RED, OUTPUT);
-  pinMode(BUTTON, INPUT);
+  pinMode(BUTTON, INPUT_PULLUP);
   
   Serial.begin(1200);
 
   // HC12.println("AT+C" + CHANNEL);
-  //HC12.println("AT+B" + BAUD_RATE);
+  // HC12.println("AT+B" + BAUD_RATE);
   
-  byte d[7] = {16,15,14,13,14,02,00};
-
-  for(int i = 0; i < 7; i++)
-  {
-    digitalWrite(d[i], true);
-  }
-
-  while(true);
-
   digitalWrite(LED_GREEN,true);
   digitalWrite(LED_RED,true);
   delay(500);
@@ -38,14 +29,14 @@ void setup()
 
 void loop()
 {
-  if (digitalRead(BUTTON))
+  if (!digitalRead(BUTTON))
   {
       Serial.write("r");
 
       digitalWrite(LED_RED,state);
       state = !state;
       
-      while (digitalRead(BUTTON));
+      while (!digitalRead(BUTTON));
   }
 
   if (Serial.available())

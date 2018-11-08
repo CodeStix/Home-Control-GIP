@@ -6,7 +6,7 @@
 //#define BAUD_RATE 1200
 
 bool state = false;
-bool state2 = false;
+bool state2 = false;-
 
 void setup()
 {
