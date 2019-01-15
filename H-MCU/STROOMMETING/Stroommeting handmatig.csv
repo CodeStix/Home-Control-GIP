@@ -1,0 +1,5 @@
+Uin,	Belasting,	I meter, 	U arduino,	I arduino
+12V,	25W gloeilamp,	0.744A,		0.31V,		0.83A
+12V,	40W gloeilamp,	1.15A,		0.45V,		1.18A
+24V,	25W gloeilamp,	1.04A,		0.4V,		1.08A
+24V,	40W gloeilamp,	1.62A,		0.57V,		1.52A

@@ -1,6 +1,6 @@
-#define LED_GREEN 4
-#define LED_RED 2
-#define BUTTON 10
+#define LED_GREEN 13
+#define LED_RED 15
+#define BUTTON 16
 
 //#define CHANNEL 002
 //#define BAUD_RATE 1200
