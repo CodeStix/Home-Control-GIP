@@ -1,0 +1,62 @@
+H-CU Startup;
+Defineer variablen.
+Start Seriële communicatie;
+
+Verkrijg een adres:
+**Mijn adres.**;
+
+
+
+Loop:
+
+// Ons protocol werkt met minimum 4 byte.
+//`Serial.available() >= 4`
+if (Zijn er minstens 4 bytes 
+op de data stream?)
+{
+  Er is data ontvangen.;
+
+  //`Serial.peek();`
+  while (!Is `start-byte` 
+  in de goede positie?)
+  {
+     `Serial.read();`
+    Lees een `byte` uit 
+    de data-stream.
+  }
+ 
+ `Serial.read();`
+ Lees **start-byte;
+ `Serial.read();`
+ Lees **adres van zender;
+ `Serial.read();`
+ Lees **adres van ontvanger;
+ `Serial.read();`
+ Lees **data;
+ 
+ if (**Mijn adres** `==` **adres van ontvanger**?)
+ {
+   Interpreteer data...;
+   if (Interpreteren oke?)
+   {
+     Antwoord met `OK-byte`;
+   }
+   else
+   {
+     /*Antwoord met *failed* wanneer het gevraagde niet voltooid kon worden.
+      Antwoord met *unknown* als de data niet herkend was als een geldig commando.*/
+    Antwoord met een *FAILED-byte* 
+    of met een *UNKNOWN-byte*;
+   }
+ }
+ else
+ {
+   Negeer data, niet voor mij.;
+   
+   goto Loop;
+ }
+ 
+ Stuur antwoord naar **adres van zender**.
+}
+
+goto Loop;

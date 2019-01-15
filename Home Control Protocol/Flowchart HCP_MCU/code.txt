@@ -1,0 +1,64 @@
+H-MCU Startup;
+Defineer variablen.
+Start Seriële communicatie.;
+while (!Verbonden met internet?)
+{
+  Wacht even en
+  probeer opnieuw.;
+}
+Start `HTTPClient`;
+
+Loop:
+
+if (Is er een HTTP request?)
+{
+  switch(Wat wordt er gerequest?)
+  {
+    case "Control:
+        // Een geldige "Control" request bestaat uit 2 velden: **data** en **module naam**.
+        if (!Is de request geldig?)
+      {
+        goto Loop;
+      }
+    
+
+      Verkrijg **module naam** van request.;
+      Verkrijg **data** van request.;
+        // Elke slave (of H-CU) krijgt een naam met hiernaast een adres.
+      Verkrijg **adres** voor **module naam**.;
+      
+      SendData:
+      Stuur **data** naar **adres**.;
+      
+      while (!Is er een antwoord?)
+      {
+        if (Duurt het te lang?)
+        {
+          if (Lukt het na 5 pogingen 
+          nog altijd niet?)
+          {
+            Zet **status** op *Mislukt*.;
+            goto Loop;
+          }
+          We sturen het 
+          datapakket opnieuw.;
+          goto SendData;
+        }
+        else
+        {
+          Wacht...;
+        }
+      }
+      
+      Zet **status** op *Succesvol*.;
+    break;
+    
+    case "GetStatus":
+    //De status zal aangeven of de vorige request succesvol was of niet. Deze request kan niet ongeldig zijn.
+      Geeft de **status** terug.;
+    break;
+  }
+
+}
+
+goto Loop;
