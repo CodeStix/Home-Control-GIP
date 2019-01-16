@@ -1,9 +1,11 @@
 #include "SR_HCP.h"
 
-//#define MOD_45
+#define MEASURE_PIN 9
+
+#define MOD_45
 //#define MOD_46
 //#define MOD_47
-#define MOD_48
+//#define MOD_48
 
 // COM13
 #ifdef MOD_45
@@ -39,13 +41,14 @@ bool state[4] = { false, false, false, false };
 #define ID_MCU_ERROR 253
 // Identifiers(error, info, commands, requests, ...) that will be recognized  by the controlled units (this).
 #define ID_CU_PING 255
-
+#define ID_CU_MEASUREMENT 254
 /* Controlled unit */
 
 #define LED_GREEN 3
 #define LED_RED 2
 
 SR_HCP hcp = SR_HCP(MY_ADDRESS, 2400, 10, 11);
+byte measure = 0;
 
 void flash(int mil, int cycles = 1)
 {
@@ -77,6 +80,12 @@ void setup()
   delay(100);
 
   flash(100, 5);
+
+#ifdef MOD_45
+
+  pinMode(CURRENT_PIN, OUTPUT);
+
+#endif
 }
 
 void loop()
@@ -98,14 +107,15 @@ void received(int fromAddress, int data)
   if (data < VALUE_RANGE_MAX)
   {
     // Interpret data
-    if (interpret(data))
-      hcp.hcpSend(fromAddress, ID_MCU_OKEY); // 255 = OK
-    else
-      hcp.hcpSend(fromAddress, ID_MCU_ERROR); // 253 = ERROR
+    hcp.hcpSend(fromAddress, interpret(data)); // 255 = OK
   }
   else if (data == ID_CU_PING)
   {
     hcp.hcpSend(fromAddress, ID_MCU_OKEY);
+  }
+  else if (data == ID_CU_MEASUREMENT)
+  {
+    hcp.hcpSend(fromAddress, measure);
   }
   else
   {
@@ -114,7 +124,7 @@ void received(int fromAddress, int data)
 }
 
 // Interpret data between 0 and VALUE_RANGE_MAX, commands are not included.
-bool interpret(int val)
+byte interpret(int val)
 {
 
 #ifdef MOD_47
@@ -126,11 +136,11 @@ bool interpret(int val)
 
     state[val] = !state[val];
   }
-  return true;
+  return ID_MCU_OKEY;
 
 #endif
 
-  return true;
+  return ID_MCU_OKEY;
 }
 
 
