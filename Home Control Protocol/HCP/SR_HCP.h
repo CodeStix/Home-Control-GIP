@@ -24,6 +24,16 @@ class SR_HCP
         int hcpRawRead();
         int hcpRawAvailable();
         int hcpRawPeek();
+        void hcpResendIfNeeded();
+        void hcpResend();
+        int resendMillis;
+        bool didReceive();
+
+      private:
+        int lastSendMillis;
+        int lastSendData;
+        int lastReceiver;
+        bool didReceive;
 };
 
 

@@ -7,8 +7,9 @@
 #include <SR_HCP.h>
 #include "SoftwareSerial.h"
 
-
-
+// We will accept values until this point, higher values will get recognized as a command.
+#define VALUE_RANGE_MAX 240
+#define CMD_OKEY 255
 
 SR_HCP::SR_HCP(int addr, int baud) : software(SoftwareSerial(-1, -1))
 {
@@ -30,6 +31,7 @@ SR_HCP::SR_HCP(int addr, int baud, int rxPin, int txPin) : software(SoftwareSeri
     this->software.begin(baud);
 }
 
+// Returns true if data needs to be interpret, false if it is a command (interpret here) abd false if data isn't yours.
 bool SR_HCP::hcpReceive(int *fromAddress, int *data, bool sync = false)
 {
     if (sync)
@@ -86,11 +88,26 @@ bool SR_HCP::hcpReceive(int *fromAddress, int *data, bool sync = false)
         Serial.println(*data);
     }
 
+    if (data > VALUE_RANGE_MAX)
+    {
+        switch(data)
+        {
+            case CMD_OKEY:
+                this->didReceive = true;
+            return false;
+        }
+    }
+
     return true;
 }
 
 void SR_HCP::hcpSend(int toAddress, int data)
 {
+    this->didReceive = false;
+    this->lastSendMillis = millis();
+    this->lastReceiver = toAddress;
+    this->lastSendData = data;
+
 	this->hcpRawSend(this->firstByte);
 	this->hcpRawSend(this->address);
 	this->hcpRawSend(toAddress);
@@ -143,4 +160,22 @@ int SR_HCP::hcpRawPeek()
 	{
 		return this->software.peek();
 	}
+}
+
+void SR_HCP::hcpResendIfNeeded()
+{
+    if (!this->didReceive && millis() - this->lastSendMillis >= this->resendMillis)
+    {
+        SR_HCP::hcpResend();
+    }
+}
+
+void SR_HCP::hcpResend()
+{
+    hcpSend(this->lastReceiver, this->lastSendData);
+}
+
+bool SR_HCP::didReceive()
+{
+    return this->didReceive;
 }
