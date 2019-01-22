@@ -9,7 +9,12 @@
 
 // We will accept values until this point, higher values will get recognized as a command.
 #define VALUE_RANGE_MAX 240
+// Commands that the master receives.
 #define CMD_OKEY 255
+#define CMD_FAILED 254
+#define CMD_UNKNOWN 253
+// Command that the slave receives.
+#define CMD_FETCH 252
 
 SR_HCP::SR_HCP(int addr, int baud) : software(SoftwareSerial(-1, -1))
 {
@@ -17,6 +22,10 @@ SR_HCP::SR_HCP(int addr, int baud) : software(SoftwareSerial(-1, -1))
     this->baud = baud;
     this->useHardwareSerial = true;
     this->firstByte = 0xf;
+    this->resendMillis = 600;
+    this->enableLogging = true;
+    this->responded = true;
+    this->maxSendTries = 20;
 
     Serial.begin(baud);
 }
@@ -27,8 +36,28 @@ SR_HCP::SR_HCP(int addr, int baud, int rxPin, int txPin) : software(SoftwareSeri
     this->baud = baud;
     this->useHardwareSerial = false;
     this->firstByte = 0xf;
+    this->resendMillis = 600;
+    this->enableLogging = true;
+    this->responded = true;
+    this->maxSendTries = 20;
 
     this->software.begin(baud);
+}
+
+void SR_HCP::log(String str, bool force = false)
+{
+    if (!this->useHardwareSerial && (this->enableLogging || force))
+    {
+        Serial.print(str);
+    }
+}
+
+void SR_HCP::logln(String str, bool force = false)
+{
+    if (!this->useHardwareSerial && (this->enableLogging || force))
+    {
+        Serial.println(str);
+    }
 }
 
 // Returns true if data needs to be interpret, false if it is a command (interpret here) abd false if data isn't yours.
@@ -43,11 +72,11 @@ bool SR_HCP::hcpReceive(int *fromAddress, int *data, bool sync = false)
     {
         if (!this->useHardwareSerial)
         {
-            Serial.print("Out of sync (");
-            Serial.print(hcpRawPeek(), HEX);
-            Serial.print(" != ");
-            Serial.print(this->firstByte);
-            Serial.print(")... ");
+            this->log("Out of sync (");
+            this->log(String(hcpRawPeek()));
+            this->log(" != ");
+            this->log(String(this->firstByte));
+            this->log(")... ");
         }
 
         int r = 0;
@@ -62,7 +91,7 @@ bool SR_HCP::hcpReceive(int *fromAddress, int *data, bool sync = false)
         }
 
         if (!this->useHardwareSerial)
-            Serial.println("Fixed");
+            this->logln("Fixed");
 
         return this->hcpReceive(fromAddress, data);
     }
@@ -78,32 +107,59 @@ bool SR_HCP::hcpReceive(int *fromAddress, int *data, bool sync = false)
         return this->hcpReceive(fromAddress, data, sync);
     }
 
+    lastDidReceiveFrom = *fromAddress;
+
     if (!this->useHardwareSerial)
     {
-        Serial.print("Start receiving: From=");
-        Serial.print(*fromAddress);
-        Serial.print(", To=");
-        Serial.print(toAddress);
-        Serial.print(", Data=");
-        Serial.println(*data);
+        this->log("Start receiving: From=");
+        this->log(String(*fromAddress));
+        this->log(", To=");
+        this->log(String(toAddress));
+        this->log(", Data=");
+        this->logln(String(*data));
     }
 
-    if (data > VALUE_RANGE_MAX)
+    if (!this->responded && *fromAddress == this->lastReceiver)
     {
-        switch(data)
+        this->logln("Did respond with value: " + String(*data));
+        this->response = *data;
+        this->responded = true;
+        this->sendTries = 0;
+
+        switch(*data)
         {
             case CMD_OKEY:
-                this->didReceive = true;
-            return false;
+                this->logln("Did respond with OKEY!");
+                return false;
+
+            case CMD_FAILED:
+                this->logln("Did respond with FAILED. :(");
+                return false;
+
+            case CMD_UNKNOWN:
+                this->logln("Did respond with UNKNOWN.");
+                return false;
+        }
+
+        return true; // True so the program can interpret the responded data itself.
+    }
+
+    if (*data > VALUE_RANGE_MAX)
+    {
+        switch(*data)
+        {
+            this->logln("User defined command.");
         }
     }
 
     return true;
 }
 
+
+
 void SR_HCP::hcpSend(int toAddress, int data)
 {
-    this->didReceive = false;
+    this->responded = false;
     this->lastSendMillis = millis();
     this->lastReceiver = toAddress;
     this->lastSendData = data;
@@ -164,7 +220,7 @@ int SR_HCP::hcpRawPeek()
 
 void SR_HCP::hcpResendIfNeeded()
 {
-    if (!this->didReceive && millis() - this->lastSendMillis >= this->resendMillis)
+    if (!this->responded && millis() - this->lastSendMillis >= this->resendMillis && this->sendTries <= this->maxSendTries)
     {
         SR_HCP::hcpResend();
     }
@@ -172,10 +228,32 @@ void SR_HCP::hcpResendIfNeeded()
 
 void SR_HCP::hcpResend()
 {
+    this->logln("Resending last...");
+    this->sendTries++;
     hcpSend(this->lastReceiver, this->lastSendData);
 }
 
-bool SR_HCP::didReceive()
+bool SR_HCP::didRespond()
 {
-    return this->didReceive;
+    return this->responded;
+}
+
+void SR_HCP::respondOkey()
+{
+    hcpSend(lastDidReceiveFrom, CMD_OKEY);
+}
+
+void SR_HCP::respondFailed()
+{
+    hcpSend(lastDidReceiveFrom, CMD_FAILED);
+}
+
+void SR_HCP::respondUnknown()
+{
+    hcpSend(lastDidReceiveFrom, CMD_UNKNOWN);
+}
+
+void SR_HCP::respond(byte b)
+{
+    hcpSend(lastDidReceiveFrom, b);
 }

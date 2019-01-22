@@ -1,8 +1,7 @@
 #include "SR_HCP.h"
 #define MY_ADDRESS 1
 
-// We will accept values until this point, higher values will get recognized as a command.
-#define VALUE_RANGE_MAX 240
+
 // Valid address ranges for each device type.
 #define MCU_ADDRESS_RANGE_MIN 0
 #define MCU_ADDRESS_RANGE_MAX 15
@@ -76,6 +75,8 @@ void loop()
 
   if (hcp.hcpReceive(&fromAddress, &data, false))
     received(fromAddress, data);
+
+  hcp.hcpResendIfNeeded();
 
   while (Serial.available() > 0)
   {

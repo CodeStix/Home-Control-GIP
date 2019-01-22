@@ -2,9 +2,9 @@
 
 #define MEASURE_PIN 9
 
-#define MOD_45
+//#define MOD_45
 //#define MOD_46
-//#define MOD_47
+#define MOD_47
 //#define MOD_48
 
 // COM13
@@ -92,7 +92,7 @@ void loop()
 {
   int fromAddress, data;
 
-  if (hcp.hcpReceive(&fromAddress, &data, true))
+  if (hcp.hcpReceive(&fromAddress, &data, true)) //-> returns true if data needs to be interpret.
     received(fromAddress, data);
 
   flash(50);
@@ -107,19 +107,25 @@ void received(int fromAddress, int data)
   if (data < VALUE_RANGE_MAX)
   {
     // Interpret data
-    hcp.hcpSend(fromAddress, interpret(data)); // 255 = OK
+    
+    hcp.respond(interpret(data));
+    
+    //hcp.hcpSend(fromAddress, interpret(data)); // 255 = OK
   }
   else if (data == ID_CU_PING)
   {
-    hcp.hcpSend(fromAddress, ID_MCU_OKEY);
+    hcp.respondOkey();
+    //hcp.hcpSend(fromAddress, ID_MCU_OKEY);
   }
   else if (data == ID_CU_MEASUREMENT)
   {
-    hcp.hcpSend(fromAddress, measure);
+    hcp.respondFailed();
+    //hcp.hcpSend(fromAddress, measure);
   }
   else
   {
-    hcp.hcpSend(fromAddress, ID_MCU_UNKNOWN); // 254 = UNKNOWN
+     hcp.respondUnknown();
+    //hcp.hcpSend(fromAddress, ID_MCU_UNKNOWN); // 254 = UNKNOWN
   }
 }
 
@@ -140,7 +146,7 @@ byte interpret(int val)
 
 #endif
 
-  return ID_MCU_OKEY;
+  return 255;
 }
 
 

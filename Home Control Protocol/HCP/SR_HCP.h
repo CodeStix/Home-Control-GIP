@@ -27,13 +27,24 @@ class SR_HCP
         void hcpResendIfNeeded();
         void hcpResend();
         int resendMillis;
-        bool didReceive();
+        bool didRespond();
+        bool enableLogging;
+        int maxSendTries;
+        void respondOkey();
+        void respondFailed();
+        void respondUnknown();
+        void respond(byte b);
+        int response;
 
       private:
         int lastSendMillis;
         int lastSendData;
         int lastReceiver;
-        bool didReceive;
+        bool responded;
+        int sendTries;
+        void log(String str, bool force);
+        void logln(String str, bool force);
+        int lastDidReceiveFrom;
 };
 
 
