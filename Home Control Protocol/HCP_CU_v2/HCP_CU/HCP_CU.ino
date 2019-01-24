@@ -134,10 +134,8 @@ byte interpret(int val)
 {
 
 #ifdef MOD_47
++
 
-  if (val >= 0 && val < 4)
-  {
-    pinMode(val + 4, OUTPUT);
     digitalWrite(val + 4, state[val]);
 
     state[val] = !state[val];
