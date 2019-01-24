@@ -2,9 +2,9 @@
 
 #define MEASURE_PIN 9
 
-//#define MOD_45
+#define MOD_45
 //#define MOD_46
-#define MOD_47
+//#define MOD_47
 //#define MOD_48
 
 // COM13
@@ -102,8 +102,6 @@ void loop()
 
 void received(int fromAddress, int data)
 {
-  flash(50);
-
   if (data < VALUE_RANGE_MAX)
   {
     // Interpret data
@@ -127,6 +125,8 @@ void received(int fromAddress, int data)
      hcp.respondUnknown();
     //hcp.hcpSend(fromAddress, ID_MCU_UNKNOWN); // 254 = UNKNOWN
   }
+  
+  flash(50);
 }
 
 // Interpret data between 0 and VALUE_RANGE_MAX, commands are not included.
