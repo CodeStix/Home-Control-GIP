@@ -142,7 +142,7 @@ byte interpret(int val)
 
     state[val] = !state[val];
   }
-  return ID_MCU_OKEY;
+  return ;
 
 #endif
 

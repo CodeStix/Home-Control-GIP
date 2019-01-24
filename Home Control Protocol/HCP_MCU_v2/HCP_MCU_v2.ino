@@ -94,6 +94,13 @@ void loop()
         Serial.println("<<< Sending random data to " + argument.toInt());
         hcp.hcpSend(argument.toInt(), random(0, 4));
       }
+      else if (inString.startsWith("d"))
+      {
+        int data = inString.substring(1).toInt();
+        
+        Serial.println("<<< Sending " + String(data)  + " to " + argument.toInt());
+        hcp.hcpSend(argument.toInt(), data);
+      }
       else if (inString == "ok")
       {
         Serial.println("<<< OK");
