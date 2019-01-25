@@ -40,15 +40,14 @@ bool state[4] = { false, false, false, false };
 #define ID_MCU_UNKNOWN 254
 #define ID_MCU_ERROR 253
 // Identifiers(error, info, commands, requests, ...) that will be recognized  by the controlled units (this).
-#define ID_CU_PING 255
-#define ID_CU_MEASUREMENT 254
+#define CMD_PING 255
+#define CMD_SET 250
 /* Controlled unit */
 
 #define LED_GREEN 3
 #define LED_RED 2
 
 SR_HCP hcp = SR_HCP(MY_ADDRESS, 2400, 10, 11);
-byte measure = 0;
 
 void flash(int mil, int cycles = 1)
 {
@@ -83,7 +82,9 @@ void setup()
 
 #ifdef MOD_45
 
-  pinMode(CURRENT_PIN, OUTPUT);
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
+  pinMode(9, OUTPUT);
 
 #endif
 }
@@ -95,37 +96,48 @@ void loop()
   if (hcp.hcpReceive(&fromAddress, &data, true)) //-> returns true if data needs to be interpret.
     received(fromAddress, data);
 
+  if (hcp.didPropertyChange())
+  {
+    update();
+  }
+
   flash(50);
 
   delay(10);
 }
 
+void update()
+{
+#ifdef MOD_45
+
+    analogWrite(6, hcp.properties[0]);
+    analogWrite(5, hcp.properties[1]);
+    analogWrite(9, hcp.properties[2]);
+
+#endif
+}
+
 void received(int fromAddress, int data)
 {
-  if (data < VALUE_RANGE_MAX)
+  if (data <= VALUE_RANGE_MAX)
   {
     // Interpret data
-    
+
     hcp.respond(interpret(data));
-    
+
     //hcp.hcpSend(fromAddress, interpret(data)); // 255 = OK
   }
-  else if (data == ID_CU_PING)
+  else if (data == CMD_PING)
   {
     hcp.respondOkey();
     //hcp.hcpSend(fromAddress, ID_MCU_OKEY);
   }
-  else if (data == ID_CU_MEASUREMENT)
-  {
-    hcp.respondFailed();
-    //hcp.hcpSend(fromAddress, measure);
-  }
   else
   {
-     hcp.respondUnknown();
+    hcp.respondUnknown();
     //hcp.hcpSend(fromAddress, ID_MCU_UNKNOWN); // 254 = UNKNOWN
   }
-  
+
   flash(50);
 }
 
@@ -134,17 +146,17 @@ byte interpret(int val)
 {
 
 #ifdef MOD_47
-+
 
+  if (val >= 0 && val < 4)
     digitalWrite(val + 4, state[val]);
 
-    state[val] = !state[val];
-  }
-  return ;
+  state[val] = !state[val];
+}
+return 255;
 
 #endif
 
-  return 255;
+return 254;
 }
 
 

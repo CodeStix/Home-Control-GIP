@@ -35,6 +35,11 @@ class SR_HCP
         void respondUnknown();
         void respond(byte b);
         int response;
+        byte hcpReceiveFrom(int address);
+        bool enableResend;
+        byte properties[255];
+        void hcpSendSet(int address, byte property, byte value);
+        bool didPropertyChange();
 
       private:
         int lastSendMillis;
@@ -45,6 +50,9 @@ class SR_HCP
         void log(String str, bool force);
         void logln(String str, bool force);
         int lastDidReceiveFrom;
+        byte currentSetValue;
+        byte currentSetProperty;
+        bool propertyChange;
 };
 
 

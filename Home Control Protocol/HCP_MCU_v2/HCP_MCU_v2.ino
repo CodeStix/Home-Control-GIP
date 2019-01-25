@@ -21,6 +21,8 @@ long waitingTime = 0;
 
 String inString = "";
 String argument = "";
+int value = 0;
+int prop = 0;
 
 void flash(int mil, int cycles = 1)
 {
@@ -99,7 +101,25 @@ void loop()
         int data = inString.substring(1).toInt();
         
         Serial.println("<<< Sending " + String(data)  + " to " + argument.toInt());
+
         hcp.hcpSend(argument.toInt(), data);
+      }
+      else if (inString.startsWith("v"))
+      {
+        value = inString.substring(1).toInt();
+        
+        Serial.println("<<< Value is set to " + String(value));
+      }
+      else if (inString.startsWith("p"))
+      {
+        prop = inString.substring(1).toInt();
+        
+        Serial.println("<<< Selected property is now " + String(prop));
+      }
+      else if (inString == "set")
+      {
+        Serial.println("<<< Setting...");
+        hcp.hcpSendSet(argument.toInt(), prop, value);
       }
       else if (inString == "ok")
       {
