@@ -15,6 +15,7 @@
 #define CMD_UNKNOWN 253
 // Command that the slave receives.
 #define CMD_FETCH 252
+#define CMD_SET 250
 
 SR_HCP::SR_HCP(int addr, int baud) : software(SoftwareSerial(-1, -1))
 {
@@ -22,10 +23,11 @@ SR_HCP::SR_HCP(int addr, int baud) : software(SoftwareSerial(-1, -1))
     this->baud = baud;
     this->useHardwareSerial = true;
     this->firstByte = 0xf;
-    this->resendMillis = 600;
+    this->resendMillis = 675;
     this->enableLogging = true;
     this->responded = true;
     this->maxSendTries = 20;
+    this->enableResend = true;
 
     Serial.begin(baud);
 }
@@ -40,6 +42,7 @@ SR_HCP::SR_HCP(int addr, int baud, int rxPin, int txPin) : software(SoftwareSeri
     this->enableLogging = true;
     this->responded = true;
     this->maxSendTries = 20;
+    this->enableResend = true;
 
     this->software.begin(baud);
 }
@@ -141,21 +144,58 @@ bool SR_HCP::hcpReceive(int *fromAddress, int *data, bool sync = false)
                 return false;
         }
 
-        return true; // True so the program can interpret the responded data itself.
+        return true; // True so the user can interpret the responded data itself.
     }
 
     if (*data > VALUE_RANGE_MAX)
     {
         switch(*data)
         {
-            this->logln("User defined command.");
+            case CMD_SET:
+                this->logln("Waiting for property...");
+                this->currentSetProperty = hcpReceiveFrom(*fromAddress);
+                this->logln("Waiting for value...");
+                this->currentSetValue = hcpReceiveFrom(*fromAddress);
+                this->logln("Received set values.");
+                this->properties[this->currentSetProperty] = this->currentSetValue;
+                this->logln("Property " + String(this->currentSetProperty) + " is set to " + String(this->currentSetValue));
+                this->propertyChange = true;
+                return false;
+
+            case CMD_FETCH:
+                // WIP
+                return false;
+
+            default:
+                return true; // True so the user can interpret the data itself.
         }
     }
 
     return true;
 }
 
+void SR_HCP::hcpSendSet(int address, byte property, byte value)
+{
+    this->hcpSend(address, CMD_SET);
+    this->hcpSend(address, property);
+    this->hcpSend(address, value);
+    this->responded = true;
+}
 
+byte SR_HCP::hcpReceiveFrom(int address)
+{
+    int fromAddress, data;
+    bool d = true;
+
+    while (fromAddress != address || d)
+    {
+        while (!this->hcpReceive(&fromAddress, &data, true));
+
+        d = false;
+    }
+
+    return data;
+}
 
 void SR_HCP::hcpSend(int toAddress, int data)
 {
@@ -220,7 +260,7 @@ int SR_HCP::hcpRawPeek()
 
 void SR_HCP::hcpResendIfNeeded()
 {
-    if (!this->responded && millis() - this->lastSendMillis >= this->resendMillis && this->sendTries <= this->maxSendTries)
+    if (this->enableResend && !this->responded && millis() - this->lastSendMillis >= this->resendMillis && this->sendTries <= this->maxSendTries)
     {
         SR_HCP::hcpResend();
     }
@@ -241,19 +281,38 @@ bool SR_HCP::didRespond()
 void SR_HCP::respondOkey()
 {
     hcpSend(lastDidReceiveFrom, CMD_OKEY);
+
+    this->responded = true;
 }
 
 void SR_HCP::respondFailed()
 {
     hcpSend(lastDidReceiveFrom, CMD_FAILED);
+
+    this->responded = true;
 }
 
 void SR_HCP::respondUnknown()
 {
     hcpSend(lastDidReceiveFrom, CMD_UNKNOWN);
+
+    this->responded = true;
 }
 
 void SR_HCP::respond(byte b)
 {
     hcpSend(lastDidReceiveFrom, b);
+
+    this->responded = true;
+}
+
+bool SR_HCP::didPropertyChange()
+{
+    if (this->propertyChange)
+    {
+        this->propertyChange = false;
+        return true;
+    }
+
+    return false;
 }
