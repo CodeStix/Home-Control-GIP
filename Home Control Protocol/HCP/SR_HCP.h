@@ -40,6 +40,7 @@ class SR_HCP
         byte properties[255];
         void hcpSendSet(int address, byte property, byte value);
         bool didPropertyChange();
+        void hcpWaitReceiveDataFrom();
 
       private:
         int lastSendMillis;

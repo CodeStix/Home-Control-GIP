@@ -152,10 +152,13 @@ bool SR_HCP::hcpReceive(int *fromAddress, int *data, bool sync = false)
         switch(*data)
         {
             case CMD_SET:
+                this->respondOkey();
                 this->logln("Waiting for property...");
                 this->currentSetProperty = hcpReceiveFrom(*fromAddress);
+                this->respondOkey();
                 this->logln("Waiting for value...");
                 this->currentSetValue = hcpReceiveFrom(*fromAddress);
+                this->respondOkey();
                 this->logln("Received set values.");
                 this->properties[this->currentSetProperty] = this->currentSetValue;
                 this->logln("Property " + String(this->currentSetProperty) + " is set to " + String(this->currentSetValue));
@@ -176,9 +179,32 @@ bool SR_HCP::hcpReceive(int *fromAddress, int *data, bool sync = false)
 
 void SR_HCP::hcpSendSet(int address, byte property, byte value)
 {
-    this->hcpSend(address, CMD_SET);
+    int m = millis();
+    while (this->hcpReceiveFrom(address) != CMD_OKEY)
+    {
+        if (m + 500 > millis())
+        {
+            this->hcpSend(address, CMD_SET);
+            
+            m = millis();
+        }
+    }
+
+     m = millis();
+    while (this->hcpReceiveFrom(address) != CMD_OKEY)
+    {
+        if (m + 500 > millis())
+        {
+            this->hcpSend(address, CMD_SET);
+            
+            m = millis();
+        }
+    }
+
     this->hcpSend(address, property);
+    this->hcpWaitReceiveDataFrom();
     this->hcpSend(address, value);
+    this->hcpWaitReceiveDataFrom();
     this->responded = true;
 }
 
@@ -189,7 +215,7 @@ byte SR_HCP::hcpReceiveFrom(int address)
 
     while (fromAddress != address || d)
     {
-        while (!this->hcpReceive(&fromAddress, &data, true));
+        while (!this->hcpReceive(&fromAddress, &data, true)) ;
 
         d = false;
     }
@@ -197,12 +223,17 @@ byte SR_HCP::hcpReceiveFrom(int address)
     return data;
 }
 
+void SR_HCP::hcpWaitReceiveDataFrom(int address, byte requiredData)
+{
+    while (this->hcpReceiveFrom(address) != requiredData);
+}
+
 void SR_HCP::hcpSend(int toAddress, int data)
 {
     this->responded = false;
     this->lastSendMillis = millis();
     this->lastReceiver = toAddress;
-    this->lastSendData = data;
+    this->lastSendData = data; 
 
 	this->hcpRawSend(this->firstByte);
 	this->hcpRawSend(this->address);

@@ -89,12 +89,6 @@ void setup()
   flash(50, 10);
 }
 
-void connect()
-{
-
-
-}
-
 void loop()
 {
   int fromAddress, data;
@@ -186,6 +180,16 @@ void loop()
 
             if (header.indexOf("GET /47/d0") >= 0)
             {
+               hcp.hcpSend(47, 0);
+            }
+
+            if (header.indexOf("GET /47/d1") >= 0)
+            {
+               hcp.hcpSend(47, 1);
+            }
+
+            if (header.indexOf("GET /47/d2") >= 0)
+            {
                hcp.hcpSend(47, 2);
             }
 
@@ -200,7 +204,9 @@ void loop()
             client.println("<body><h1>Home Control</h1>");
             client.println("<p>Control panel</p>");
 
-            client.println("<p><a href=\"/47/d0\"><button class=\"button\">Toggle ventilator</button></a></p>");
+            client.println("<p><a href=\"/47/d0\"><button class=\"button\">Toggle lamp 1</button></a></p>");
+            client.println("<p><a href=\"/47/d1\"><button class=\"button\">Toggle lamp 2</button></a></p>");
+            client.println("<p><a href=\"/47/d2\"><button class=\"button\">Toggle lamp 3</button></a></p>");
 
             client.println("</body></html>");
             client.println();

@@ -1,0 +1,9 @@
+C:\Users\admin\Documents\GitHub\SR_GIP\Logboeken\Log-Booker\Log-Booker\Log-Booker\bin\Debug\Log-Booker.exe.config
+C:\Users\admin\Documents\GitHub\SR_GIP\Logboeken\Log-Booker\Log-Booker\Log-Booker\bin\Debug\Log-Booker.exe
+C:\Users\admin\Documents\GitHub\SR_GIP\Logboeken\Log-Booker\Log-Booker\Log-Booker\bin\Debug\Log-Booker.pdb
+C:\Users\admin\Documents\GitHub\SR_GIP\Logboeken\Log-Booker\Log-Booker\Log-Booker\bin\Debug\System.IO.Compression.dll
+C:\Users\admin\Documents\GitHub\SR_GIP\Logboeken\Log-Booker\Log-Booker\Log-Booker\obj\Debug\Log-Booker.csprojAssemblyReference.cache
+C:\Users\admin\Documents\GitHub\SR_GIP\Logboeken\Log-Booker\Log-Booker\Log-Booker\obj\Debug\Log-Booker.csproj.CoreCompileInputs.cache
+C:\Users\admin\Documents\GitHub\SR_GIP\Logboeken\Log-Booker\Log-Booker\Log-Booker\obj\Debug\Log-Booker.csproj.CopyComplete
+C:\Users\admin\Documents\GitHub\SR_GIP\Logboeken\Log-Booker\Log-Booker\Log-Booker\obj\Debug\Log-Booker.exe
+C:\Users\admin\Documents\GitHub\SR_GIP\Logboeken\Log-Booker\Log-Booker\Log-Booker\obj\Debug\Log-Booker.pdb
