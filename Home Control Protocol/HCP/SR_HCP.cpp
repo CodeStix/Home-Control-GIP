@@ -17,7 +17,7 @@
 #define CMD_FETCH 252
 #define CMD_SET 250
 
-SR_HCP::SR_HCP(int addr, int baud) : software(SoftwareSerial(-1, -1))
+SR_HCP::SR_HCP(byte addr, int baud) : software(SoftwareSerial(-1, -1))
 {
     this->address = addr;
     this->baud = baud;
@@ -32,7 +32,7 @@ SR_HCP::SR_HCP(int addr, int baud) : software(SoftwareSerial(-1, -1))
     Serial.begin(baud);
 }
 
-SR_HCP::SR_HCP(int addr, int baud, int rxPin, int txPin) : software(SoftwareSerial(rxPin, txPin))
+SR_HCP::SR_HCP(byte addr, int baud, int rxPin, int txPin) : software(SoftwareSerial(rxPin, txPin))
 {
     this->address = addr;
     this->baud = baud;
@@ -64,10 +64,11 @@ void SR_HCP::logln(String str, bool force = false)
 }
 
 // Returns true if data needs to be interpret, false if it is a command (interpret here) abd false if data isn't yours.
-bool SR_HCP::hcpReceive(int *fromAddress, int *data, bool sync = false)
+bool SR_HCP::hcpReceive(byte *fromAddress, byte *data, bool sync = false)
 {
     if (sync)
-        while (this->hcpRawAvailable() < 4);
+        while (this->hcpRawAvailable() < 4)
+            delay(10);
     else if (this->hcpRawAvailable() < 4)
         return false;
     
@@ -102,7 +103,7 @@ bool SR_HCP::hcpReceive(int *fromAddress, int *data, bool sync = false)
     hcpRawRead();
 
     *fromAddress = this->hcpRawRead();
-    int toAddress = this->hcpRawRead();
+    byte toAddress = this->hcpRawRead();
     *data = this->hcpRawRead();
 
     if (toAddress != this->address)
@@ -177,58 +178,36 @@ bool SR_HCP::hcpReceive(int *fromAddress, int *data, bool sync = false)
     return true;
 }
 
-void SR_HCP::hcpSendSet(int address, byte property, byte value)
+void SR_HCP::hcpSendSet(byte address, byte property, byte value)
 {
-    int m = millis();
-    while (this->hcpReceiveFrom(address) != CMD_OKEY)
-    {
-        if (m + 500 > millis())
-        {
-            this->hcpSend(address, CMD_SET);
-            
-            m = millis();
-        }
-    }
-
-     m = millis();
-    while (this->hcpReceiveFrom(address) != CMD_OKEY)
-    {
-        if (m + 500 > millis())
-        {
-            this->hcpSend(address, CMD_SET);
-            
-            m = millis();
-        }
-    }
-
+    logln("Sending set");
+    this->hcpSend(address, CMD_SET);
+    this->hcpReceiveFrom(address);
+    logln("Sending property value");
     this->hcpSend(address, property);
-    this->hcpWaitReceiveDataFrom();
+    this->hcpReceiveFrom(address);
+    logln("Sending value");
     this->hcpSend(address, value);
-    this->hcpWaitReceiveDataFrom();
+    this->hcpReceiveFrom(address);
+
     this->responded = true;
 }
 
-byte SR_HCP::hcpReceiveFrom(int address)
+byte SR_HCP::hcpReceiveFrom(byte address)
 {
-    int fromAddress, data;
+    byte fromAddress, data;
     bool d = true;
 
-    while (fromAddress != address || d)
+    do
     {
-        while (!this->hcpReceive(&fromAddress, &data, true)) ;
-
-        d = false;
+        d = this->hcpReceive(&fromAddress, &data, true);
     }
+    while (fromAddress != address && d);
 
     return data;
 }
 
-void SR_HCP::hcpWaitReceiveDataFrom(int address, byte requiredData)
-{
-    while (this->hcpReceiveFrom(address) != requiredData);
-}
-
-void SR_HCP::hcpSend(int toAddress, int data)
+void SR_HCP::hcpSend(byte toAddress, byte data)
 {
     this->responded = false;
     this->lastSendMillis = millis();
@@ -241,7 +220,7 @@ void SR_HCP::hcpSend(int toAddress, int data)
 	this->hcpRawSend(data);
 }
 
-void SR_HCP::hcpRawSend(int data)
+void SR_HCP::hcpRawSend(byte data)
 {
 	if (this->useHardwareSerial)
 	{
@@ -253,7 +232,7 @@ void SR_HCP::hcpRawSend(int data)
 	}
 }
 
-int SR_HCP::hcpRawRead()
+byte SR_HCP::hcpRawRead()
 {
 	if (this->useHardwareSerial)
 	{
@@ -265,7 +244,7 @@ int SR_HCP::hcpRawRead()
 	}
 }
 
-int SR_HCP::hcpRawAvailable()
+byte SR_HCP::hcpRawAvailable()
 {
 	if (this->useHardwareSerial)
 	{
@@ -277,7 +256,7 @@ int SR_HCP::hcpRawAvailable()
 	}
 }
 
-int SR_HCP::hcpRawPeek()
+byte SR_HCP::hcpRawPeek()
 {
 	if (this->useHardwareSerial)
 	{

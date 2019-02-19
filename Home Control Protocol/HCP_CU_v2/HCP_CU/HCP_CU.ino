@@ -1,11 +1,7 @@
 #include "SR_HCP.h"
 
-#define MEASURE_PIN 9
-
-#define MOD_45
-//#define MOD_46
-//#define MOD_47
-//#define MOD_48
+// Replace number with current salve module
+#define MOD_47
 
 // COM13
 #ifdef MOD_45
@@ -44,20 +40,15 @@ bool state[4] = { false, false, false, false };
 #define CMD_SET 250
 /* Controlled unit */
 
-#define LED_GREEN 3
-#define LED_RED 2
-
 SR_HCP hcp = SR_HCP(MY_ADDRESS, 2400, 10, 11);
 
 void flash(int mil, int cycles = 1)
 {
   for (int i = 0; i < cycles; i++)
   {
-    digitalWrite(LED_GREEN, true);
-    digitalWrite(LED_RED, true);
+    digitalWrite(LED_BUILTIN, true);
     delay(mil / 2);
-    digitalWrite(LED_GREEN, false);
-    digitalWrite(LED_RED, false);
+    digitalWrite(LED_BUILTIN, false);
     delay(mil / 2);
   }
 }
@@ -65,9 +56,7 @@ void flash(int mil, int cycles = 1)
 
 void setup()
 {
-  pinMode(LED_GREEN, OUTPUT);
-  pinMode(LED_RED, OUTPUT);
-  //pinMode(BUTTON, INPUT_PULLUP);
+  pinMode(LED_BUILTIN, OUTPUT);
 
   Serial.begin(9600);
 
@@ -78,26 +67,34 @@ void setup()
 
   delay(100);
 
-  flash(100, 5);
+  flash(100, 2);
 
 #ifdef MOD_45
-
   pinMode(5, OUTPUT);
   pinMode(6, OUTPUT);
   pinMode(9, OUTPUT);
-
 #endif
+#ifdef MOD_47
+  for(int i = 4; i <= 7; i++)
+  {
+    pinMode(i, OUTPUT);
+    digitalWrite(i, true);
+  }
+#endif
+
 }
 
 void loop()
 {
-  int fromAddress, data;
+  byte fromAddress, data;
 
   if (hcp.hcpReceive(&fromAddress, &data, true)) //-> returns true if data needs to be interpret.
     received(fromAddress, data);
 
   if (hcp.didPropertyChange())
   {
+    Serial.println("Property did change");
+    
     update();
   }
 
@@ -109,11 +106,9 @@ void loop()
 void update()
 {
 #ifdef MOD_45
-
     analogWrite(6, hcp.properties[0]);
     analogWrite(5, hcp.properties[1]);
     analogWrite(9, hcp.properties[2]);
-
 #endif
 }
 
@@ -144,19 +139,17 @@ void received(int fromAddress, int data)
 // Interpret data between 0 and VALUE_RANGE_MAX, commands are not included.
 byte interpret(int val)
 {
-
 #ifdef MOD_47
-
   if (val >= 0 && val < 4)
+  {
     digitalWrite(val + 4, state[val]);
-
+    Serial.println("Output " + String(val + 4) + " is " + String(state[val]));
+  }
   state[val] = !state[val];
-}
-return 255;
-
+  return 255;
 #endif
 
-return 254;
+  return 254;
 }
 
 

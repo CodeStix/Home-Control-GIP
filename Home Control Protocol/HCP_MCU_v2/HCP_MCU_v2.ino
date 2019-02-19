@@ -61,12 +61,18 @@ void setup()
 {
   pinMode(LED_BUILTIN, OUTPUT);
 
+  delay(200);
+
+  flash(50, 2);
+
   Serial.begin(9600);
 
   Serial.print("H-MCU Startup Address: ");
   Serial.println(MY_ADDRESS);
 
-  delay(100);
+  delay(200);
+
+  flash(50, 2);
 
   // Connect to Wi-Fi network with SSID and password
   Serial.print("Connecting to ");
@@ -74,7 +80,7 @@ void setup()
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED)
   {
-    delay(500);
+    flash(500, 1);
     Serial.print(".");
   }
   // Print local IP address and start web server
@@ -84,14 +90,14 @@ void setup()
   Serial.println(WiFi.localIP());
   server.begin();
 
-  delay(100);
+  delay(200);
 
-  flash(50, 10);
+  flash(50, 4);
 }
 
 void loop()
 {
-  int fromAddress, data;
+  byte fromAddress, data;
 
   if (hcp.hcpReceive(&fromAddress, &data, false))
     received(fromAddress, data);
