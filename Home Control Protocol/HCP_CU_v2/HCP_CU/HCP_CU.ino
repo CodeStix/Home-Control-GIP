@@ -1,11 +1,14 @@
 #include "SR_HCP.h"
 
 // Replace number with current salve module
-#define MOD_47
+#define MOD_45
 
 // COM13
 #ifdef MOD_45
 #define MY_ADDRESS 45
+bool enableFade = false;
+bool fadeState = false;
+float fade = 1.0f;
 #endif
 
 // COM12
@@ -26,11 +29,6 @@ bool state[4] = { false, false, false, false };
 
 // We will accept values until this point, higher values will get recognized as a command.
 #define VALUE_RANGE_MAX 240
-// Valid address ranges for each device type.
-#define MCU_ADDRESS_RANGE_MIN 0
-#define MCU_ADDRESS_RANGE_MAX 15
-#define CU_ADDRESS_RANGE_MIN 16
-#define CU_ADDRESS_RANGE_MAX 255
 // Identifiers(error, info, commands, requests, ...) that will be recognized by the main unit.
 #define ID_MCU_OKEY 255
 #define ID_MCU_UNKNOWN 254
@@ -40,7 +38,7 @@ bool state[4] = { false, false, false, false };
 #define CMD_SET 250
 /* Controlled unit */
 
-SR_HCP hcp = SR_HCP(MY_ADDRESS, 2400, 10, 11);
+SR_HCP hcp = SR_HCP(MY_ADDRESS, 2400, 11, 10);
 
 void flash(int mil, int cycles = 1)
 {
@@ -74,14 +72,19 @@ void setup()
   pinMode(6, OUTPUT);
   pinMode(9, OUTPUT);
 #endif
+#ifdef MOD_46
+  pinMode(3, OUTPUT);
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
+  pinMode(9, OUTPUT);
+#endif
 #ifdef MOD_47
-  for(int i = 4; i <= 7; i++)
+  for (int i = 4; i <= 7; i++)
   {
     pinMode(i, OUTPUT);
     digitalWrite(i, true);
   }
 #endif
-
 }
 
 void loop()
@@ -94,21 +97,48 @@ void loop()
   if (hcp.didPropertyChange())
   {
     Serial.println("Property did change");
-    
+
     update();
   }
 
-  flash(50);
+#ifdef MOD_45
+  if (enableFade)
+  {
+    if (fadeState && fade >= 1.0f)
+    {
+      fadeState = false;
+    }
+    else if (!fadeState && fade <= 0.2f)
+    {
+      fadeState = true;
+    }
 
-  delay(10);
+    fade += fadeState ? 0.001f : -0.001f;
+
+    analogWrite(6, hcp.properties[0] * fade);
+    analogWrite(5, hcp.properties[1] * fade);
+    analogWrite(9, hcp.properties[2] * fade);
+
+    delay(20);
+  }
+#endif
+
+  flash(15);
 }
 
 void update()
 {
 #ifdef MOD_45
-    analogWrite(6, hcp.properties[0]);
-    analogWrite(5, hcp.properties[1]);
-    analogWrite(9, hcp.properties[2]);
+  analogWrite(6, hcp.properties[0]);
+  analogWrite(5, hcp.properties[1]);
+  analogWrite(9, hcp.properties[2]);
+  enableFade = hcp.properties[3] >= 128;
+#endif
+#ifdef MOD_46
+  analogWrite(3, hcp.properties[0]);
+  analogWrite(6, hcp.properties[1]);
+  analogWrite(5, hcp.properties[2]);
+  analogWrite(9, hcp.properties[3]);
 #endif
 }
 
@@ -149,8 +179,20 @@ byte interpret(int val)
   return 255;
 #endif
 
+#ifdef MOD_45
+  if (val == 0)
+  {
+    hcp.properties[0] = 0;
+    hcp.properties[1] = 0;
+    hcp.properties[2] = 0;
+    hcp.properties[3] = 0;
+    
+    analogWrite(6, hcp.properties[0]);
+    analogWrite(5, hcp.properties[1]);
+    analogWrite(9, hcp.properties[2]);
+  }
+  return 255;
+#endif
+
   return 254;
 }
-
-
-

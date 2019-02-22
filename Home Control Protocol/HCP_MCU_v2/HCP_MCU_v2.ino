@@ -3,18 +3,10 @@
 
 #define MY_ADDRESS 1
 
-
-// Valid address ranges for each device type.
-#define MCU_ADDRESS_RANGE_MIN 0
-#define MCU_ADDRESS_RANGE_MAX 15
-#define CU_ADDRESS_RANGE_MIN 16
-#define CU_ADDRESS_RANGE_MAX 255
 // Identifiers(error, info, commands, requests, ...) that will be recognized by the main unit.
 #define ID_MCU_OKEY 255
 #define ID_MCU_UNKNOWN 254
 #define ID_MCU_ERROR 253
-// Identifiers(error, info, commands, requests, ...) that will be recognized  by the controlled units (this).
-#define ID_CU_PING 255
 
 /* Main control unit */
 
@@ -172,7 +164,7 @@ void loop()
       if (client.available())
       {
         char c = client.read();
-        Serial.write(c);
+        //Serial.write(c);
         header += c;
         if (c == '\n')
         {
@@ -188,15 +180,45 @@ void loop()
             {
                hcp.hcpSend(47, 0);
             }
-
-            if (header.indexOf("GET /47/d1") >= 0)
+            else if (header.indexOf("GET /47/d1") >= 0)
             {
                hcp.hcpSend(47, 1);
             }
-
-            if (header.indexOf("GET /47/d2") >= 0)
+            else if (header.indexOf("GET /47/d2") >= 0)
             {
                hcp.hcpSend(47, 2);
+            }
+            else if (header.indexOf("GET /45/red") >= 0)
+            {
+                hcp.hcpSendSet(45, 0, 255);
+            }
+            else if (header.indexOf("GET /45/green") >= 0)
+            {
+                hcp.hcpSendSet(45, 1, 255);
+            }
+            else if (header.indexOf("GET /45/blue") >= 0)
+            {
+                hcp.hcpSendSet(45, 2, 255);
+            }
+            else if (header.indexOf("GET /45/clear") >= 0)
+            {
+                hcp.hcpSend(45, 0);
+            }
+            else if (header.indexOf("GET /46/led1on") >= 0)
+            {
+                hcp.hcpSendSet(46, 0, 255);
+            }
+            else if (header.indexOf("GET /46/led1off") >= 0)
+            {
+                hcp.hcpSendSet(46, 0, 0);
+            }
+            else if (header.indexOf("GET /46/led2on") >= 0)
+            {
+                hcp.hcpSendSet(46, 2, 255);
+            }
+            else if (header.indexOf("GET /46/led2off") >= 0)
+            {
+                hcp.hcpSendSet(46, 2, 0);
             }
 
             client.println("<!DOCTYPE html><html>");
@@ -210,9 +232,20 @@ void loop()
             client.println("<body><h1>Home Control</h1>");
             client.println("<p>Control panel</p>");
 
-            client.println("<p><a href=\"/47/d0\"><button class=\"button\">Toggle lamp 1</button></a></p>");
-            client.println("<p><a href=\"/47/d1\"><button class=\"button\">Toggle lamp 2</button></a></p>");
-            client.println("<p><a href=\"/47/d2\"><button class=\"button\">Toggle lamp 3</button></a></p>");
+            client.println("<p>Lampen</p>");
+            //client.println("<p><a href=\"/47/d0\"><button class=\"button\">Toggle lamp 1</button></a></p>");
+            client.println("<p><a href=\"/47/d1\"><button class=\"button\">Toggle lamp 1</button></a></p>");
+            client.println("<p><a href=\"/47/d2\"><button class=\"button\">Toggle lamp 2</button></a></p>");
+            client.println("<p>Led strip</p>");
+            client.println("<p><a href=\"/45/red\"><button class=\"button\" style=\"background-color: red;\">Rood</button></a></p>");
+            client.println("<p><a href=\"/45/green\"><button class=\"button\" style=\"background-color: green;\">Groen</button></a></p>");
+            client.println("<p><a href=\"/45/blue\"><button class=\"button\" style=\"background-color: blue;\">Blauw</button></a></p>");
+            client.println("<p><a href=\"/45/clear\"><button class=\"button\">Reset</button></a></p>");
+            client.println("<p>Test leds</p>");
+            client.println("<p><a href=\"/46/led1on\"><button class=\"button\" style=\"background-color: green;\">Groen aan</button></a></p>");
+            client.println("<p><a href=\"/46/led1off\"><button class=\"button\" style=\"background-color: darkgreen;\">Groen uit</button></a></p>");
+            client.println("<p><a href=\"/46/led2on\"><button class=\"button\" style=\"background-color: yellow;\">Geel aan</button></a></p>");
+            client.println("<p><a href=\"/46/led2off\"><button class=\"button\" style=\"background-color: olive;\">Geel uit</button></a></p>");
 
             client.println("</body></html>");
             client.println();
