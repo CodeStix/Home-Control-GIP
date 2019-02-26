@@ -3,16 +3,22 @@
 
 #define MY_ADDRESS 1
 
-// Identifiers(error, info, commands, requests, ...) that will be recognized by the main unit.
-#define ID_MCU_OKEY 255
-#define ID_MCU_UNKNOWN 254
-#define ID_MCU_ERROR 253
+// We will accept values until this point, higher values will get recognized as a command.
+#define VALUE_RANGE_MAX 240
+// Commands that will be recognized by the main unit.
+#define CMD_OKEY 255
+#define CMD_UNKNOWN 254
+#define CMD_ERROR 253
+// Commands that will be recognized by the controlled units.
+#define CMD_PING 255
+#define CMD_SET 250
 
-/* Main control unit */
+/* Main control unit (H-MCU) */
 
 SR_HCP hcp = SR_HCP(MY_ADDRESS, 2400, 12, 14);
 WiFiServer server(80);
 
+// Credentials for the WiFiServer
 const char* ssid     = "PollenPatatten";
 const char* password = "Ziektes123";
 
@@ -35,15 +41,15 @@ void flash(int mil, int cycles = 1)
 
 void received(int fromAddress, int data)
 {
-  if (data == ID_MCU_OKEY) // 255 = OK
+  if (data == CMD_OKEY) // 255 = OK
   {
     flash(100);
   }
-  else if (data == ID_MCU_UNKNOWN) // 254 = UNKNOWN
+  else if (data == CMD_UNKNOWN) // 254 = UNKNOWN
   {
     flash(100, 5);
   }
-  else if (data == ID_MCU_ERROR) // 253 = ERROR
+  else if (data == CMD_ERROR) // 253 = ERROR
   {
     flash(100, 3);
   }
@@ -72,14 +78,15 @@ void setup()
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED)
   {
-    flash(500, 1);
+    flash(100, 1);
     Serial.print(".");
   }
   // Print local IP address and start web server
   Serial.println("");
   Serial.println("WiFi connected.");
-  Serial.println("IP address: ");
+  Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+  
   server.begin();
 
   delay(200);
@@ -264,7 +271,9 @@ void loop()
     }
 
     header = "";
+    
     client.stop();
+    
     Serial.println("Client disconnected.");
     Serial.println("");
   }

@@ -29,14 +29,15 @@ bool state[4] = { false, false, false, false };
 
 // We will accept values until this point, higher values will get recognized as a command.
 #define VALUE_RANGE_MAX 240
-// Identifiers(error, info, commands, requests, ...) that will be recognized by the main unit.
-#define ID_MCU_OKEY 255
-#define ID_MCU_UNKNOWN 254
-#define ID_MCU_ERROR 253
-// Identifiers(error, info, commands, requests, ...) that will be recognized  by the controlled units (this).
+// Commands that will be recognized by the main unit.
+#define CMD_OKEY 255
+#define CMD_UNKNOWN 254
+#define CMD_ERROR 253
+// Commands that will be recognized  by the controlled units (this).
 #define CMD_PING 255
 #define CMD_SET 250
-/* Controlled unit */
+
+/* Controlled unit (H-CU) */
 
 SR_HCP hcp = SR_HCP(MY_ADDRESS, 2400, 11, 10);
 
@@ -145,25 +146,13 @@ void update()
 void received(int fromAddress, int data)
 {
   if (data <= VALUE_RANGE_MAX)
-  {
-    // Interpret data
-
     hcp.respond(interpret(data));
-
-    //hcp.hcpSend(fromAddress, interpret(data)); // 255 = OK
-  }
   else if (data == CMD_PING)
-  {
     hcp.respondOkey();
-    //hcp.hcpSend(fromAddress, ID_MCU_OKEY);
-  }
   else
-  {
     hcp.respondUnknown();
-    //hcp.hcpSend(fromAddress, ID_MCU_UNKNOWN); // 254 = UNKNOWN
-  }
 
-  flash(50);
+  flash(10);
 }
 
 // Interpret data between 0 and VALUE_RANGE_MAX, commands are not included.
@@ -176,9 +165,8 @@ byte interpret(int val)
     Serial.println("Output " + String(val + 4) + " is " + String(state[val]));
   }
   state[val] = !state[val];
-  return 255;
+  return CMD_OKEY;
 #endif
-
 #ifdef MOD_45
   if (val == 0)
   {
@@ -191,8 +179,7 @@ byte interpret(int val)
     analogWrite(5, hcp.properties[1]);
     analogWrite(9, hcp.properties[2]);
   }
-  return 255;
+  return CMD_OKEY;
 #endif
-
-  return 254;
+  return CMD_UNKNOWN;
 }
