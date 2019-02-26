@@ -1,6 +1,4 @@
-
-
-bool prepareReceive(String received, float* f1, float* f2, float* f3, int* i1, int* i2, char* c)
+bool prepareReceive(String received, float* f1, float* f2, float* f3, int* i1, int* i2, String* c)
 {
   if (received.length() < 14)
     return false;
@@ -12,7 +10,7 @@ bool prepareReceive(String received, float* f1, float* f2, float* f3, int* i1, i
   if (cs != newCs)
   {
     Serial.println("Faulty integrity!!");
-    
+
     return false;
   }
 
@@ -20,31 +18,53 @@ bool prepareReceive(String received, float* f1, float* f2, float* f3, int* i1, i
 
   String splitted[DATA_COUNT];
 
-  for(int i = 0, j = 0; i < data.length() && j < DATA_COUNT; i++)
+  for (int i = 0, j = 0; i < data.length() && j < DATA_COUNT; i++)
   {
-    char c = data[i];
+    char current = data[i];
 
-    if (c == '<' || c == '>' || c == ' ')
+    if (current == '<' || current == '>' || current == ' ')
       continue;
 
-    if (isAlphaNumeric(c) || c == '.')
+    if (isAlphaNumeric(current) || current == '.')
     {
-      splitted[j].concat(c);
+      splitted[j].concat(current);
     }
     else
     {
       Serial.print("Data #" + String(j) + ": ");
       Serial.println(splitted[j]);
 
-      switch(j)
+      switch (j)
       {
-        //WIP
+        case 0:
+          *f1 = splitted[j].toFloat();
+          break;
+
+        case 1:
+          *f2 = splitted[j].toFloat();
+          break;
+          
+        case 2:
+          *f3 = splitted[j].toFloat();
+          break;
+          
+        case 3:
+          *i1 = splitted[j].toInt();
+          break;
+          
+        case 4:
+          *i2 = splitted[j].toInt();
+          break;
+
+        case 5:
+          *c = splitted[j];
+          break;
       }
-      
+
       j++;
     }
   }
-  
+
   Serial.print("Total data: ");
   Serial.println(data);
   Serial.print("Checksum: ");
@@ -53,7 +73,7 @@ bool prepareReceive(String received, float* f1, float* f2, float* f3, int* i1, i
   return true;
 }
 
-String prepareSend(float f1, float f2, float f3, int i1, int i2, char c)
+String prepareSend(float f1, float f2, float f3, int i1, int i2, String c)
 {
   String str = "<" + String(f1) + "," + String(f2) + "," + String(f3) + "," + String(i1) + "," + String(i2) + "," + c + ",>";
 
@@ -82,12 +102,12 @@ String byteToString(byte b)
 byte stringToByte(String str)
 {
   byte r = 0;
-  
+
   for (int l = 0; l < 2; l++)
   {
     char c = str[l];
     byte v;
-    
+
     for (byte i = 0; i < 16; i++)
       if (hex[i] == c)
       {
@@ -110,40 +130,24 @@ void setup()
 
   Serial.println("Starting....");
 
-  String toSend = prepareSend(2.222222222222f, 19.0f, 316.0f, 138, 696969, 'Z');
+  String toSend = prepareSend(2.222222222222f, 19.0f, 316.0f, 138, 696969, "Z");
 
   Serial.println(toSend);
 
   float f1, f2, f3;
   int i1, i2;
-  char c;
+  String c;
 
   prepareReceive(toSend, &f1, &f2, &f3, &i1, &i2, &c);
 
-  /*for(byte b = 0; b < 256; b++)
-  {
-    Serial.print(b);
-    Serial.print("\t:\t");
-
-    String c = byteToString(b);
-    
-    Serial.print(c);
-    Serial.print("\t:\t");
-
-    byte d = stringToByte(c);
-    
-    Serial.println(d);
-
-    
-    delay(100);
-  }*/
-
-
+  Serial.println("f1: " + String(f1));
+  Serial.println("f2: " + String(f2));
+  Serial.println("f3: " + String(f3));
+  Serial.println("i1: " + String(i1));
+  Serial.println("i2: " + String(i2));
+  Serial.println("c: " + c);
 }
 
 void loop()
 {
 }
-
-
-
