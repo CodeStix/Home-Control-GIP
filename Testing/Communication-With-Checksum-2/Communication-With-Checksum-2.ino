@@ -128,7 +128,7 @@ void setup()
 {
   Serial.begin(9600);
 
-  Serial.println("Starting....");
+  Serial.println("Starting checksum communication test....");
 
   String toSend = prepareSend(2.222222222222f, 19.0f, 316.0f, 138, 696969, "Z");
 
