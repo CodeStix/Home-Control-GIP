@@ -234,7 +234,7 @@ void loop()
             client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
             client.println(".button { background-color: #195B6A; border: none; color: white; padding: 16px 40px;");
             client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
-            client.println(".button2 {background-color: #77878A;}</style></head>");
+            client.println(".button2 { background-color: #77878A;}</style></head>");
 
             client.println("<body><h1>Home Control</h1>");
             client.println("<p>Control panel</p>");
