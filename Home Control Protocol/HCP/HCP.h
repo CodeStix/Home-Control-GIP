@@ -6,7 +6,7 @@
 #ifndef HCP_h
 #define HCP_h
 
-#include "<Arduino.h>"
+#include "Arduino.h"
 #include "SoftwareSerial.h"
 #include "HCP.h"
 #include "Packet.h"
