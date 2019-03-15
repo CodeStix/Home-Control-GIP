@@ -21,8 +21,9 @@ class HCP
         bool useHardwareSerial;
         int baud;
         SoftwareSerial software;
-        bool enableLogging = false;
+        bool enableLogging;
         Packet packets[8];
+        Device knownDevices[240];
 
         void send(Packet p);
         void receive();
@@ -39,8 +40,6 @@ class HCP
         byte readRaw();
         byte peekRaw();
         int availableRaw();
-
-        
 };
 
 #endif

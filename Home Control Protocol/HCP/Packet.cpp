@@ -44,6 +44,7 @@ Packet::Packet(byte data[8])
     this->responded = false;
 }
 
+/// Converts this packet to its appropriate bytes representation.
 byte * Packet::getBytes()
 {
     byte data[8];
