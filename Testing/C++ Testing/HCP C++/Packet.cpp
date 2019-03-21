@@ -6,6 +6,11 @@ using namespace std;
 unsigned char Packet::identifierByte = 0xf;
 unsigned char Packet::currentIndex = 0;
 
+Packet::Packet()
+{
+    this->isUsed = false;
+}
+
 Packet::Packet(unsigned char data[8])
 {
     if (data[0] != identifierByte)
@@ -21,6 +26,8 @@ Packet::Packet(unsigned char data[8])
     this->data2 = data[5];
     this->data3 = data[6];
     this->data4 = data[7];
+
+    this->isUsed = true;
 }
 
 Packet::Packet(unsigned char fromAddress, unsigned char tooAddress, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4)
@@ -34,11 +41,13 @@ Packet::Packet(unsigned char fromAddress, unsigned char tooAddress, unsigned cha
     this->data2 = data2;
     this->data3 = data3;
     this->data4 = data4;
+
+    this->isUsed = true;
 }
 
 char* Packet::to_string()
 {
-    static char str[40];
+    static char str[50];
 
     sprintf(str, "(Index, %d, From: %d, Too: %d, Data: %x %x %x %x)", this->index, this->from, this->too, this->data1, this->data2, this->data3, this->data4);
     
