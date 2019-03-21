@@ -1,9 +1,9 @@
 class Device
 {
     public:
-        Device(byte address);
-        byte getAddress();
+        Device(unsigned char address);
+        unsigned char get_address();
     
     private:
-        byte address;
+        unsigned char address;
 };

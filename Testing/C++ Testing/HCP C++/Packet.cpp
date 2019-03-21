@@ -1,71 +1,63 @@
+#include <stdio.h>
 #include "Packet.h"
+
+using namespace std;
 
 unsigned char Packet::identifierByte = 0xf;
 unsigned char Packet::currentIndex = 0;
 
-/// Create a new packet from raw data.
-Packet::Packet(unsigned char fromAddress, unsigned char toAddress, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4)
-{
-    this->creationMillis = 0;//millis();
-
-    this->index = currentIndex++;
-    this->fromAddress = fromAddress;
-    this->toAddress = toAddress;
-    this->data1 = data1;
-    this->data2 = data2;
-    this->data3 = data3;
-    this->data4 = data4;
-
-    this->isValid = true;
-    this->responded = false;
-}
-
-/// Create a packet from received bytes. 
 Packet::Packet(unsigned char data[8])
 {
-    this->creationMillis = 0;//millis();
-
-    if (data[0] != Packet::identifierByte)
+    if (data[0] != identifierByte)
     {
         this->isValid = false;
         return;
     }
 
     this->index = data[1];
-    this->fromAddress = data[2];
-    this->toAddress = data[3];
+    this->from = data[2];
+    this->too = data[3];
     this->data1 = data[4];
     this->data2 = data[5];
     this->data3 = data[6];
     this->data4 = data[7];
-
-    this->isValid = true;
-    this->responded = false;
 }
 
-/// Converts this packet to its appropriate bytes representation.
-unsigned char * Packet::getBytes()
+Packet::Packet(unsigned char fromAddress, unsigned char tooAddress, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4)
 {
-    unsigned char data[8];
+    this->isValid = true;
 
-    data[0] = Packet::identifierByte;
+    this->index = Packet::currentIndex++;
+    this->from = fromAddress;
+    this->too = tooAddress;
+    this->data1 = data1;
+    this->data2 = data2;
+    this->data3 = data3;
+    this->data4 = data4;
+}
+
+char* Packet::to_string()
+{
+    static char str[40];
+
+    sprintf(str, "(Index, %d, From: %d, Too: %d, Data: %x %x %x %x)", this->index, this->from, this->too, this->data1, this->data2, this->data3, this->data4);
+    
+    return str;
+    //printf("(From: %d, Too: %d, Data: %x %x %x %x)", this->from, this->too, this->data1, this->data2, this->data3, this->data4);
+}
+
+unsigned char* Packet::get_bytes()
+{
+    static unsigned char data[8];
+
+    data[0] = identifierByte;
     data[1] = this->index;
-    data[2] = this->fromAddress;
-    data[3] = this->toAddress;
+    data[2] = this->from;
+    data[3] = this->too;
     data[4] = this->data1;
     data[5] = this->data2;
     data[6] = this->data3;
     data[7] = this->data4;
 
     return data;
-}
-
-int Packet::getCreationMillis()
-{
-    return this->creationMillis;
-}
-
-bool Packet::getIsValid()
-{
-    return this->isValid;
 }

@@ -1,11 +1,11 @@
 #include "Device.h"
 
-Device::Device(byte address)
+Device::Device(unsigned char address)
 {
     this->address = address;
 }
 
-byte Device::getAddress()
+unsigned char Device::get_address()
 {
     return this->address;
 }
