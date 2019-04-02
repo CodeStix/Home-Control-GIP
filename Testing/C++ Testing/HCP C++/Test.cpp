@@ -1,65 +1,39 @@
-#include <stdio.h>
-#include "Packet.cpp"
-
-#define MAX_CONCURRENT_REQUESTS 16
+#define NO_ARDUINO
 #define MY_ADDRESS 16
 
-unsigned char* sendReceive(unsigned char data[8])
-{
-    printf("Packet --> send --> respond\n");
-    data[4] = 0;
-    data[5] = 0;
-    data[6] = 0;
-    data[7] = 0;
-    return data;
-    /*for(int i = 0; i < 8; i++)
-    {
-        printf("Sending data with index %d: %d\n", i, data[i]);
-    }*/
-}
+#include <stdio.h>
+#include "HCPClient.cpp"
+#include <ncurses.h>
 
-Packet pending[MAX_CONCURRENT_REQUESTS];
+#define MAX_CONCURRENT_REQUESTS 16
 
-bool send(unsigned char too, unsigned char data1, unsigned char data2, unsigned char data3, unsigned char data4)
-{
-    Packet a;
-
-    // Find an available packet.
-    for(int i = 0; i < MAX_CONCURRENT_REQUESTS; i++)
-    {
-        if (!pending[i].isUsed)
-        {
-            pending[i] = Packet(MY_ADDRESS, too, data1, data2, data3, data4);
-            a = pending[i];
-            break;
-        }
-        else if (i == MAX_CONCURRENT_REQUESTS - 1)
-            return false;
-    }
-
-    printf("Found unused packet: %s", a.to_string());
-
-    return true;
-}
-
+typedef void (*ResponseHandler)(void);
 
 int main()
 {
-    //int from;
-    //scanf("%d", &from);
+    HCPClient cl = HCPClient(18);
 
+    while(true)
+    {
+        cl.run();
 
-    //for(int i = 0; i < 8; i++)
-    //{
-    //    printf("%s", pending[i].isUsed ? "true" : "false");
-    //}
+        char c = getchar();
 
-
-    //Packet test1(255, 160, 0, 0, 0, 1);
-
-    //unsigned char * data = sendReceive(test1.to_bytes());
+        if (c == 'r')
+        {
+            Request* r;
+            cl.request(r, 10, 0, 0, 0, 1);
+        }
+        else if (c == 'a')
+        {
+            
+        }
+        
+        cl.run();
+    }
 
 
 
     return 0;
 }
+

@@ -9,7 +9,7 @@
         <State name="__root__">
           <Node name="HomeControl" expanded="True">
             <Node name="HomeControl" expanded="True" />
-            <Node name="HomeControl.Droid" selected="True" />
+            <Node name="HomeControl.iOS" expanded="True" selected="True" />
           </Node>
         </State>
       </Pad>

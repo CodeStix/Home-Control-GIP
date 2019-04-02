@@ -5,6 +5,7 @@ namespace HomeControl
     {
         public MyClass()
         {
+
         }
     }
 }
