@@ -1,0 +1,10 @@
+# Hoe uploaden naar Pro mini
+UART:
+3v3: niks
+TXD: RX van arduino
+RXD: TX van arduino
++5V: Vcc van arduino
+GND: GND van arduino
+
+Board: Arduino Pro mini
+Processor: ATmega320P (5v, 16MHz)
