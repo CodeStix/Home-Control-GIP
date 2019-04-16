@@ -1,5 +1,6 @@
 #include <SoftwareSerial.h>
 #include "Packet.h"
+#include "PacketSenderReceiver.h"
 
 #define DEBUG_PIN LED_BUILTIN
 // Note: HC12 TX to RX and RX to TX
@@ -7,6 +8,7 @@
 #define RX_PIN 12
 
 SoftwareSerial ss = SoftwareSerial(RX_PIN, TX_PIN);
+PacketSenderReceiver sr = PacketSenderReceiver(&ss, false, 2);
 
 void setup()
 {
@@ -38,11 +40,14 @@ void loop()
 void send()
 {
   unsigned char data[] = {20, 6};
-  Packet p = Packet(20, 3, 1, data, sizeof(data));
-  p.sendViaSoftware(&ss);
+
+  sr.send(20, data, sizeof(data), Push);
+  
+  /*Packet p = Packet(20, 3, data, sizeof(data), Push);
+  p.sendViaSoftware(&ss);*/
 
   Serial.print("Send packet: ");
-  p.printToSerial();
+  sr.lastSentPacket.printToSerial();
   Serial.println();
   
   /*for (int i = 0; i < 8; i++)

@@ -4,16 +4,21 @@
 
 unsigned char Packet::identifier = 0x69;
 
+Packet::Packet()
+{
+  memset(this->data, 0, 20);
+}
+
 Packet::Packet(unsigned char* data, unsigned char len)
 {
   memset(this->data, 0, 20);
   memcpy(this->data, data, len);
 }
 
-Packet::Packet(unsigned char slaveAddress, unsigned char masterAddress, unsigned char type, unsigned char* data, unsigned char len)
+Packet::Packet(unsigned char slaveAddress, unsigned char masterAddress, unsigned char* data, unsigned char len, PacketType type)
 {
   memset(this->data, 0, 20);
-  
+
   if (len <= 0)
   {
     len = 1;
@@ -26,7 +31,7 @@ Packet::Packet(unsigned char slaveAddress, unsigned char masterAddress, unsigned
   this->data[0] = Packet::identifier;
   this->data[1] = slaveAddress & 0x3F;
   this->data[2] = ((masterAddress & 0x3) << 6) | ((type & 0x3) << 4) | ((len - 1) & 0xF);
-  
+
   this->data[1] |= getCurrentCRC() << 6;
 }
 
@@ -102,4 +107,9 @@ PacketType Packet::getType()
 unsigned char Packet::getLength()
 {
   return this->data[2] & 0xF;
+}
+
+void Packet::updateIntegrity()
+{
+  this->data[1] |= this->getCurrentCRC() << 6;
 }

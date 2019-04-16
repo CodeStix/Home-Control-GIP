@@ -1,5 +1,6 @@
 #include <SoftwareSerial.h>
 #include "Packet.h"
+#include "PacketSenderReceiver.h"
 
 #define DEBUG_PIN LED_BUILTIN
 // Note: HC12 TX to RX and RX to TX
@@ -7,7 +8,8 @@
 #define RX_PIN 11
 
 SoftwareSerial ss = SoftwareSerial(RX_PIN, TX_PIN);
-Packet temp = Packet({}, 0);
+PacketSenderReceiver sr = PacketSenderReceiver(&ss, true, 20);
+Packet temp;
 
 void setup()
 {
@@ -24,20 +26,15 @@ void loop()
   digitalWrite(DEBUG_PIN, false);
   delay(50);
 
-  if (receive(&temp))
+  if (sr.receive(&temp))
   {
-    if (!temp.hasValidIntegrity())
-    {
-      Serial.println("Received faulty packet, asking for resend...");
-    }
-
     Serial.print("Received packet: ");
     temp.printToSerial();
     Serial.println();
   }
 }
 
-bool receiving = false;
+/*bool receiving = false;
 unsigned char dataPosition = 0;
 unsigned char incomingLength = 0;
 
@@ -87,3 +84,4 @@ bool receive(Packet* p)
     return receive(p);
   }
 }
+*/

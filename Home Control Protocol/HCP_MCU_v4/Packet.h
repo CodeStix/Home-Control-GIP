@@ -14,8 +14,9 @@ enum PacketType
 class Packet
 {
   public:
+    Packet();
     Packet(unsigned char* data, unsigned char len);
-    Packet(unsigned char slaveAddress, unsigned char masterAddress, unsigned char type, unsigned char* data, unsigned char len);
+    Packet(unsigned char slaveAddress, unsigned char masterAddress, unsigned char* data, unsigned char len, PacketType type);
     unsigned char data[20];
     static unsigned char identifier;
     void sendViaSoftware(SoftwareSerial* ss);
@@ -29,6 +30,7 @@ class Packet
     unsigned char* getData();
     unsigned char getCurrentCRC();
     bool hasValidIntegrity();
+    void updateIntegrity();
     
 };
 

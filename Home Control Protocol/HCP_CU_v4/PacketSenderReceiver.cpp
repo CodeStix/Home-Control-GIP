@@ -65,7 +65,7 @@ bool PacketSenderReceiver::receive(Packet* packet)
   {
     if (!packet->hasValidIntegrity() && packet->getType() != PleaseResend)
     {
-      this->send(this->isSlave ? packet->getMaster() : packet->getSlave(), {}, 0, PleaseResend);
+      this->send(!this->isSlave ? packet->getMaster() : packet->getSlave(), {}, 0, PleaseResend);
 
       this->log("Faulty integrity: ");
       packet->printToSerial();
@@ -117,12 +117,12 @@ void PacketSenderReceiver::send(unsigned char to, unsigned char* data, unsigned 
   if (this->isSlave)
   {
     Packet p = Packet(this->address, to, data, len, type);
-    p.sendViaSoftware(this->serial);
+    this->send(p);
   }
   else
   {
     Packet p = Packet(to, this->address, data, len, type);
-    p.sendViaSoftware(this->serial);
+    this->send(p);
   }
 }
 
