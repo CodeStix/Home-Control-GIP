@@ -12,7 +12,6 @@ class Packet
     static unsigned char identifier;
     void sendViaSoftware(SoftwareSerial* ss);
     void printToSerial();
-
     char getIdentifier();
     unsigned char getCRC();
     unsigned char getSlave();
@@ -21,6 +20,7 @@ class Packet
     unsigned char getLength();
     unsigned char* getData();
     unsigned char getCurrentCRC();
+    bool hasValidIntegrity();
     
 };
 

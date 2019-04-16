@@ -24,6 +24,15 @@ void loop()
   delay(1000);
 
   send();
+
+  if (random(0,5) == 0)
+  {
+    delay(random(0, 20));
+    
+    Serial.println("Send an extra one :)");
+    
+    send();  
+  }
 }
 
 void send()

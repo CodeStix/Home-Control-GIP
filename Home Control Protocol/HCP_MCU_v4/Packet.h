@@ -3,6 +3,14 @@
 #ifndef Packet_h
 #define Packet_h
 
+enum PacketType
+{
+  Request = 0,
+  Push = 1,
+  Answer = 2,
+  PleaseResend = 3
+};
+
 class Packet
 {
   public:
@@ -16,7 +24,7 @@ class Packet
     unsigned char getCRC();
     unsigned char getSlave();
     unsigned char getMaster();
-    unsigned char getType();
+    PacketType getType();
     unsigned char getLength();
     unsigned char* getData();
     unsigned char getCurrentCRC();

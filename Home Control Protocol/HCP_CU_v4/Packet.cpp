@@ -6,21 +6,21 @@ unsigned char Packet::identifier = 0x69;
 
 Packet::Packet(unsigned char* data, unsigned char len)
 {
-  memset(this->data, 0, sizeof(this->data));
-
-  for (int i = 0; i < len; i++)
-    this->data[i] = data[i];
+  memset(this->data, 0, 20);
+  memcpy(this->data, data, len);
 }
 
 Packet::Packet(unsigned char slaveAddress, unsigned char masterAddress, unsigned char type, unsigned char* data, unsigned char len)
 {
+  memset(this->data, 0, 20);
+  
   if (len <= 0)
   {
     len = 1;
   }
   else
   {
-    memcpy(this->data + 3, data, len);
+    memcpy(&this->data[3], &data[0], len);
   }
 
   this->data[0] = Packet::identifier;
@@ -30,9 +30,14 @@ Packet::Packet(unsigned char slaveAddress, unsigned char masterAddress, unsigned
   this->data[1] |= getCurrentCRC() << 6;
 }
 
+bool Packet::hasValidIntegrity()
+{
+  return this->getCurrentCRC() == this->getCRC();
+}
+
 unsigned char Packet::getCurrentCRC()
 {
-  unsigned char crc = 0x32;
+  unsigned char crc = ~Packet::identifier;
 
   for (int i = 2; i < 20; i++)
     crc ^= this->data[i];
@@ -43,7 +48,7 @@ unsigned char Packet::getCurrentCRC()
 
 void Packet::sendViaSoftware(SoftwareSerial* ss)
 {
-  ss->write(this->data, 8);
+  ss->write(this->data, getLength() + 4);
 }
 
 void Packet::printToSerial()
