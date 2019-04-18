@@ -1,22 +1,23 @@
-#include "SoftwareSerial.h"
-
 #ifndef Packet_h
 #define Packet_h
 
+#include "SoftwareSerial.h"
+#include "Arduino.h"
+
 enum PacketType
 {
-  Request = 0,
-  Push = 1,
-  Answer = 2,
-  PleaseResend = 3
+  DataRequest,
+  Push,
+  Answer,
+  PleaseResend
 };
 
 class Packet
 {
   public:
     Packet();
-    Packet(unsigned char* data, unsigned char len);
-    Packet(unsigned char slaveAddress, unsigned char masterAddress, unsigned char* data, unsigned char len, PacketType type);
+    Packet(unsigned char* data, unsigned char len = 20);
+    Packet(unsigned char slaveAddress, unsigned char masterAddress, unsigned char* data, unsigned char len, PacketType type, unsigned char multiPurposeByte = 0x0);
     unsigned char data[20];
     static unsigned char identifier;
     void sendViaSoftware(SoftwareSerial* ss);
@@ -25,13 +26,15 @@ class Packet
     unsigned char getCRC();
     unsigned char getSlave();
     unsigned char getMaster();
+    unsigned char getRawType();
     PacketType getType();
-    unsigned char getLength();
+    unsigned char getDataLength();
     unsigned char* getData();
+    unsigned char getMultiPurposeByte();
     unsigned char getCurrentCRC();
     bool hasValidIntegrity();
-    void updateIntegrity();
-    
+    void recalculateCRC();
+    bool needsResponse();
 };
 
 #endif

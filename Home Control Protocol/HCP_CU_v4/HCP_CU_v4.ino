@@ -11,6 +11,8 @@ SoftwareSerial ss = SoftwareSerial(RX_PIN, TX_PIN);
 PacketSenderReceiver sr = PacketSenderReceiver(&ss, true, 20);
 Packet temp;
 
+bool debugLed = true;
+
 void setup()
 {
   pinMode(DEBUG_PIN, OUTPUT);
@@ -21,16 +23,26 @@ void setup()
 
 void loop()
 {
-  digitalWrite(DEBUG_PIN, true);
-  delay(50);
-  digitalWrite(DEBUG_PIN, false);
-  delay(50);
+  if (millis() % 50 == 0)
+  {
+    digitalWrite(DEBUG_PIN, debugLed);
+
+    debugLed = !debugLed;
+  }
 
   if (sr.receive(&temp))
   {
     Serial.print("Received packet: ");
     temp.printToSerial();
     Serial.println();
+
+    if (temp.needsResponse())
+    {
+      Serial.println("Packet needs response.");
+
+      unsigned char data[2] = { 69, 69 };
+      sr.answer(&temp, data, sizeof(data));
+    }
   }
 }
 
