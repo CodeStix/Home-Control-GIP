@@ -18,15 +18,15 @@ class PacketSenderReceiver : public Logger
         bool receiveAny(Packet* packet);
         bool receive(Packet* packet);
         void send(Packet packet);
-        void send(unsigned char to, unsigned char* data, unsigned char len, PacketType type, unsigned char multiPurposeByte = 0x0);
-        void broadcast(unsigned char* data, unsigned char len, PacketType type, unsigned char multiPurposeByte = 0x0);
+        void send(unsigned char to, unsigned char* data, unsigned char len, PacketType type = Push, unsigned char multiPurposeByte = 0x0);
+        void broadcast(unsigned char* data, unsigned char len, PacketType type = Push, unsigned char multiPurposeByte = 0x0);
         void resendLastPacket();
         SoftwareSerial* serial;
         unsigned char address;
         bool isSlave;
         Packet lastSentPacket;
         unsigned long lastSentMillis;
-        
+        static Request nullRequest;
         Request requests[MAX_CONCURRENT_REQUESTS];
         unsigned char sendRequest(Request* request);
         unsigned char sendRequest(unsigned char to, ResponseHandler handler, unsigned char* data, unsigned char len);

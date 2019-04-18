@@ -5,6 +5,8 @@
 #include "Logger.h"
 #include "Arduino.h"
 
+Request PacketSenderReceiver::nullRequest;
+
 PacketSenderReceiver::PacketSenderReceiver(SoftwareSerial* serial, bool isSlave, unsigned char address)
 {
   this->serial = serial;
@@ -75,25 +77,23 @@ bool PacketSenderReceiver::receive(Packet* packet)
 {
   if (receiveAny(packet))
   {
-    // Check if the received packet is a broadcast.
-    if ((this->isSlave && packet->getSlave() == 0x0) || (!this->isSlave && packet->getMaster() == 0x0))
+    // Check if the received packet is not a broadcast.
+    if (!((this->isSlave && packet->getSlave() == 0x0) || (!this->isSlave && packet->getMaster() == 0x0)))
     {
-      return true;
-    }
+      // Check if this packet is for me or not.
+      if ((this->isSlave && this->address != packet->getSlave()) || (!this->isSlave && this->address != packet->getMaster()))
+      {
+        // This packet is not for me.
+        this->log("Not for me. ");
+        this->log(this->address);
+        this->log(" != (master: ");
+        this->log(packet->getMaster());
+        this->log(", slave: ");
+        this->log(packet->getSlave());
+        this->logln(")");
 
-    // Check if this packet is for me or not.
-    if ((this->isSlave && this->address != packet->getSlave()) || (!this->isSlave && this->address != packet->getMaster()))
-    {
-      // This packet is not for me.
-      this->log("Not for me. ");
-      this->log(this->address);
-      this->log(" != (master: ");
-      this->log(packet->getMaster());
-      this->log(", slave: ");
-      this->log(packet->getSlave());
-      this->logln(")");
-
-      return false;
+        return false;
+      }
     }
 
     // Ask for resend if the packet has a false integrity.
@@ -125,9 +125,13 @@ bool PacketSenderReceiver::receive(Packet* packet)
       this->logln();
 
       Request* r = this->getRequestWithId(packet->getMultiPurposeByte());
-      r->answered(packet->getData(), packet->getDataLength());
 
-      return false;
+      if (r != &PacketSenderReceiver::nullRequest)
+      {
+        r->answered(packet->getData(), packet->getDataLength());
+
+        return false;
+      }
     }
 
     return true;
@@ -193,7 +197,7 @@ Request* PacketSenderReceiver::getNewRequest(unsigned char fromAddress, Response
 
   this->logln("Fatal!! Ran out of requests! Increase MAX_CONCURRENT_REQUESTS!");
 
-  return nullptr;
+  return &PacketSenderReceiver::nullRequest;
 }
 
 void PacketSenderReceiver::resendUnansweredRequests()
@@ -203,9 +207,19 @@ void PacketSenderReceiver::resendUnansweredRequests()
     if (this->requests[i].shouldGetResend())
     {
       this->requests[i].resendTries++;
-      this->sendRequest(&this->requests[i]);
 
-      this->logln("Request was resent...");
+      if (this->requests[i].resendTries == REQUEST_MAX_RESENDS + 1)
+      {
+        this->requests[i].noAnswer();
+        
+        this->logln("Request was disposed.");
+      }
+      else
+      {
+        this->sendRequest(&this->requests[i]);
+
+        this->logln("Request was resent...");
+      }
     }
   }
 }
@@ -232,36 +246,23 @@ unsigned char PacketSenderReceiver::sendRequest(unsigned char to, ResponseHandle
 {
   Request* request = this->getNewRequest(to, handler, data, len);
 
-  if (request == nullptr)
+  if (request == &PacketSenderReceiver::nullRequest)
     return 0;
 
   return this->sendRequest(request);
-
-  /*if (this->isSlave)
-  {
-    Packet p = Packet(this->address, to, nr->sentData, nr->sentDataLength, DataRequest, nr->id);
-    this->send(p);
-  }
-  else
-  {
-    Packet p = Packet(to, this->address, nr->sentData, nr->sentDataLength, DataRequest, nr->id);
-    this->send(p);
-  }
-
-  nr->sentMillis = millis();*/
 }
 
 Request* PacketSenderReceiver::getRequestWithId(unsigned char id)
 {
   for (int i = 0; i < MAX_CONCURRENT_REQUESTS; i++)
   {
-    if (this->requests[i].id == id)
+    if (this->requests[i].used && this->requests[i].id == id)
     {
       return &this->requests[i];
     }
   }
 
-  return nullptr;
+  return &PacketSenderReceiver::nullRequest;
 }
 
 void PacketSenderReceiver::answer(Packet* toAnswer, unsigned char* respData, unsigned char respLen)

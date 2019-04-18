@@ -17,7 +17,14 @@
 #include "SoftwareSerial.h"
 #include "Logger.h"
 
-typedef void (*ResponseHandler)(unsigned char* respData, unsigned char respLen);
+enum ResponseStatus
+{
+  NoResponse,
+  Failed,
+  Okay
+};
+
+typedef void (*ResponseHandler)(ResponseStatus status, unsigned char* respData, unsigned char respLen);
 
 class Request
 {
@@ -36,6 +43,7 @@ class Request
         bool mayGetDisposed();
         void use(unsigned char fromAddress, ResponseHandler handler, unsigned char* data, unsigned char len);
         void answered(unsigned char* respData, unsigned char respLen);
+        void noAnswer();
         unsigned char sentData[20];
         unsigned char sentDataLength;
         unsigned char resendTries;

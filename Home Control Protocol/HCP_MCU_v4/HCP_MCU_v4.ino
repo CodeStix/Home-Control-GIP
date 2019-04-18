@@ -1,4 +1,5 @@
 #include <SoftwareSerial.h>
+#include <ESP8266WiFi.h>
 #include "Packet.h"
 #include "PacketSenderReceiver.h"
 
@@ -6,19 +7,40 @@
 // Note: HC12 TX to RX and RX to TX
 #define TX_PIN 14
 #define RX_PIN 12
+// This masters address, can be 1, 2 or 3.
+#define MASTER_ADDRESS 2
 
+const char* ssid = "PollenPatatten";
+const char* password = "Ziektes123";
+
+WiFiServer server(80);
 SoftwareSerial ss = SoftwareSerial(RX_PIN, TX_PIN);
-PacketSenderReceiver sr = PacketSenderReceiver(&ss, false, 2);
+PacketSenderReceiver sr = PacketSenderReceiver(&ss, false, MASTER_ADDRESS);
 Packet temp;
-
 bool debugLed = true;
 
 void setup()
 {
   pinMode(DEBUG_PIN, OUTPUT);
 
-  ss.begin(2400);
   Serial.begin(19200);
+  Serial.println();
+  Serial.println("  _   _      ____    ____    ");
+  Serial.println(" |'| |'|  U /\"___| U|  _\"\\ u ");
+  Serial.println("/| |_| |\\ \\| | u   \\| |_) |/ ");
+  Serial.println("U|  _  |u  | |/__   |  __/   ");
+  Serial.println(" |_| |_|    \\____|  |_|      ");
+  Serial.println(" //   \\\\   _// \\ \\  ||>>_    ");
+  Serial.println("(_\") (\"_) (__)(__) (__)__)  v0.4.0 (c)");
+  Serial.println("\tby Stijn Rogiest 2019");
+  Serial.println();
+  Serial.print("Master address: ");
+  Serial.println(MASTER_ADDRESS);
+  Serial.println("Starting...");
+
+  delay(500);
+
+  ss.begin(2400);
 }
 
 void loop()
@@ -30,10 +52,6 @@ void loop()
     debugLed = !debugLed;
   }
 
-  /*if (millis() % 1000 == 0)
-  {
-    send();
-  }*/
 
   sr.resendUnansweredRequests();
 
@@ -48,6 +66,10 @@ void loop()
     else if (c == 'r')
     {
       sendRequest();
+    }
+    else if (c == 'b')
+    {
+      sendBroadcast();
     }
   }
 
@@ -96,10 +118,22 @@ void sendRequest()
   sr.sendRequest(20, answer, {}, 0);
 }
 
-void answer(unsigned char* respData, unsigned char respLen)
+void sendBroadcast()
 {
-  Serial.print("Packet got answered: ");
-  for(int i = 0; i < respLen; i++)
+  unsigned char data[1] = { 0x40 };
+  sr.broadcast(data, sizeof(data), DataRequest, 0x40);
+}
+
+void answer(ResponseStatus status, unsigned char* respData, unsigned char respLen)
+{
+  if (status == NoResponse)
+    Serial.print("Packet did not get answered: ");
+  else if (status == Failed)
+    Serial.print("Packet got answered (failed): ");
+  else
+    Serial.print("Packet got answered (okey): ");
+
+  for (int i = 0; i < respLen; i++)
   {
     Serial.print(respData[i]);
     Serial.print(' ');

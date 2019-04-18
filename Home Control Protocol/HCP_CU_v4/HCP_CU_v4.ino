@@ -38,20 +38,37 @@ void loop()
 
     if (temp.needsResponse())
     {
-      Serial.println("Packet needs response.");
+      Serial.println("Packet needs response");
 
-      unsigned char data[2] = { 69, 69 };
-      sr.answer(&temp, data, sizeof(data));
+      if (temp.getDataLength() == 1)
+      {
+        if (temp.getData()[0] == 0x40)
+        {
+          Serial.print("It wants my identity...");
+
+          delay(random(0, 2000));
+          Serial.println("Sent");
+
+          unsigned char data[] = "identity";
+          sr.answer(&temp, data, sizeof(data));
+        }
+      }
+      else
+      {
+        // 0x0 = failed
+        unsigned char data[1] = { 0x0 };
+        sr.answer(&temp, data, sizeof(data));
+      }
     }
   }
 }
 
 /*bool receiving = false;
-unsigned char dataPosition = 0;
-unsigned char incomingLength = 0;
+  unsigned char dataPosition = 0;
+  unsigned char incomingLength = 0;
 
-bool receive(Packet* p)
-{
+  bool receive(Packet* p)
+  {
   if (receiving)
   {
     while (ss.available() > 0 && dataPosition < (incomingLength + 3))
@@ -95,5 +112,5 @@ bool receive(Packet* p)
 
     return receive(p);
   }
-}
+  }
 */
