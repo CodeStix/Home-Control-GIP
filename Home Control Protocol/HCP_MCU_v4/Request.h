@@ -6,7 +6,7 @@
 #endif
 
 #ifndef REQUEST_TRY_INTERVAL
-#define REQUEST_TRY_INTERVAL 200
+#define REQUEST_TRY_INTERVAL 350
 #endif
 
 #ifndef REQUEST_MAX_LIFETIME
@@ -24,7 +24,9 @@ enum ResponseStatus
   Okay
 };
 
-typedef void (*ResponseHandler)(ResponseStatus status, unsigned char* respData, unsigned char respLen);
+class Request;
+
+typedef void (*ResponseHandler)(ResponseStatus status, Request* requested);
 
 class Request
 {
@@ -46,7 +48,11 @@ class Request
         void noAnswer();
         unsigned char sentData[20];
         unsigned char sentDataLength;
+        unsigned char response[16];
+        unsigned char responseLength;
         unsigned char resendTries;
 };
+
+
 
 #endif

@@ -20,6 +20,8 @@ void Request::use(unsigned char fromAddress, ResponseHandler handler, unsigned c
   this->handler = handler;
   this->fromAddress = fromAddress;
   this->id = Request::currentId++;
+  if (Request::currentId >= 128)
+    Request::currentId = 0;
   this->gotAnswered = false;
   this->sentMillis = millis();
   this->createdMillis = this->sentMillis;
@@ -45,13 +47,20 @@ bool Request::mayGetDisposed()
 
 void Request::answered(unsigned char* respData, unsigned char respLen)
 {
+  memset(this->response, 0 , sizeof(this->response));
+  memcpy(this->response, respData, respLen);
+  
   if (respLen == 0)
   {
-    this->handler(Okay, respData, respLen);
+    this->handler(Failed, this);
+  }
+  else if (respLen == 1)
+  {
+    this->handler(respData[0] == 0xff ? Okay : Failed, this);
   }
   else
   {
-    this->handler(respData[0] == 0xff ? Okay : Failed, respData, respLen);
+    this->handler(Okay, this);
   }
 
   this->used = false;
@@ -59,7 +68,8 @@ void Request::answered(unsigned char* respData, unsigned char respLen)
 
 void Request::noAnswer()
 {
-  this->handler(NoResponse, {}, 0);
-
+  memset(this->response, 0 , sizeof(this->response));
+  this->responseLength = 0;
+  this->handler(NoResponse, this);
   this->used = false;
 }
