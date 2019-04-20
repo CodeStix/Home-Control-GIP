@@ -4,8 +4,10 @@
 #include "PacketSenderReceiver.h"
 
 /****** Uncomment the current slave, comment others ******/
+// COM7
 //#define SLAVE_NANO4LED
-//#define SLAVE_PROMINIBLUE
+// COM6
+#define SLAVE_PROMINIBLUE
 
 /****** Unique for each slave ******/
 // UNIQUE_FACTORY_ID: An 7-byte integer to identify each slave node on the planet. (ufid)
@@ -25,6 +27,7 @@
 #define TX_PIN 10
 #define RX_PIN 11
 #define PROPERTY_COUNT 128
+#define MAX_CONCURRENT_REQUESTS 2
 
 unsigned char getAddress();
 
@@ -53,11 +56,23 @@ void setupSlave()
     pinMode(i, OUTPUT);
   }
 #endif
+#ifdef SLAVE_PROMINIBLUE
+  for (unsigned char i = 2; i <= 9; i++)
+  {
+    pinMode(i, OUTPUT);
+  }
+#endif
 }
 
 void propertyUpdate()
 {
 #ifdef SLAVE_NANO4LED
+  for (unsigned char i = 2; i <= 9; i++)
+  {
+    digitalWrite(i, properties[i] > 0);
+  }
+#endif
+#ifdef SLAVE_PROMINIBLUE
   for (unsigned char i = 2; i <= 9; i++)
   {
     digitalWrite(i, properties[i] > 0);
@@ -181,6 +196,7 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
         Serial.print("] ");
       }
       Serial.println();
+      led(2, 25);
 
       propertyUpdate();
 
@@ -190,10 +206,17 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
     }
   }
   // Ping command
-  else if (len == 1 && data[0] == 0x1)
+  else if ((len == 1 || len == 2) && data[0] == 0x1)
   {
-    Serial.println("<-- Me is got being pinged, yay!");
-    led(25, 50);
+    if (len == 2)
+    {
+      Serial.println("<-- Me is got being pinged, yay!");
+      led(25, 50);
+    }
+    else
+    {
+      led(2, 50);
+    }
 
     unsigned char resp[] = {0xFF};
     sr.answer(&temp, resp, sizeof(resp));
@@ -223,7 +246,6 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
   // Mark request as failed.
   unsigned char resp[] = {0x0};
   sr.answer(&temp, resp, sizeof(resp));
-  led(2);
   return;
 }
 

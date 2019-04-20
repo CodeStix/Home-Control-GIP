@@ -1,3 +1,12 @@
+/*
+  Home Control Protocol v0.4.0
+    by Stijn Rogiest (copyright 2019)
+
+  Random console characters legend: 
+    _: The last packet was resent, caused by faulty integrity at the receiver.
+    !: The last request did not get answered and was disposed.
+    .: The last request was resent.
+*/
 #include <SoftwareSerial.h>
 #include <ESP8266WiFi.h>
 #include <EEPROM.h>
@@ -13,16 +22,16 @@
 #define MASTER_ADDRESS 2
 #define MAX_DEVICES 64
 
-const char* ssid = "PollenPatatten";
-const char* password = "Ziektes123";
-
+const char* ssid = "RogiestHuis";
+const char* password = "Vrijdag1!";
 WiFiServer server(80);
+
 SoftwareSerial ss = SoftwareSerial(RX_PIN, TX_PIN);
 PacketSenderReceiver sr = PacketSenderReceiver(&ss, false, MASTER_ADDRESS);
 Packet temp;
 Device* devices[MAX_DEVICES];
 
-const unsigned int retryBindMillisInterval = 30000;
+const unsigned int retryBindMillisInterval = 20000;
 unsigned long lastRetryBindMillis = 1;
 const unsigned int pingMillisInterval = 5000;
 unsigned long lastPingMillis = 1;
@@ -54,12 +63,26 @@ void setup()
   //clearRomDevices();
   loadDevicesFromRom();
   printDevices();
+
+
+  Serial.print("----> Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    Serial.print(".");
+    delay(200); 
+  }
+  Serial.println();
+  Serial.println("\t-> OK");
+  Serial.print("----> IP address: ");
+  Serial.println(WiFi.localIP());
+  Serial.print("----> Starting web server...");
+  server.begin();
+  Serial.println("\t-> OK");
   Serial.println("----> Starting...");
-
   delay(500);
-
   ss.begin(2400);
-
   Serial.println("\t-> OK");
 }
 
@@ -138,7 +161,6 @@ void loop()
 
   if ((millis() - lastRetryBindMillis) > retryBindMillisInterval)
   {
-    //Serial.println("----> Retrying to let non-working slaves work...");
     retryNotWorkingBinds();
 
     lastRetryBindMillis = millis();
@@ -150,6 +172,59 @@ void loop()
 
     lastPingMillis = millis();
   }
+
+  // Do not use the code below, use https://tttapa.github.io/ESP8266/Chap10%20-%20Simple%20Web%20Server.html
+  /*WiFiClient client = server.available();
+  if (client)
+  {
+    Serial.println("New Client.");
+    String currentLine = "";
+    while (client.connected())
+    {
+      String header = "";
+
+      if (client.available())
+      {
+        char c = client.read();
+        //Serial.write(c);
+        header += c;
+        if (c == '\n')
+        {
+          if (currentLine.length() == 0)
+          {
+            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
+            client.println("HTTP/1.1 200 OK");
+            client.println("Content-type:text/html");
+            client.println("Connection: close");
+            client.println();
+
+            if (header.indexOf("GET /47/d0") >= 0)
+            {
+               hcp.hcpSend(47, 0);
+            }
+
+            client.println("<html><head></head><body>Text test! lol</body></html>");
+            break;
+          }
+          else
+          {
+            currentLine = "";
+          }
+        }
+        else if (c != '\r')
+        {
+          currentLine += c;
+        }
+      }
+    }
+
+    header = "";
+    
+    client.stop();
+    
+    Serial.println("Client disconnected.");
+    Serial.println("");
+  }*/
 }
 
 void command(String args[16], unsigned char argsLen)
@@ -174,41 +249,12 @@ void command(String args[16], unsigned char argsLen)
     Serial.print("of address ");
     Serial.println(addr);
 
-    sr.sendRequest(addr, answer, data, argsLen - 1);
+    sr.sendRequest(addr, propertySetAnswer, data, argsLen - 1);
   }
-  /*else if (argsLen >= 2 && argsLen <= 8 && args[0] == "bind")
-  {
-    unsigned char ufid[7];
-    memset(ufid, 0x0, sizeof(ufid));
-    Serial.print("----> Binding slave with ufid ");
-    for (unsigned char i = 1; i < argsLen; i++)
-    {
-      ufid[i - 1] = args[i].toInt();
-
-      Serial.print(ufid[i - 1]);
-      Serial.print(' ');
-    }
-    Serial.println();
-
-    bindSlave(ufid);
-  }*/
   else if (argsLen == 2 && args[0] == "ping")
   {
-    unsigned char addr = args[1].toInt();
-    unsigned char data[1] = {0x1};
-
-    sr.sendRequest(addr, pingAnswer, data, sizeof(data));
+    pingSlave(args[1].toInt(), false);
   }
-  /*else if (argsLen == 2 && args[0] == "unbind")
-  {
-    unsigned char addr = args[1].toInt();
-
-    Serial.print("----> Unbinding slave ");
-    Serial.print(addr);
-    Serial.println("...");
-
-    unbindSlave(addr);
-  }*/
   else if (args[0] == "device")
   {
     if (argsLen == 1 || args[1] == "list")
@@ -276,6 +322,66 @@ void command(String args[16], unsigned char argsLen)
   }
 }
 
+void setSlaveProperties(unsigned char addr, unsigned char startPos, unsigned char* values, unsigned char valueCount)
+{
+  if (valueCount == 0)
+    return;
+
+  unsigned char data[16] = {0x20, startPos};
+  for (unsigned char i = 0; i < valueCount && i < 14; i++)
+    data[i + 2] = values[i];
+  sr.sendRequest(addr, propertySetAnswer, data, valueCount + 2);
+}
+
+void propertySetAnswer(ResponseStatus status, Request* requested)
+{
+  if (status == Okay)
+  {
+    Serial.print("\t-> Propery for slave ");
+    Serial.print(requested->fromAddress);
+    Serial.println(" was set successfully!");
+  }
+}
+
+void pingSlave(unsigned char addr, bool silent)
+{
+  if (silent)
+  {
+    unsigned char data[1] = {0x1};
+
+    sr.sendRequest(addr, pingAnswer, data, sizeof(data));
+  }
+  else
+  {
+    unsigned char data[2] = {0x1, 0x0};
+
+    sr.sendRequest(addr, pingAnswer, data, sizeof(data));
+  }
+}
+
+void pingAnswer(ResponseStatus status, Request* requested)
+{
+  if (requested->sentDataLength == 2)
+  {
+    Serial.print("\t-> Slave ");
+    Serial.print(requested->fromAddress);
+    Serial.print(" was pinged: ");
+    Serial.println(status == Okay ? "Okay" : (status == Failed ? "Failed" : "No response"));
+  }
+
+  Device* dev = getDeviceWithAddress(requested->fromAddress);
+  if (dev)
+  {
+    bool online = status == Okay;
+
+    if (dev->online != online)
+    {
+      dev->online = online;
+      saveDevicesToRom();
+    }
+  }
+}
+
 bool bindSlave(unsigned char ufid[7])
 {
   return bindSlave(ufid, getNewAddress());
@@ -333,14 +439,13 @@ void checkOnlineBinds()
 
   for(; i < MAX_DEVICES; i++)
   {
-    if (devices[i])
+    if (devices[i] && devices[i]->working)
     {
-      Serial.print("----> Checking if device ");
+      /*Serial.print("----> Checking if device ");
       devices[i]->printToSerial();
-      Serial.println(" is online...");
+      Serial.println(" is online...");*/
 
-      unsigned char data[1] = {0x1};
-      sr.sendRequest(devices[i]->address, pingAnswer, data, sizeof(data));
+      pingSlave(devices[i]->address, true);
 
       i++;
       break;
@@ -367,7 +472,7 @@ void retryNotWorkingBinds()
       memcpy(&data[1], devices[i]->uniqueFactoryId, 7);
       data[0] = 0x10;
       data[8] = devices[i]->address;
-      sr.send(devices[i]->address, data, sizeof(data), DataRequest, 130);
+      sr.broadcast(data, sizeof(data), DataRequest, 130);
 
       i++;
       break;
@@ -382,26 +487,6 @@ unsigned char getNewAddress()
   return s;
 }
 
-void pingAnswer(ResponseStatus status, Request* requested)
-{
-  Serial.print("\t-> Slave ");
-  Serial.print(requested->fromAddress);
-  Serial.print(" was pinged: ");
-  Serial.println(status == Okay ? "Okay" : (status == Failed ? "Failed" : "No response"));
-
-  Device* dev = getDeviceWithAddress(requested->fromAddress);
-  if (dev)
-  {
-    bool online = status == Okay;
-
-    if (dev->online != online)
-    {
-      dev->online = online;
-      saveDevicesToRom();
-    }
-  }
-}
-
 void unbindAnswer(ResponseStatus status, Request* requested)
 {
   if (status == Okay)
@@ -413,7 +498,7 @@ void unbindAnswer(ResponseStatus status, Request* requested)
 }
 
 // Obsolete!
-void answer(ResponseStatus status, Request* requested)
+/*void answer(ResponseStatus status, Request* requested)
 {
   if (status == NoResponse)
     Serial.print("Packet did not get answered: ");
@@ -428,7 +513,7 @@ void answer(ResponseStatus status, Request* requested)
     Serial.print(' ');
   }
   Serial.println();
-}
+}*/
 
 void veryCoolSplashScreen()
 {
@@ -441,7 +526,7 @@ void veryCoolSplashScreen()
   Serial.println("   //   \\\\   _// \\ \\  ||>>_    ");
   Serial.println("  (_\") (\"_) (__)(__) (__)__)");
   Serial.println("Home Control Protocol - v0.4.0");
-  Serial.println("\tby Stijn Rogiest 2019 (c)");
+  Serial.println("\tby Stijn Rogiest (c) 2019");
   Serial.println();
 }
 

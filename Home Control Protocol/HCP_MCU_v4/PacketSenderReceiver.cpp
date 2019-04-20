@@ -113,16 +113,16 @@ bool PacketSenderReceiver::receive(Packet* packet)
     {
       this->resendLastPacket();
 
-      this->logln("Resent last packet.");
+      this->log("_");
 
       return false;
     }
 
     if (packet->getType() == Answer)
     {
-      this->log("Received request answer: ");
+      /*this->log("Received request answer: ");
       packet->printToSerial();
-      this->logln();
+      this->logln();*/
 
       Request* r = this->getRequestWithId(packet->getMultiPurposeByte());
 
@@ -210,15 +210,15 @@ void PacketSenderReceiver::resendUnansweredRequests()
 
       if (this->requests[i].resendTries == REQUEST_MAX_RESENDS + 1)
       {
+        this->logln("!");//this->logln("Request disposed.");
+
         this->requests[i].noAnswer();
-        
-        this->logln("Request was disposed.");
       }
       else
       {
-        this->sendRequest(&this->requests[i]);
+        this->log(".");
 
-        this->logln("Request was resent...");
+        this->sendRequest(&this->requests[i]);
       }
     }
   }
