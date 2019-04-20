@@ -1,5 +1,12 @@
 {
     "files.associations": {
-        "packet.h": "c"
+        "packet.h": "c",
+        "softwareserial.h": "c",
+        "typeinfo": "cpp",
+        "array": "cpp",
+        "initializer_list": "cpp",
+        "string_view": "cpp",
+        "utility": "cpp",
+        "new": "cpp"
     }
 }

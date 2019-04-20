@@ -1,26 +1,28 @@
-#include <SoftwareSerial.h>
-#include <ESP8266WiFi.h>
-#include <EEPROM.h>
-#include "Packet.h"
-#include "PacketSenderReceiver.h"
-#include "Device.h"
+# 1 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+# 1 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+# 2 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
+# 3 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
+# 4 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
+# 5 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
+# 6 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
+# 7 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
 
-#define DEBUG_PIN LED_BUILTIN
+
 // Note: HC12 TX to RX and RX to TX
-#define TX_PIN 14
-#define RX_PIN 12
+
+
 // This masters address, can be 1, 2 or 3.
-#define MASTER_ADDRESS 2
-#define MAX_DEVICES 64
+
+
 
 const char* ssid = "PollenPatatten";
 const char* password = "Ziektes123";
 
 WiFiServer server(80);
-SoftwareSerial ss = SoftwareSerial(RX_PIN, TX_PIN);
-PacketSenderReceiver sr = PacketSenderReceiver(&ss, false, MASTER_ADDRESS);
+SoftwareSerial ss = SoftwareSerial(12, 14);
+PacketSenderReceiver sr = PacketSenderReceiver(&ss, false, 2);
 Packet temp;
-Device* devices[MAX_DEVICES];
+Device* devices[64];
 
 unsigned long lastLedBlink = 0;
 unsigned int ledBlinks = 0;
@@ -37,13 +39,13 @@ String args[16];
 
 void setup()
 {
-  pinMode(DEBUG_PIN, OUTPUT);
-  digitalWrite(DEBUG_PIN, false);
+  pinMode(2, 0x01);
+  digitalWrite(2, false);
 
   Serial.begin(19200);
   veryCoolSplashScreen();
   Serial.print("My address (master): ");
-  Serial.println(MASTER_ADDRESS);
+  Serial.println(2);
   Serial.println("Loading devices...");
   EEPROM.begin(4096);
   //clearRomDevices();
@@ -59,7 +61,7 @@ void loop()
 {
   if (ledBlinks > 0 && (millis() - lastLedBlink) > ledBlinkInterval)
   {
-    digitalWrite(DEBUG_PIN, ledBlinks % 2 == 0);
+    digitalWrite(2, ledBlinks % 2 == 0);
 
     ledBlinks--;
     lastLedBlink = millis();
@@ -285,10 +287,12 @@ void veryCoolSplashScreen()
 void loadDevicesFromRom()
 {
   /*Serial.print("Size of device: ");
+
   Serial.println(sizeof(Device));*/
+# 289 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
   unsigned char deviceCount = 0;
 
-  for (int i = 0; i < MAX_DEVICES; i++)
+  for (int i = 0; i < 64; i++)
   {
     if (EEPROM.read(i * sizeof(Device) + 100 + sizeof(Device) - 1) == 0xFF)
     {
@@ -303,19 +307,22 @@ void loadDevicesFromRom()
           bytes[j] = EEPROM.read(i * sizeof(Device) + 100 + j);
       devices[i] = new Device(bytes);
       /*Serial.print("Red device: ");
+
       devices[i]->printToSerial();
+
       Serial.println();*/
+# 308 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
       deviceCount++;
     }
   }
-  
+
   Serial.print(deviceCount);
   Serial.println(" devices were loaded from ROM.");
 }
 
 void clearRomDevices()
 {
-  for (int i = 100; i < 100 + MAX_DEVICES * 50; i++)
+  for (int i = 100; i < 100 + 64 * 50; i++)
   {
     EEPROM.write(i, 0xFF);
   }
@@ -329,15 +336,20 @@ void saveDevicesToRom()
 {
   unsigned char deviceCount = 0;
 
-  for (int i = 0; i < MAX_DEVICES; i++)
+  for (int i = 0; i < 64; i++)
   {
     if (devices[i] != nullptr)
     {
       /*Serial.print("Saving device ");
+
       Serial.print(i);
+
       Serial.print(": ");
+
       devices[i]->printToSerial();
+
       Serial.println();*/
+# 341 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
       unsigned char* bytes = devices[i]->getBytes();
       for(int j = 0; j < sizeof(Device); j++)
           EEPROM.write(i * sizeof(Device) + 100 + j, bytes[j]);
@@ -357,7 +369,7 @@ void saveDevicesToRom()
 
 Device* registerNewDevice(unsigned char ufid[7], unsigned char addr)
 {
-  for(unsigned char i = 0; i < MAX_DEVICES; i++)
+  for(unsigned char i = 0; i < 64; i++)
   {
     if (devices[i] == nullptr)
     {
@@ -365,7 +377,7 @@ Device* registerNewDevice(unsigned char ufid[7], unsigned char addr)
 
       return devices[i];
     }
-     
+
   }
 
   return nullptr;
@@ -373,7 +385,7 @@ Device* registerNewDevice(unsigned char ufid[7], unsigned char addr)
 
 Device* getDeviceWithAddress(unsigned char addr)
 {
-  for(unsigned char i = 0; i < MAX_DEVICES; i++)
+  for(unsigned char i = 0; i < 64; i++)
   {
     if (devices[i]->address == addr)
       return devices[i];
