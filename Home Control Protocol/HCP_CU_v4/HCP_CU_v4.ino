@@ -5,7 +5,7 @@
 
 /****** Uncomment the current slave, comment others ******/
 //#define SLAVE_NANO4LED
-#define SLAVE_PROMINIBLUE
+//#define SLAVE_PROMINIBLUE
 
 /****** Unique for each slave ******/
 // UNIQUE_FACTORY_ID: An 7-byte integer to identify each slave node on the planet. (ufid)
@@ -72,13 +72,13 @@ void setup()
 
   Serial.begin(19200);
   veryCoolSplashScreen();
-  Serial.print("My address (slave): ");
+  Serial.print("----> My address (slave): ");
   Serial.println(getAddress());
-  Serial.print("Registered: ");
+  Serial.print("----> Registered: ");
   Serial.println(getRegistered() ? "yeah" : "nope");
-  Serial.print("My master address: ");
+  Serial.print("----> My master address: ");
   Serial.println(getMaster());
-  Serial.print("Unique factory id (ufid): ");
+  Serial.print("----> Unique factory id (ufid): ");
   unsigned char ufid[7] = UNIQUE_FACTORY_ID;
   for (unsigned char i = 0; i < 7; i++)
   {
@@ -86,9 +86,9 @@ void setup()
     Serial.print(' ');
   }
   Serial.println();
-  Serial.print("Starting mode: ");
+  Serial.print("----> Starting mode: ");
   Serial.println(++startupMode);
-  Serial.println("Starting...");
+  Serial.println("----> Starting...");
 
   setupSlave();
 
@@ -98,6 +98,8 @@ void setup()
 
   if (!getRegistered())
     led(500000);
+
+  Serial.println("\t-> OK");
 }
 
 void loop()
@@ -119,16 +121,16 @@ void loop()
     if (temp.needsResponse())
     {
       Serial.println("Packet needs response");
-      processRequest(temp.getMaster(),  temp.getData(), temp.getDataLength());
+      processRequest(temp.getMaster(),  temp.getData(), temp.getDataLength(), temp.getSlave() == 0);
     }
   }
 }
 
-void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char len)
+void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char len, bool isBroadcast)
 {
   bool reg = getRegistered();
 
-  // Register command
+  // Bind command when unregistered
   if (!reg && len == 9 && data[0] == 0x10)
   {
     unsigned char ufid[7] = UNIQUE_FACTORY_ID;
@@ -150,13 +152,11 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
     sr.answer(&temp, resp, sizeof(resp));
     return;
   }
-  else if (!reg && led == 1 && data[0] == 0x2)
+  else if (!reg || fromMaster != getMaster() || isBroadcast)
   {
-    unsigned char resp[] = {0xFF};
-    sr.answer(&temp, resp, sizeof(resp));
-  }
-  else if (!reg || fromMaster != getMaster())
-  {
+    if (isBroadcast)
+      Serial.println("Broadcast got ignored (WIP?)");
+    
     return;
   }
 
@@ -193,12 +193,13 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
   else if (len == 1 && data[0] == 0x1)
   {
     Serial.println("<-- Me is got being pinged, yay!");
+    led(25, 50);
 
     unsigned char resp[] = {0xFF};
     sr.answer(&temp, resp, sizeof(resp));
     return;
   }
-  // Unregister command
+  // Unbind command
   else if (len == 1 && data[0] == 0x2)
   {
     unsigned char resp[] = {0xFF};
@@ -209,6 +210,13 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
 
     Serial.println("Device is now unbound.");
     led(500000);
+    return;
+  }
+  // Bind command while registered
+  else if (data[0] == 0x10)
+  {
+    unsigned char resp[] = DEVICE_INFO;
+    sr.answer(&temp, resp, sizeof(resp));
     return;
   }
 
@@ -274,13 +282,13 @@ void setProperties(unsigned char address, unsigned char* values, unsigned char l
 void veryCoolSplashScreen()
 {
   Serial.println();
-  Serial.println("  _   _      ____    ____    ");
-  Serial.println(" |'| |'|  U /\"___| U|  _\"\\ u ");
-  Serial.println("/| |_| |\\ \\| | u   \\| |_) |/ ");
-  Serial.println("U|  _  |u  | |/__   |  __/   ");
-  Serial.println(" |_| |_|    \\____|  |_|      ");
-  Serial.println(" //   \\\\   _// \\ \\  ||>>_    ");
-  Serial.println("(_\") (\"_) (__)(__) (__)__)");
+  Serial.println("    _   _      ____    ____    ");
+  Serial.println("   |'| |'|  U /\"___| U|  _\"\\ u ");
+  Serial.println("  /| |_| |\\ \\| | u   \\| |_) |/ ");
+  Serial.println("  U|  _  |u  | |/__   |  __/   ");
+  Serial.println("   |_| |_|    \\____|  |_|      ");
+  Serial.println("   //   \\\\   _// \\ \\  ||>>_    ");
+  Serial.println("  (_\") (\"_) (__)(__) (__)__)");
   Serial.println("Home Control Protocol - v0.4.0");
   Serial.println("\tby Stijn Rogiest 2019 (c)");
   Serial.println();

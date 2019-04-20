@@ -5,7 +5,7 @@
 #include "Logger.h"
 #include "Arduino.h"
 
-Request PacketSenderReceiver::nullRequest;
+//Request PacketSenderReceiver::nullRequest;
 
 PacketSenderReceiver::PacketSenderReceiver(SoftwareSerial* serial, bool isSlave, unsigned char address)
 {
@@ -126,7 +126,7 @@ bool PacketSenderReceiver::receive(Packet* packet)
 
       Request* r = this->getRequestWithId(packet->getMultiPurposeByte());
 
-      if (r != &PacketSenderReceiver::nullRequest)
+      if (r)// != &PacketSenderReceiver::nullRequest
       {
         r->answered(packet->getData(), packet->getDataLength());
 
@@ -197,7 +197,7 @@ Request* PacketSenderReceiver::getNewRequest(unsigned char fromAddress, Response
 
   this->logln("Fatal!! Ran out of requests! Increase MAX_CONCURRENT_REQUESTS!");
 
-  return &PacketSenderReceiver::nullRequest;
+  return nullptr;//&PacketSenderReceiver::nullRequest;
 }
 
 void PacketSenderReceiver::resendUnansweredRequests()
@@ -246,7 +246,7 @@ unsigned char PacketSenderReceiver::sendRequest(unsigned char to, ResponseHandle
 {
   Request* request = this->getNewRequest(to, handler, data, len);
 
-  if (request == &PacketSenderReceiver::nullRequest)
+  if (!request)//== &PacketSenderReceiver::nullRequest
     return 0;
 
   return this->sendRequest(request);
@@ -262,7 +262,7 @@ Request* PacketSenderReceiver::getRequestWithId(unsigned char id)
     }
   }
 
-  return &PacketSenderReceiver::nullRequest;
+  return nullptr;//&PacketSenderReceiver::nullRequest;
 }
 
 void PacketSenderReceiver::answer(Packet* toAnswer, unsigned char* respData, unsigned char respLen)
