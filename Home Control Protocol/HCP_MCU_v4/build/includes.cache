@@ -21,6 +21,16 @@
   },
   {
     "Sourcefile": "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\build\\sketch\\HCP_MCU_v4.ino.cpp",
+    "Include": "ESP8266mDNS.h",
+    "Includepath": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.0\\libraries\\ESP8266mDNS\\src"
+  },
+  {
+    "Sourcefile": "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\build\\sketch\\HCP_MCU_v4.ino.cpp",
+    "Include": "ESP8266WebServer.h",
+    "Includepath": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.0\\libraries\\ESP8266WebServer\\src"
+  },
+  {
+    "Sourcefile": "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\build\\sketch\\HCP_MCU_v4.ino.cpp",
     "Include": "EEPROM.h",
     "Includepath": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.0\\libraries\\EEPROM"
   },
@@ -136,6 +146,66 @@
   },
   {
     "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.0\\libraries\\ESP8266WiFi\\src\\WiFiUdp.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.0\\libraries\\ESP8266mDNS\\src\\ESP8266mDNS.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.0\\libraries\\ESP8266mDNS\\src\\ESP8266mDNS_Legacy.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.0\\libraries\\ESP8266mDNS\\src\\LEAmDNS.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.0\\libraries\\ESP8266mDNS\\src\\LEAmDNS_Control.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.0\\libraries\\ESP8266mDNS\\src\\LEAmDNS_Helpers.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.0\\libraries\\ESP8266mDNS\\src\\LEAmDNS_Structs.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.0\\libraries\\ESP8266mDNS\\src\\LEAmDNS_Transfer.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.0\\libraries\\ESP8266WebServer\\src\\ESP8266WebServer.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.0\\libraries\\ESP8266WebServer\\src\\ESP8266WebServerSecureAxTLS.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.0\\libraries\\ESP8266WebServer\\src\\ESP8266WebServerSecureBearSSL.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.0\\libraries\\ESP8266WebServer\\src\\Parsing.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.0\\libraries\\ESP8266WebServer\\src\\detail\\mimetable.cpp",
     "Include": "",
     "Includepath": ""
   },
