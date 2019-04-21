@@ -77,7 +77,7 @@ void setup()
   Serial.println("\t-> OK");
   Serial.print("----> IP address: ");
   Serial.println(WiFi.localIP());
-  Serial.print("----> Starting web server...");
+  Serial.println("----> Starting web server...");
   server.begin();
   Serial.println("\t-> OK");
   Serial.println("----> Starting...");

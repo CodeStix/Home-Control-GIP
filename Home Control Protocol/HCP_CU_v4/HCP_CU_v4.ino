@@ -7,7 +7,9 @@
 // COM7
 //#define SLAVE_NANO4LED
 // COM6
-#define SLAVE_PROMINIBLUE
+//#define SLAVE_PROMINIBLUE
+// COM7
+#define SLAVE_PROMINIBLACK
 
 /****** Unique for each slave ******/
 // UNIQUE_FACTORY_ID: An 7-byte integer to identify each slave node on the planet. (ufid)
@@ -18,6 +20,10 @@
 #endif
 #ifdef SLAVE_PROMINIBLUE
 #define UNIQUE_FACTORY_ID {0xFF, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0}
+#define DEVICE_INFO {0x12, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}
+#endif
+#ifdef SLAVE_PROMINIBLACK
+#define UNIQUE_FACTORY_ID {0xFF, 0xB, 0x0, 0x0, 0x0, 0x0, 0x0}
 #define DEVICE_INFO {0x12, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}
 #endif
 
@@ -37,7 +43,7 @@ Packet temp;
 
 //__attribute__((section(".noinit")))
 unsigned char startupMode = 0;
-unsigned char properties[PROPERTY_COUNT];
+//unsigned char properties[PROPERTY_COUNT];
 
 unsigned long lastLedBlink = 0;
 unsigned int ledBlinks = 0;
@@ -51,15 +57,16 @@ void led(int blinks, int interval = 200)
 void setupSlave()
 {
 #ifdef SLAVE_NANO4LED
-  for (unsigned char i = 2; i <= 9; i++)
-  {
-    pinMode(i, OUTPUT);
-  }
+  pinMode(3, OUTPUT);
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
+  pinMode(9, OUTPUT);
 #endif
 #ifdef SLAVE_PROMINIBLUE
   for (unsigned char i = 2; i <= 9; i++)
   {
     pinMode(i, OUTPUT);
+    digitalWrite(i, true);
   }
 #endif
 }
@@ -67,15 +74,16 @@ void setupSlave()
 void propertyUpdate()
 {
 #ifdef SLAVE_NANO4LED
-  for (unsigned char i = 2; i <= 9; i++)
-  {
-    digitalWrite(i, properties[i] > 0);
-  }
+  analogWrite(3, getProperty(0));
+  analogWrite(5, getProperty(1));
+  analogWrite(6, getProperty(2));
+  analogWrite(9, getProperty(3));
 #endif
 #ifdef SLAVE_PROMINIBLUE
   for (unsigned char i = 2; i <= 9; i++)
   {
-    digitalWrite(i, properties[i] > 0);
+    //digitalWrite(i, properties[i] > 0);
+    digitalWrite(i, getProperty(i) > 0);
   }
 #endif
 }
@@ -106,8 +114,7 @@ void setup()
   Serial.println("----> Starting...");
 
   setupSlave();
-
-  delay(500);
+  propertyUpdate();
 
   ss.begin(2400);
 
@@ -171,7 +178,7 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
   {
     if (isBroadcast)
       Serial.println("Broadcast got ignored (WIP?)");
-    
+
     return;
   }
 
@@ -183,7 +190,9 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
 
     if (startPos + propDataLen - 1 < PROPERTY_COUNT)
     {
-      memcpy(&properties[startPos], &data[2], propDataLen);
+      //memcpy(&properties[startPos], &data[2], propDataLen);
+
+      setProperties(startPos, &data[2], propDataLen);
 
       Serial.print(propDataLen);
       Serial.print(" properties were updated: ");
@@ -192,7 +201,8 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
         Serial.print('[');
         Serial.print(i);
         Serial.print(" = ");
-        Serial.print(properties[i]);
+        //Serial.print(properties[i]);
+        Serial.print(getProperty(i));
         Serial.print("] ");
       }
       Serial.println();

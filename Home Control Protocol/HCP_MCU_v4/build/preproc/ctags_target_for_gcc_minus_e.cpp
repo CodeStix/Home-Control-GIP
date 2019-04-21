@@ -33,10 +33,10 @@
 
 
 
-const char* ssid = "PollenPatatten";
-const char* password = "Ziektes123";
-
+const char* ssid = "RogiestHuis";
+const char* password = "Vrijdag1!";
 WiFiServer server(80);
+
 SoftwareSerial ss = SoftwareSerial(12, 14);
 PacketSenderReceiver sr = PacketSenderReceiver(&ss, false, 2);
 Packet temp;
@@ -74,12 +74,26 @@ void setup()
   //clearRomDevices();
   loadDevicesFromRom();
   printDevices();
+
+
+  Serial.print("----> Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    Serial.print(".");
+    delay(200);
+  }
+  Serial.println();
+  Serial.println("\t-> OK");
+  Serial.print("----> IP address: ");
+  Serial.println(WiFi.localIP());
+  Serial.print("----> Starting web server...");
+  server.begin();
+  Serial.println("\t-> OK");
   Serial.println("----> Starting...");
-
   delay(500);
-
   ss.begin(2400);
-
   Serial.println("\t-> OK");
 }
 
@@ -169,6 +183,110 @@ void loop()
 
     lastPingMillis = millis();
   }
+
+  // Do not use the code below, use https://tttapa.github.io/ESP8266/Chap10%20-%20Simple%20Web%20Server.html
+  /*WiFiClient client = server.available();
+
+  if (client)
+
+  {
+
+    Serial.println("New Client.");
+
+    String currentLine = "";
+
+    while (client.connected())
+
+    {
+
+      String header = "";
+
+
+
+      if (client.available())
+
+      {
+
+        char c = client.read();
+
+        //Serial.write(c);
+
+        header += c;
+
+        if (c == '\n')
+
+        {
+
+          if (currentLine.length() == 0)
+
+          {
+
+            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
+
+            client.println("HTTP/1.1 200 OK");
+
+            client.println("Content-type:text/html");
+
+            client.println("Connection: close");
+
+            client.println();
+
+
+
+            if (header.indexOf("GET /47/d0") >= 0)
+
+            {
+
+               hcp.hcpSend(47, 0);
+
+            }
+
+
+
+            client.println("<html><head></head><body>Text test! lol</body></html>");
+
+            break;
+
+          }
+
+          else
+
+          {
+
+            currentLine = "";
+
+          }
+
+        }
+
+        else if (c != '\r')
+
+        {
+
+          currentLine += c;
+
+        }
+
+      }
+
+    }
+
+
+
+    header = "";
+
+    
+
+    client.stop();
+
+    
+
+    Serial.println("Client disconnected.");
+
+    Serial.println("");
+
+  }*/
+# 228 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
 }
 
 void command(String args[16], unsigned char argsLen)
@@ -390,7 +508,7 @@ void checkOnlineBinds()
       devices[i]->printToSerial();
 
       Serial.println(" is online...");*/
-# 381 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+# 448 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
       pingSlave(devices[i]->address, true);
 
       i++;
@@ -475,7 +593,7 @@ void unbindAnswer(ResponseStatus status, Request* requested)
   Serial.println();
 
 }*/
-# 451 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+# 518 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
 void veryCoolSplashScreen()
 {
   Serial.println();
@@ -513,7 +631,7 @@ void loadDevicesFromRom()
   /*Serial.print("Size of device: ");
 
   Serial.println(sizeof(Device));*/
-# 487 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+# 554 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
   unsigned char deviceCount = 0;
 
   for (int i = 0; i < 64; i++)
@@ -535,7 +653,7 @@ void loadDevicesFromRom()
       devices[i]->printToSerial();
 
       Serial.println();*/
-# 506 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+# 573 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
       deviceCount++;
     }
   }
@@ -580,7 +698,7 @@ void saveDevicesToRom()
       devices[i]->printToSerial();
 
       Serial.println();*/
-# 546 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+# 613 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
       unsigned char* bytes = devices[i]->getBytes();
       for(int j = 0; j < 50; j++)
           EEPROM.write(i * 50 + 100 + j, bytes[j]);

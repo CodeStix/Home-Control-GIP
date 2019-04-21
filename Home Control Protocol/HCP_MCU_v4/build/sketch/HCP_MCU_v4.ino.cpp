@@ -25,10 +25,10 @@
 #define MASTER_ADDRESS 2
 #define MAX_DEVICES 64
 
-const char* ssid = "PollenPatatten";
-const char* password = "Ziektes123";
-
+const char* ssid = "RogiestHuis";
+const char* password = "Vrijdag1!";
 WiFiServer server(80);
+
 SoftwareSerial ss = SoftwareSerial(RX_PIN, TX_PIN);
 PacketSenderReceiver sr = PacketSenderReceiver(&ss, false, MASTER_ADDRESS);
 Packet temp;
@@ -44,45 +44,45 @@ unsigned int ledBlinks = 0;
 unsigned int ledBlinkInterval = 200;
 #line 52 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
 void setup();
-#line 75 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 89 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
 void loop();
-#line 163 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 230 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
 void command(String args[16], unsigned char argsLen);
-#line 258 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 325 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
 void setSlaveProperties(unsigned char addr, unsigned char startPos, unsigned char* values, unsigned char valueCount);
-#line 269 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 336 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
 void propertySetAnswer(ResponseStatus status, Request* requested);
-#line 279 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
-void pingSlave(unsigned char addr, bool silent);
-#line 295 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
-void pingAnswer(ResponseStatus status, Request* requested);
-#line 318 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
-bool bindSlave(unsigned char ufid[7]);
-#line 323 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
-bool bindSlave(unsigned char ufid[7], unsigned char withAddress);
 #line 346 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+void pingSlave(unsigned char addr, bool silent);
+#line 362 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+void pingAnswer(ResponseStatus status, Request* requested);
+#line 385 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+bool bindSlave(unsigned char ufid[7]);
+#line 390 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+bool bindSlave(unsigned char ufid[7], unsigned char withAddress);
+#line 413 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
 void unbindSlave(unsigned char withAddress);
-#line 366 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 433 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
 void checkOnlineBinds();
-#line 389 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 456 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
 void retryNotWorkingBinds();
-#line 416 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
-unsigned char getNewAddress();
-#line 423 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
-void unbindAnswer(ResponseStatus status, Request* requested);
-#line 451 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
-void veryCoolSplashScreen();
-#line 466 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
-void printDevices();
 #line 483 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
-void loadDevicesFromRom();
-#line 515 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
-void clearRomDevices();
+unsigned char getNewAddress();
+#line 490 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+void unbindAnswer(ResponseStatus status, Request* requested);
+#line 518 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+void veryCoolSplashScreen();
 #line 533 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+void printDevices();
+#line 550 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+void loadDevicesFromRom();
+#line 582 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+void clearRomDevices();
+#line 600 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
 void saveDevicesToRom();
-#line 564 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 631 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
 Device* registerNewDevice(unsigned char ufid[7], unsigned char addr);
-#line 579 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 646 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
 Device* getDeviceWithAddress(unsigned char addr);
 #line 42 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
 void led(int blinks, int interval = 200)
@@ -109,12 +109,26 @@ void setup()
   //clearRomDevices();
   loadDevicesFromRom();
   printDevices();
+
+
+  Serial.print("----> Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    Serial.print(".");
+    delay(200); 
+  }
+  Serial.println();
+  Serial.println("\t-> OK");
+  Serial.print("----> IP address: ");
+  Serial.println(WiFi.localIP());
+  Serial.print("----> Starting web server...");
+  server.begin();
+  Serial.println("\t-> OK");
   Serial.println("----> Starting...");
-
   delay(500);
-
   ss.begin(2400);
-
   Serial.println("\t-> OK");
 }
 
@@ -204,6 +218,59 @@ void loop()
 
     lastPingMillis = millis();
   }
+
+  // Do not use the code below, use https://tttapa.github.io/ESP8266/Chap10%20-%20Simple%20Web%20Server.html
+  /*WiFiClient client = server.available();
+  if (client)
+  {
+    Serial.println("New Client.");
+    String currentLine = "";
+    while (client.connected())
+    {
+      String header = "";
+
+      if (client.available())
+      {
+        char c = client.read();
+        //Serial.write(c);
+        header += c;
+        if (c == '\n')
+        {
+          if (currentLine.length() == 0)
+          {
+            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
+            client.println("HTTP/1.1 200 OK");
+            client.println("Content-type:text/html");
+            client.println("Connection: close");
+            client.println();
+
+            if (header.indexOf("GET /47/d0") >= 0)
+            {
+               hcp.hcpSend(47, 0);
+            }
+
+            client.println("<html><head></head><body>Text test! lol</body></html>");
+            break;
+          }
+          else
+          {
+            currentLine = "";
+          }
+        }
+        else if (c != '\r')
+        {
+          currentLine += c;
+        }
+      }
+    }
+
+    header = "";
+    
+    client.stop();
+    
+    Serial.println("Client disconnected.");
+    Serial.println("");
+  }*/
 }
 
 void command(String args[16], unsigned char argsLen)
