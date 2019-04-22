@@ -10,12 +10,12 @@ Request::Request()
   this->used = false;
 }
 
-Request::Request(unsigned char fromAddress, ResponseHandler handler, unsigned char* data, unsigned char len)
+Request::Request(unsigned char fromAddress, ResponseHandler handler, unsigned char* data, unsigned char len, void* state)
 {
-  this->use(fromAddress, handler, data, len);
+  this->use(fromAddress, handler, data, len, state);
 }
 
-void Request::use(unsigned char fromAddress, ResponseHandler handler, unsigned char* data, unsigned char len)
+void Request::use(unsigned char fromAddress, ResponseHandler handler, unsigned char* data, unsigned char len, void* state)
 {
   this->handler = handler;
   this->fromAddress = fromAddress;

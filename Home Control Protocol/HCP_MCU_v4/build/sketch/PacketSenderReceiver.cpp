@@ -183,13 +183,14 @@ void PacketSenderReceiver::resendLastPacket()
   this->send(this->lastSentPacket);
 }
 
-Request* PacketSenderReceiver::getNewRequest(unsigned char fromAddress, ResponseHandler handler, unsigned char* data, unsigned char len)
+Request* PacketSenderReceiver::getNewRequest(unsigned char fromAddress, ResponseHandler handler, unsigned char* data, unsigned char len, void* state)
 {
   for (int i = 0; i < MAX_CONCURRENT_REQUESTS; i++)
   {
     if (this->requests[i].mayGetDisposed())
     {
-      this->requests[i].use(fromAddress, handler, data, len);
+      this->requests[i].use(fromAddress, handler, data, len, state);
+      //*(this->requests[i]) = Request(fromAddress, handler, data, len, state);
 
       return &this->requests[i];
     }
@@ -242,9 +243,9 @@ unsigned char PacketSenderReceiver::sendRequest(Request* request)
   return request->id;
 }
 
-unsigned char PacketSenderReceiver::sendRequest(unsigned char to, ResponseHandler handler, unsigned char* data, unsigned char len)
+unsigned char PacketSenderReceiver::sendRequest(unsigned char to, ResponseHandler handler, unsigned char* data, unsigned char len, void* state)
 {
-  Request* request = this->getNewRequest(to, handler, data, len);
+  Request* request = this->getNewRequest(to, handler, data, len, state);
 
   if (!request)//== &PacketSenderReceiver::nullRequest
     return 0;

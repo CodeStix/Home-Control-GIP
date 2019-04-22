@@ -36,9 +36,10 @@
 
     https://en.wikipedia.org/wiki/Multicast_DNS
 
+    https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Keep-Alive
+
 */
-# 20 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
-# 21 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
+# 21 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
 # 22 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
 # 23 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
 # 24 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
@@ -48,6 +49,7 @@
 # 28 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
 # 29 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
 # 30 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
+# 31 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
 
 
 // Note: HC12 TX to RX and RX to TX
@@ -64,7 +66,10 @@ Packet temp;
 Device* devices[64];
 
 ESP8266WiFiMulti wifiMulti;
-ESP8266WebServer server(80);
+WiFiServer server(80);
+WiFiClient client;
+String clientData;
+//ESP8266WebServer server(80);
 
 const unsigned int retryBindMillisInterval = 20000;
 unsigned long lastRetryBindMillis = 1;
@@ -111,62 +116,104 @@ void setup()
   Serial.println(WiFi.SSID());
   Serial.print("----> IP address: ");
   Serial.println(WiFi.localIP());
-  if (MDNS.begin("esp8266")) // Start the mDNS responder for esp8266.local
+  if (MDNS.begin("homecontrol")) // Start the mDNS responder for esp8266.local
   {
     Serial.print("\t-> mDNS responder started: ");
-    Serial.println("esp8266");
+    Serial.println("homecontrol");
   }
   else
   {
     Serial.println("\t-> FATAL: Error setting up MDNS responder!");
   }
-  server.on("/help", handleRootWebPage);
-  server.onNotFound(handleNotFoundPage);
   server.begin();
+  /*server.on("/help", handleRootWebPage);
+
+  server.onNotFound(handleNotFoundPage);
+
+  server.begin();*/
+# 110 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
   Serial.println("----> Starting...");
   delay(500);
   ss.begin(2400);
   Serial.println("\t-> OK");
 }
 
-void handleRootWebPage()
+/*void handleRootWebPage()
+
 {
+
   server.send(200, "text/plain", "This is a help page.");
+
 }
 
+
+
 void handleNotFoundPage()
+
 {
+
   String page = server.uri();
+
   String splitted[20];
+
   int len = 1;
 
+
+
   for(int i = 1, j = 0; i < page.length() && j < 20; i++)
+
   {
+
     char c = page[i];
+
     if (c == '/')
+
     {
+
       j++;
+
       len++;
+
       continue;
+
     }
+
     else
+
     {
+
       splitted[j] += c;
+
     }
+
   }
+
+
 
   String content = "esp8266\n";
 
+
+
   if (splitted[0] == "command")
+
   {
+
     command(&splitted[1], len - 1);
 
+
+
     content += "command execution\n";
+
   }
 
-  server.send(404, "text/plain", content);
-}
 
+
+  server.send(404, "text/plain", content);
+
+  server.sendContent("jatest\n");
+
+}*/
+# 155 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
 void loop()
 {
   if (ledBlinks > 0 && (millis() - lastLedBlink) > ledBlinkInterval)
@@ -254,7 +301,69 @@ void loop()
     lastPingMillis = millis();
   }
 
-  server.handleClient();
+  //server.handleClient();
+
+  WiFiClient newClient = server.available();
+  if (newClient && (newClient != client) && (!client || !client.connected()))
+  {
+    Serial.println("New client!");
+    client = newClient;
+    clientData = "";
+  }
+
+  while (client && client.available())
+  {
+    char c = client.read();
+
+    if (c == '\r')
+      continue;
+
+    clientData += c;
+
+    if (clientData.length() > 2 && c == '\n' && clientData[clientData.length() - 2] == '\n')
+    {
+      Serial.println("End of request received. Responsing...");
+
+      int i = clientData.indexOf("GET "), j = clientData.indexOf(" HTTP/");
+      bool close = true;
+      if (i >= 0 && j >= 0)
+      {
+        String request = clientData.substring(i + 4, j);
+        request.trim();
+        Serial.println("REQUEST: " + request);
+
+        if (request == "/ping")
+        {
+          close = false;
+          pingSlave(27, false);
+        }
+      }
+
+      // HEADER
+      client.println("HTTP/1.1 200 OK");
+      client.println("Connection: Keep-Alive");
+      client.println("Keep-Alive: timeout=15, max=1000");
+      client.println("Content-type: text/html");
+      client.println();
+      // CSS + HTML HEAD
+      client.println("<!DOCTYPE html><html>");
+      client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+      client.println("<link rel=\"icon\" href=\"data:,\">");
+      client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
+      client.println(".button { background-color: #195B6A; border: none; color: white; padding: 16px 40px;");
+      client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
+      client.println(".button2 { background-color: #77878A; }</style></head>");
+      // HTML
+      client.println("<body><h1>Home Control</h1>");
+      client.println("<p>TESTING:</p>");
+      client.println("<p><a href=\"/nice\"><button class=\"button\">OKE COOL</button></a></p>");
+      client.println("</body></html>");
+      client.println();
+
+      if (close)
+        client.stop();
+    }
+  }
 }
 
 void command(String args[16], unsigned char argsLen)
@@ -399,6 +508,13 @@ void pingAnswer(ResponseStatus status, Request* requested)
     Serial.println(status == Okay ? "Okay" : (status == Failed ? "Failed" : "No response"));
   }
 
+  if (client && client.connected())
+  {
+    client.print("pinged: ");
+    client.println(status);
+    client.stop();
+  }
+
   Device* dev = getDeviceWithAddress(requested->fromAddress);
   if (dev)
   {
@@ -476,7 +592,7 @@ void checkOnlineBinds()
       devices[i]->printToSerial();
 
       Serial.println(" is online...");*/
-# 457 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+# 532 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
       pingSlave(devices[i]->address, true);
 
       i++;
@@ -561,7 +677,7 @@ void unbindAnswer(ResponseStatus status, Request* requested)
   Serial.println();
 
 }*/
-# 527 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+# 602 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
 void veryCoolSplashScreen()
 {
   Serial.println();
@@ -599,7 +715,7 @@ void loadDevicesFromRom()
   /*Serial.print("Size of device: ");
 
   Serial.println(sizeof(Device));*/
-# 563 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+# 638 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
   unsigned char deviceCount = 0;
 
   for (int i = 0; i < 64; i++)
@@ -621,7 +737,7 @@ void loadDevicesFromRom()
       devices[i]->printToSerial();
 
       Serial.println();*/
-# 582 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+# 657 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
       deviceCount++;
     }
   }
@@ -666,7 +782,7 @@ void saveDevicesToRom()
       devices[i]->printToSerial();
 
       Serial.println();*/
-# 622 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+# 697 "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
       unsigned char* bytes = devices[i]->getBytes();
       for(int j = 0; j < 50; j++)
           EEPROM.write(i * 50 + 100 + j, bytes[j]);

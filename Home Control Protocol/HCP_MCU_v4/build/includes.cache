@@ -65,6 +65,11 @@
     "Includepath": ""
   },
   {
+    "Sourcefile": "c:\\Users\\Stijn Rogiest\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\build\\sketch\\WebRequest.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
     "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.0\\libraries\\SoftwareSerial\\SoftwareSerial.cpp",
     "Include": "",
     "Includepath": ""
