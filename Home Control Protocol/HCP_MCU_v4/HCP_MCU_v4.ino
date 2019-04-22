@@ -16,7 +16,7 @@
     https://randomnerdtutorials.com/esp8266-web-server/
     http://arduino.esp8266.com/stable/package_esp8266com_index.json
     https://en.wikipedia.org/wiki/Multicast_DNS
-    https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Keep-Alive
+    https://en.wikipedia.org/wiki/Cyclic_redundancy_check#CRC-32_algorithm
 */
 #include <SoftwareSerial.h>
 #include <ESP8266WiFi.h>
@@ -33,13 +33,13 @@
 // Note: HC12 TX to RX and RX to TX
 #define TX_PIN 14
 #define RX_PIN 12
-// This masters address, can be 1, 2 or 3.
-#define MASTER_ADDRESS 2
+// This masters addr, can be 1, 2 or 3.
+#define MASTER_addr 2
 #define MAX_DEVICES 64
 #define WIFI_MDNS "homecontrol"
 
 SoftwareSerial ss = SoftwareSerial(RX_PIN, TX_PIN);
-PacketSenderReceiver sr = PacketSenderReceiver(&ss, false, MASTER_ADDRESS);
+PacketSenderReceiver sr = PacketSenderReceiver(&ss, false, MASTER_addr);
 Packet temp;
 Device* devices[MAX_DEVICES];
 
@@ -67,6 +67,9 @@ void led(int blinks, int interval = 200)
 unsigned char currentArg = 0;
 String args[16];
 
+// Prototypes
+void pingSlave(unsigned char addr, bool silent, void* state = nullptr);
+
 void setup()
 {
   pinMode(DEBUG_PIN, OUTPUT);
@@ -74,8 +77,8 @@ void setup()
 
   Serial.begin(19200);
   veryCoolSplashScreen();
-  Serial.print("----> My address (master): ");
-  Serial.println(MASTER_ADDRESS);
+  Serial.print("----> My addr (master): ");
+  Serial.println(MASTER_addr);
   Serial.println("----> Loading devices...");
   EEPROM.begin(4096);
   //clearRomDevices();
@@ -92,7 +95,7 @@ void setup()
   Serial.println();
   Serial.print("----> Connected to ");
   Serial.println(WiFi.SSID());
-  Serial.print("----> IP address: ");
+  Serial.print("----> IP addr: ");
   Serial.println(WiFi.localIP());
   if (MDNS.begin(WIFI_MDNS))  // Start the mDNS responder for esp8266.local
   {             
@@ -104,53 +107,11 @@ void setup()
     Serial.println("\t-> FATAL: Error setting up MDNS responder!");
   }
   server.begin();
-  /*server.on("/help", handleRootWebPage);
-  server.onNotFound(handleNotFoundPage);
-  server.begin();*/
   Serial.println("----> Starting...");
   delay(500);
   ss.begin(2400);
   Serial.println("\t-> OK");
 }
-
-/*void handleRootWebPage()
-{
-  server.send(200, "text/plain", "This is a help page.");
-}
-
-void handleNotFoundPage()
-{
-  String page = server.uri();
-  String splitted[20];
-  int len = 1;
-
-  for(int i = 1, j = 0; i < page.length() && j < 20; i++)
-  {
-    char c = page[i];
-    if (c == '/')
-    {
-      j++;
-      len++;
-      continue;
-    }
-    else
-    {
-      splitted[j] += c;
-    }
-  }
-
-  String content = "esp8266\n";
-
-  if (splitted[0] == "command")
-  {
-    command(&splitted[1], len - 1);
-
-    content += "command execution\n";
-  }
-
-  server.send(404, "text/plain", content);
-  server.sendContent("jatest\n");
-}*/
 
 void loop()
 {
@@ -188,9 +149,6 @@ void loop()
 
   if (sr.receive(&temp))
   {
-    //Serial.print("Received packet: ");
-    //temp.printToSerial();
-    //Serial.println();
     led(1);
 
     // Slave is bound.
@@ -239,12 +197,9 @@ void loop()
     lastPingMillis = millis();
   }
 
-  //server.handleClient();
-
   WiFiClient newClient = server.available();
   if (newClient && (newClient != client) && (!client || !client.connected()))
   {
-    Serial.println("New client!");
     client = newClient;
     clientData = "";
   }
@@ -260,8 +215,6 @@ void loop()
 
     if (clientData.length() > 2 && c == '\n' && clientData[clientData.length() - 2] == '\n')
     {
-      Serial.println("End of request received. Responsing...");
-
       int i = clientData.indexOf("GET "), j = clientData.indexOf(" HTTP/");
       bool open = false;
       if (i >= 0 && j >= 0)
@@ -270,44 +223,9 @@ void loop()
         request.trim();
         open = requested(request);       
       }
-
-      /*// HEADER
-      client.println("HTTP/1.1 200 OK");
-      client.println("Connection: Keep-Alive");
-      client.println("Keep-Alive: timeout=15, max=1000");
-      client.println("Content-type: text/html");
-      client.println();
-      // CSS + HTML HEAD
-      client.println("<!DOCTYPE html><html>");
-      client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
-      client.println("<link rel=\"icon\" href=\"data:,\">");
-      client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
-      client.println(".button { background-color: #195B6A; border: none; color: white; padding: 16px 40px;");
-      client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
-      client.println(".button2 { background-color: #77878A; }</style></head>");
-      // HTML
-      client.println("<body><h1>Home Control</h1>");
-      client.println("<p>TESTING:</p>");
-      client.println("<p><a href=\"/nice\"><button class=\"button\">OKE COOL</button></a></p>");
-      client.println("</body></html>");
-      client.println();*/
-
       if (!open)
         client.stop();
     }
-  }
-}
-
-bool requested(String path)
-{
-  Serial.println("PATH: " + path);
-  Serial.println("CMD: " + request);
-
-  String sub[16];
-  for(int i = 0; i < path.length(); i++)
-  {
-    char c = path[i];
-    
   }
 }
 
@@ -330,7 +248,7 @@ void command(String args[16], unsigned char argsLen)
       Serial.print(args[i + 3]);
       Serial.print("] ");
     }
-    Serial.print("of address ");
+    Serial.print("of addr ");
     Serial.println(addr);
 
     sr.sendRequest(addr, propertySetAnswer, data, argsLen - 1);
@@ -427,19 +345,19 @@ void propertySetAnswer(ResponseStatus status, Request* requested)
   }
 }
 
-void pingSlave(unsigned char addr, bool silent)
+void pingSlave(unsigned char addr, bool silent, void* state)
 {
   if (silent)
   {
     unsigned char data[1] = {0x1};
 
-    sr.sendRequest(addr, pingAnswer, data, sizeof(data));
+    sr.sendRequest(addr, pingAnswer, data, sizeof(data), state);
   }
   else
   {
     unsigned char data[2] = {0x1, 0x0};
 
-    sr.sendRequest(addr, pingAnswer, data, sizeof(data));
+    sr.sendRequest(addr, pingAnswer, data, sizeof(data), state);
   }
 }
 
@@ -453,13 +371,6 @@ void pingAnswer(ResponseStatus status, Request* requested)
     Serial.println(status == Okay ? "Okay" : (status == Failed ? "Failed" : "No response"));
   }
 
-  if (client && client.connected())
-  {
-    client.print("pinged: ");
-    client.println(status);
-    client.stop();
-  }
-
   Device* dev = getDeviceWithAddress(requested->fromAddress);
   if (dev)
   {
@@ -470,6 +381,13 @@ void pingAnswer(ResponseStatus status, Request* requested)
       dev->online = online;
       saveDevicesToRom();
     }
+  }
+
+  if (requested->state)
+  {
+    WiFiClient* wc = (WiFiClient*)requested->state;
+    wc->println(status);
+    wc->stop();
   }
 }
 
@@ -484,7 +402,7 @@ bool bindSlave(unsigned char ufid[7], unsigned char withAddress)
   {
     if (devices[i] && (devices[i]->address == withAddress || memcmp(ufid, devices[i]->uniqueFactoryId, 7) == 0))
     {
-      Serial.println("----> Warning: tried to bind 2 slaves with either the same address or ufid.");
+      Serial.println("----> Warning: tried to bind 2 slaves with either the same addr or ufid.");
 
       return false;
     }
@@ -519,6 +437,116 @@ void unbindSlave(unsigned char withAddress)
        break;
     }
   }
+}
+
+bool requested(String path)
+{
+  Serial.println("PATH: " + path);
+
+  String sub[16];
+  unsigned char subCount = 0;
+  for(int i = 1; i < path.length() && subCount < 16; i++)
+  {
+    char c = path[i];
+    
+    if (c == '/')
+    {
+        subCount++;
+        continue;
+    }
+
+    sub[subCount] += c;
+  }
+  subCount++;
+
+  if (sub[0] == "interface")
+  {
+    // HEADER
+    client.println("HTTP/1.1 200 OK");
+    client.println("Connection: Keep-Alive");
+    client.println("Keep-Alive: timeout=15, max=1000");
+    client.println("Content-type: text/html");
+    client.println();
+    // CSS + HTML HEAD
+    client.println("<!DOCTYPE html><html>");
+    client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+    client.println("<link rel=\"icon\" href=\"data:,\">");
+    client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
+    client.println(".button { background-color: #195B6A; border: none; color: white; padding: 16px 40px;");
+    client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
+    client.println(".button2 { background-color: #77878A; }</style></head>");
+    // HTML
+    client.println("<body><h1>Home Control</h1>");
+    client.println("<p>TESTING:</p>");
+    client.println("<p><a href=\"/nice\"><button class=\"button\">OKE COOL</button></a></p>");
+    client.println("</body></html>");
+    client.println();
+    return false;
+  }
+  else if (sub[0] == "deviceList")
+  {
+    for(unsigned char i = 0; i < MAX_DEVICES; i++)
+    {
+      if (devices[i])
+      {
+        client.print(devices[i]->name);
+        client.print(',');
+        for(unsigned char j = 0; j < 7; j++)
+        {
+          if (j != 0)
+            client.print(' ');
+
+          client.print(devices[i]->uniqueFactoryId[j]);
+        }
+        client.print(',');
+        for(unsigned char j = 0; j < 8; j++)
+        {
+          if (j != 0)
+            client.print(' ');
+
+          client.print(devices[i]->deviceInfo[j]);
+        }
+        client.print(',');
+        client.print(devices[i]->online ? "true" : "false");
+        client.print(',');
+        client.print(devices[i]->working ? "true" : "false");
+        client.println();
+      }
+    }
+    return false;
+  }
+  else if (sub[0] == "setDeviceName" && subCount == 3)
+  {
+    unsigned char addr = sub[1].toInt();
+
+    Device* d = getDeviceWithAddress(addr);
+    if (d && sub[2].length() > 1 && sub[2].length() < 25)
+    {
+      sub[2].toCharArray(d->name, sub[2].length() + 1);
+      saveDevicesToRom();
+      client.println("okey");
+    }
+    else
+    {
+      client.println("not okey");
+    }
+    return false;
+  }
+  else if (sub[0] == "ping" && subCount == 2)
+  {
+    unsigned char addr = sub[1].toInt();
+
+    pingSlave(addr, false, &client);
+
+    return true;
+  }
+  else
+  {
+    client.println("404: Not found");
+    return false;
+  }
+
+  return false;
 }
 
 void checkOnlineBinds()
