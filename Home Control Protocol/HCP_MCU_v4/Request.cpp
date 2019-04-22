@@ -27,6 +27,7 @@ void Request::use(unsigned char fromAddress, ResponseHandler handler, unsigned c
   this->createdMillis = this->sentMillis;
   this->used = true;
   this->resendTries = 0;
+  this->state = state;
   memset(this->sentData, 0, 20);
   memcpy(this->sentData, data, len);
   this->sentDataLength = len;
