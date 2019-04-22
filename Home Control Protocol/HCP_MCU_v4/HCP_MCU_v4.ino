@@ -47,7 +47,7 @@ ESP8266WiFiMulti wifiMulti;
 WiFiServer server(80);
 WiFiClient client;
 String clientData;
-//ESP8266WebServer server(80);
+void* slaveBoundClient = nullptr; 
 
 const unsigned int retryBindMillisInterval = 20000;
 unsigned long lastRetryBindMillis = 1;
@@ -68,7 +68,11 @@ unsigned char currentArg = 0;
 String args[16];
 
 // Prototypes
-void pingSlave(unsigned char addr, bool silent, void* state = nullptr);
+void pingSlave(unsigned char addr, bool silent = true, void* state = nullptr);
+void unbindSlave(unsigned char withAddress, void* state = nullptr);
+void setSlaveProperties(unsigned char addr, unsigned char startPos, unsigned char* values, unsigned char valueCount, void * state = nullptr);
+bool bindSlave(unsigned char ufid[7], unsigned char withAddress, void* state = nullptr);
+bool bindSlave(unsigned char ufid[7], void* state = nullptr);
 
 void setup()
 {
@@ -77,7 +81,7 @@ void setup()
 
   Serial.begin(19200);
   veryCoolSplashScreen();
-  Serial.print("----> My addr (master): ");
+  Serial.print("----> My address (master): ");
   Serial.println(MASTER_addr);
   Serial.println("----> Loading devices...");
   EEPROM.begin(4096);
@@ -161,18 +165,25 @@ void loop()
 
       if (bound)
       {
-          Serial.print("----> Slave is now getting bound (1): ");
-          bound->printToSerial();
-          Serial.println();
+        Serial.print("----> Slave is now getting bound (1): ");
+        bound->printToSerial();
+        Serial.println();
 
-          bound->working = true;
-          bound->online = true;
-          memcpy(bound->deviceInfo, temp.getData(), temp.getDataLength());
-          saveDevicesToRom();
+        bound->working = true;
+        bound->online = true;
+        memcpy(bound->deviceInfo, temp.getData(), temp.getDataLength());
+        saveDevicesToRom();
 
-          Serial.print("----> Slave is now bound (2): ");
-          bound->printToSerial();
-          Serial.println();
+        Serial.print("----> Slave is now bound (2): ");
+        bound->printToSerial();
+        Serial.println();
+
+        if (slaveBoundClient)
+        {
+          WiFiClient* wc = (WiFiClient*)slaveBoundClient;
+          wc->println("okey");
+          wc->stop();
+        }
       }
       else
       {
@@ -236,7 +247,6 @@ void command(String args[16], unsigned char argsLen)
     Serial.print("----> Trying to set property ");
     unsigned char addr = args[1].toInt();
     unsigned char startPos = args[2].toInt();
-    unsigned char value = args[3].toInt();
     unsigned char data[16] = {0x20, startPos};
     for (unsigned char i = 0; i < argsLen - 3; i++)
     {
@@ -324,7 +334,140 @@ void command(String args[16], unsigned char argsLen)
   }
 }
 
-void setSlaveProperties(unsigned char addr, unsigned char startPos, unsigned char* values, unsigned char valueCount)
+bool requested(String path)
+{
+  Serial.println("PATH: " + path);
+
+  String sub[20];
+  unsigned char subCount = 0;
+  for(int i = 1; i < path.length() && subCount < 20; i++)
+  {
+    char c = path[i];
+    
+    if (c == '/')
+    {
+        subCount++;
+        continue;
+    }
+
+    sub[subCount] += c;
+  }
+  subCount++;
+
+  if (sub[0] == "interface")
+  {
+    // HEADER
+    client.println("HTTP/1.1 200 OK");
+    client.println("Connection: Keep-Alive");
+    client.println("Keep-Alive: timeout=15, max=1000");
+    client.println("Content-type: text/html");
+    client.println();
+    // CSS + HTML HEAD
+    client.println("<!DOCTYPE html><html>");
+    client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+    client.println("<link rel=\"icon\" href=\"data:,\">");
+    client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
+    client.println(".button { background-color: #195B6A; border: none; color: white; padding: 16px 40px;");
+    client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
+    client.println(".button2 { background-color: #77878A; }</style></head>");
+    // HTML
+    client.println("<body><h1>Home Control</h1>");
+    client.println("<p>TESTING:</p>");
+    client.println("<p><a href=\"/nice\"><button class=\"button\">OKE COOL</button></a></p>");
+    client.println("</body></html>");
+    client.println();
+    return false;
+  }
+  else if (sub[0] == "deviceList")
+  {
+    for(unsigned char i = 0; i < MAX_DEVICES; i++)
+    {
+      if (devices[i])
+      {
+        client.print(devices[i]->name);
+        client.print(',');
+        client.print(devices[i]->address);
+        client.print(',');
+        for(unsigned char j = 0; j < 7; j++)
+        {
+          if (j != 0)
+            client.print(' ');
+          client.print(devices[i]->uniqueFactoryId[j]);
+        }
+        client.print(',');
+        for(unsigned char j = 0; j < 8; j++)
+        {
+          if (j != 0)
+            client.print(' ');
+          client.print(devices[i]->deviceInfo[j]);
+        }
+        client.print(',');
+        client.print(devices[i]->online ? "true" : "false");
+        client.print(',');
+        client.print(devices[i]->working ? "true" : "false");
+        client.println();
+      }
+    }
+    return false;
+  }
+  else if (sub[0] == "setDeviceName" && subCount == 3)
+  {
+    unsigned char addr = sub[1].toInt();
+
+    Device* d = getDeviceWithAddress(addr);
+    if (d && sub[2].length() > 1 && sub[2].length() < 25)
+    {
+      sub[2].toCharArray(d->name, sub[2].length() + 1);
+      saveDevicesToRom();
+      client.println("okey");
+    }
+    else
+    {
+      client.println("not okey");
+    }
+    return false;
+  }
+  else if (sub[0] == "ping" && subCount == 2)
+  {
+    unsigned char addr = sub[1].toInt();
+    pingSlave(addr, false, &client);
+    return true;
+  }
+  else if (sub[0] == "bind" && subCount > 1 && subCount <= 8)
+  {
+    unsigned char ufid[7];
+    memset(ufid, 0x0, sizeof(ufid));
+    for (unsigned char i = 1; i < subCount; i++)
+      ufid[i - 1] = sub[i].toInt();
+    bindSlave(ufid, &client);
+    return true;
+  }
+  else if (sub[0] == "unbind" && subCount == 2)
+  {
+    unsigned char addr = sub[1].toInt();
+    unbindSlave(addr, &client);
+    return true;
+  }
+  else if (sub[0] == "prop" && subCount > 3 && subCount < 20)
+  {
+    unsigned char addr = sub[1].toInt();
+    unsigned char startPos = sub[2].toInt();
+    unsigned char data[16] = {0x20, startPos};
+    for (unsigned char i = 0; i < subCount - 3; i++)
+      data[i + 2] = sub[i + 3].toInt();
+    sr.sendRequest(addr, propertySetAnswer, data, subCount - 1, &client);
+    return true;
+  }
+  else
+  {
+    client.println("404: Not found");
+    return false;
+  }
+
+  return false;
+}
+
+void setSlaveProperties(unsigned char addr, unsigned char startPos, unsigned char* values, unsigned char valueCount, void* state)
 {
   if (valueCount == 0)
     return;
@@ -332,7 +475,7 @@ void setSlaveProperties(unsigned char addr, unsigned char startPos, unsigned cha
   unsigned char data[16] = {0x20, startPos};
   for (unsigned char i = 0; i < valueCount && i < 14; i++)
     data[i + 2] = values[i];
-  sr.sendRequest(addr, propertySetAnswer, data, valueCount + 2);
+  sr.sendRequest(addr, propertySetAnswer, data, valueCount + 2, state);
 }
 
 void propertySetAnswer(ResponseStatus status, Request* requested)
@@ -342,6 +485,13 @@ void propertySetAnswer(ResponseStatus status, Request* requested)
     Serial.print("\t-> Propery for slave ");
     Serial.print(requested->fromAddress);
     Serial.println(" was set successfully!");
+  }
+
+  if (requested->state)
+  {
+    WiFiClient* wc = (WiFiClient*)requested->state;
+    wc->println(status);
+    wc->stop();
   }
 }
 
@@ -391,12 +541,12 @@ void pingAnswer(ResponseStatus status, Request* requested)
   }
 }
 
-bool bindSlave(unsigned char ufid[7])
+bool bindSlave(unsigned char ufid[7], void* state)
 {
-  return bindSlave(ufid, getNewAddress());
+  return bindSlave(ufid, getNewAddress(), state);
 }
 
-bool bindSlave(unsigned char ufid[7], unsigned char withAddress)
+bool bindSlave(unsigned char ufid[7], unsigned char withAddress, void* state)
 {
   for(unsigned char i = 0; i < MAX_DEVICES; i++)
   {
@@ -413,16 +563,17 @@ bool bindSlave(unsigned char ufid[7], unsigned char withAddress)
   data[0] = 0x10;
   data[8] = withAddress;
   sr.broadcast(data, sizeof(data), DataRequest, 130); // Multi-purpose-byte is 130, slave will return 130.
+  slaveBoundClient = state;
 
   registerNewDevice(ufid, withAddress);
   saveDevicesToRom();
   return true;
 }
 
-void unbindSlave(unsigned char withAddress)
+void unbindSlave(unsigned char withAddress, void * state)
 {
   unsigned char data[1] = { 0x2 };
-  sr.sendRequest(withAddress, unbindAnswer, data, sizeof(data));
+  sr.sendRequest(withAddress, unbindAnswer, data, sizeof(data), state);
 
   for(unsigned char i = 0; i < MAX_DEVICES; i++)
   {
@@ -439,115 +590,7 @@ void unbindSlave(unsigned char withAddress)
   }
 }
 
-bool requested(String path)
-{
-  Serial.println("PATH: " + path);
 
-  String sub[16];
-  unsigned char subCount = 0;
-  for(int i = 1; i < path.length() && subCount < 16; i++)
-  {
-    char c = path[i];
-    
-    if (c == '/')
-    {
-        subCount++;
-        continue;
-    }
-
-    sub[subCount] += c;
-  }
-  subCount++;
-
-  if (sub[0] == "interface")
-  {
-    // HEADER
-    client.println("HTTP/1.1 200 OK");
-    client.println("Connection: Keep-Alive");
-    client.println("Keep-Alive: timeout=15, max=1000");
-    client.println("Content-type: text/html");
-    client.println();
-    // CSS + HTML HEAD
-    client.println("<!DOCTYPE html><html>");
-    client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
-    client.println("<link rel=\"icon\" href=\"data:,\">");
-    client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
-    client.println(".button { background-color: #195B6A; border: none; color: white; padding: 16px 40px;");
-    client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
-    client.println(".button2 { background-color: #77878A; }</style></head>");
-    // HTML
-    client.println("<body><h1>Home Control</h1>");
-    client.println("<p>TESTING:</p>");
-    client.println("<p><a href=\"/nice\"><button class=\"button\">OKE COOL</button></a></p>");
-    client.println("</body></html>");
-    client.println();
-    return false;
-  }
-  else if (sub[0] == "deviceList")
-  {
-    for(unsigned char i = 0; i < MAX_DEVICES; i++)
-    {
-      if (devices[i])
-      {
-        client.print(devices[i]->name);
-        client.print(',');
-        for(unsigned char j = 0; j < 7; j++)
-        {
-          if (j != 0)
-            client.print(' ');
-
-          client.print(devices[i]->uniqueFactoryId[j]);
-        }
-        client.print(',');
-        for(unsigned char j = 0; j < 8; j++)
-        {
-          if (j != 0)
-            client.print(' ');
-
-          client.print(devices[i]->deviceInfo[j]);
-        }
-        client.print(',');
-        client.print(devices[i]->online ? "true" : "false");
-        client.print(',');
-        client.print(devices[i]->working ? "true" : "false");
-        client.println();
-      }
-    }
-    return false;
-  }
-  else if (sub[0] == "setDeviceName" && subCount == 3)
-  {
-    unsigned char addr = sub[1].toInt();
-
-    Device* d = getDeviceWithAddress(addr);
-    if (d && sub[2].length() > 1 && sub[2].length() < 25)
-    {
-      sub[2].toCharArray(d->name, sub[2].length() + 1);
-      saveDevicesToRom();
-      client.println("okey");
-    }
-    else
-    {
-      client.println("not okey");
-    }
-    return false;
-  }
-  else if (sub[0] == "ping" && subCount == 2)
-  {
-    unsigned char addr = sub[1].toInt();
-
-    pingSlave(addr, false, &client);
-
-    return true;
-  }
-  else
-  {
-    client.println("404: Not found");
-    return false;
-  }
-
-  return false;
-}
 
 void checkOnlineBinds()
 {
@@ -560,10 +603,6 @@ void checkOnlineBinds()
   {
     if (devices[i] && devices[i]->working)
     {
-      /*Serial.print("----> Checking if device ");
-      devices[i]->printToSerial();
-      Serial.println(" is online...");*/
-
       pingSlave(devices[i]->address, true);
 
       i++;
@@ -614,25 +653,14 @@ void unbindAnswer(ResponseStatus status, Request* requested)
     Serial.print(requested->fromAddress);
     Serial.println(" was successfully unbound from this master.");
   }
-}
 
-// Obsolete!
-/*void answer(ResponseStatus status, Request* requested)
-{
-  if (status == NoResponse)
-    Serial.print("Packet did not get answered: ");
-  else if (status == Failed)
-    Serial.print("Packet got answered (failed): ");
-  else
-    Serial.print("Packet got answered (okey): ");
-
-  for (int i = 0; i < requested->responseLength; i++)
+  if (requested->state)
   {
-    Serial.print(requested->response[i]);
-    Serial.print(' ');
+    WiFiClient* wc = (WiFiClient*)requested->state;
+    wc->println(status);
+    wc->stop();
   }
-  Serial.println();
-}*/
+}
 
 void veryCoolSplashScreen()
 {
