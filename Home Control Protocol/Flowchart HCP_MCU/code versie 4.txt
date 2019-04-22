@@ -1,0 +1,62 @@
+﻿Master opstart (H-MCU);
+Defineer variablen.
+Start Seriële communicatie.;
+while (!Verbonden met internet?)
+{
+  Wacht even en
+  probeer opnieuw.;
+}
+Start HTTP web server;
+
+Loop:
+
+if (Is er een HTTP request?)
+{
+  switch(Wat wordt er gerequest?)
+  {
+    case "Command":
+      Verkrijg **fabriekscode** van request.;
+      Verkrijg **data** van request.;
+        // Elke slave (of H-CU) krijgt een fabriekscode met hiernaast een adres.
+      Verkrijg **adres** voor **fabriekscode**.;
+      
+      SendData:
+      Stuur **data** naar **adres**.;
+      
+      while (!Is er een antwoord?)
+      {
+        if (Duurt het te lang?)
+        {
+          if (Lukt het na 5 pogingen 
+          nog altijd niet?)
+          {
+            Geef **mislukt** terug.;
+            goto Loop;
+          }
+          We sturen het 
+          datapakket opnieuw.;
+          goto SendData;
+        }
+        else
+        {
+          Wacht...;
+        }
+      }
+      
+      Geef **oke** terug.;
+    break;
+    
+    case "Devices":
+    Geef een lijst van geregistreerde apparaten 
+    die worden bestuurd door deze master;
+    break;
+    
+    case "Register":
+      Registreer de meegegeven **fabriekscode** en
+      correspondeer het met een nieuw adres.;
+      break;
+  }
+
+}
+
+goto Loop;

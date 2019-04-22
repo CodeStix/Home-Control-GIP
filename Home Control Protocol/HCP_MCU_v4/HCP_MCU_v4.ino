@@ -16,6 +16,7 @@
     https://randomnerdtutorials.com/esp8266-web-server/
     http://arduino.esp8266.com/stable/package_esp8266com_index.json
     https://en.wikipedia.org/wiki/Multicast_DNS
+    https://en.wikipedia.org/wiki/Cyclic_redundancy_check#CRC-32_algorithm
 */
 #include <SoftwareSerial.h>
 #include <ESP8266WiFi.h>
