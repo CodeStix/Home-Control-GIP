@@ -1,0 +1,79 @@
+class WiFi;
+#define VERBONDEN 0
+char * dataVanSlave;
+
+// Dit voert 1 keer uit bij opstart.  
+void setup()  
+{  
+    // Start de communicatie met de aangesloten computer zodat we kunnen   
+    // zien wat de master aan het doen is.  
+    startSerieleCommunicatieMetComputer(19200);  
+    // Laad de vorig opgeslagen apparaten uit het niet-vluchig EEPROM geheugen.  
+    // (https://www.arduino.cc/en/Reference/EEPROM)   
+    laadApparatenUitROM();  
+    // Wacht tot we verbonden zijn met het lokale internet.  
+    while (WiFi.verbind() != VERBONDEN)   
+    {  
+        // Als we niet verbonden zijn, wacht 250 milliseconden   
+        // en probeer dan opnieuw.  
+        delay(250);  
+    }  
+    // Start de multicast DNS service.   
+    // (https://en.wikipedia.org/wiki/Multicast_DNS)  
+    startMulticastDNS();  
+    // Start de communicatie met de aangesloten antenne module zodat we   
+    // data kunnen versturen naar andere antennes.  
+    startSerieleAntenne(2400);  
+}  
+    
+// Dit wordt oneindig keren herhaald.  
+void loop()  
+{ 
+    // Laat een led knipperen wanneer nodig als visueel   
+    // weergave over wat er aan de hand is.  
+    laatDebugLedKnipperenAlsNodig();  
+    // Is er een commando ontvangen?  
+    if (commandoOntvangen())  
+    {  
+        // Voer het ontvangen commando uit.  
+        voerCommandoUit();  
+    }  
+    // Is er een datapakket ontvangen?  
+    if (dataPakketOntvangen())  
+    {  
+        // Is de zender van het pakket gekoppend aan deze master?  
+        if (gekoppeldAanMaster(dataVanSlave))  
+        {  
+            // Interpreteer de ontvangen data.  
+            interpreteerData(dataVanSlave);  
+        }  
+        else  
+        {  
+            // Koppel de slave die de ontvangen data had verstuurd.  
+            koppelNieuweSlave(dataVanSlave);  
+        }  
+    }  
+    
+    // Herverstuur alle pakketten die al zijn verstuurd   
+    // naar slaves maar waarvan geen 'oke' bericht was teruggegeven.  
+    herverstuurNietOnvangenPakketten();  
+    
+    // Om de 30 seconden:  
+    if (millis() % 30000 == 0)  
+    {  
+        // Probeer alle niet werkende slaves aan de praat te krijgen.  
+        // (niet werkend: geregistreerde slaves die niet antwoorden)  
+        koppelNietWerkendeSlaves();  
+    }  
+    
+    // Om de 5 seconden:  
+    if (millis() % 5000 == 0)  
+    {  
+        // Noteer welke slaves online zijn en welke offline zijn.  
+        checkWelkeSlaveOnlineZijn();  
+    }  
+    
+    // Laat de onderliggende webserver werken zodat deze module commando's   
+    // kan ontvangen van (als voorbeeld) de smartphone app.  
+    laatWebserverWerken();  
+}  
