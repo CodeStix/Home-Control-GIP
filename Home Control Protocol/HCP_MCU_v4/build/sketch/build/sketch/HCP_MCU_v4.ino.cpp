@@ -1,5 +1,6 @@
-# 1 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-# 1 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+#include <Arduino.h>
+#line 1 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+#line 1 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 /*
   Home Control Protocol v0.4.0
     by Stijn Rogiest (copyright 2019)
@@ -21,42 +22,42 @@
     https://en.wikipedia.org/wiki/Cyclic_redundancy_check#CRC-32_algorithm
 */
 
-# 23 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-# 24 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-# 25 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-# 26 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-# 27 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-# 28 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-# 29 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
+#include <SoftwareSerial.h>
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266WiFiMulti.h>
+#include <ESP8266mDNS.h>
+#include <ESP8266WebServer.h>
+#include <EEPROM.h>
 
 ///Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/
-# 32 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-# 33 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-
+#include "PacketSenderReceiver.h"
+#include "Device.h"
+#include "Packet.h"
 
 /*#include "PacketSenderReceiver.h"
 #include "Device.h"
 #include "Packet.h"*/
 
-
+#define DEBUG_PIN LED_BUILTIN
 // Note: HC12 TX to RX and RX to TX
-
-
+#define TX_PIN 14
+#define RX_PIN 12
 // This masters addr, can be 1, 2 or 3.
+#define MASTER_addr 2
+#define MAX_DEVICES 64
+#define WIFI_MDNS "homecontrol"
 
-
-
-
-SoftwareSerial ss = SoftwareSerial(12, 14);
-PacketSenderReceiver sr = PacketSenderReceiver(&ss, false, 2);
+SoftwareSerial ss = SoftwareSerial(RX_PIN, TX_PIN);
+PacketSenderReceiver sr = PacketSenderReceiver(&ss, false, MASTER_addr);
 Packet temp;
-Device* devices[64];
+Device* devices[MAX_DEVICES];
 
 ESP8266WiFiMulti wifiMulti;
 WiFiServer server(80);
 WiFiClient client;
 String clientData;
-void* slaveBoundClient = nullptr;
+void* slaveBoundClient = nullptr; 
 
 const unsigned int retryBindMillisInterval = 20000;
 unsigned long lastRetryBindMillis = 1;
@@ -85,13 +86,13 @@ bool bindSlave(unsigned char ufid[7], void* state = nullptr);
 
 void setup()
 {
-  pinMode(2, 0x01);
-  digitalWrite(2, false);
+  pinMode(DEBUG_PIN, OUTPUT);
+  digitalWrite(DEBUG_PIN, false);
 
   Serial.begin(19200);
   veryCoolSplashScreen();
   Serial.print("----> My address (master): ");
-  Serial.println(2);
+  Serial.println(MASTER_addr);
   Serial.println("----> Loading devices...");
   EEPROM.begin(4096);
   //clearRomDevices();
@@ -101,7 +102,7 @@ void setup()
   Serial.print("----> Connecting to WiFi");
   wifiMulti.addAP("PollenPatatten", "Ziektes123");
   wifiMulti.addAP("RogiestHuis", "Vrijdag1!");
-  while (wifiMulti.run() != WL_CONNECTED)
+  while (wifiMulti.run() != WL_CONNECTED) 
   {
     delay(250);
     Serial.print('.');
@@ -111,12 +112,12 @@ void setup()
   Serial.println(WiFi.SSID());
   Serial.print("----> IP addr: ");
   Serial.println(WiFi.localIP());
-  if (MDNS.begin("homecontrol")) // Start the mDNS responder for esp8266.local
-  {
+  if (MDNS.begin(WIFI_MDNS))  // Start the mDNS responder for esp8266.local
+  {             
     Serial.print("\t-> mDNS responder started: ");
-    Serial.println("homecontrol");
-  }
-  else
+    Serial.println(WIFI_MDNS);
+  } 
+  else 
   {
     Serial.println("\t-> FATAL: Error setting up MDNS responder!");
   }
@@ -131,7 +132,7 @@ void loop()
 {
   if (ledBlinks > 0 && (millis() - lastLedBlink) > ledBlinkInterval)
   {
-    digitalWrite(2, ledBlinks % 2 == 0);
+    digitalWrite(DEBUG_PIN, ledBlinks % 2 == 0);
 
     ledBlinks--;
     lastLedBlink = millis();
@@ -242,7 +243,7 @@ void loop()
       {
         String request = clientData.substring(i + 4, j);
         request.trim();
-        open = requested(request);
+        open = requested(request);       
       }
       if (!open)
         client.stop();
@@ -287,7 +288,7 @@ void command(String args[16], unsigned char argsLen)
     {
       Serial.println("----> Unbinding all slaves, please wait...");
 
-      for(unsigned char i = 0; i < 64; i++)
+      for(unsigned char i = 0; i < MAX_DEVICES; i++)
       {
         if (devices[i])
         {
@@ -303,7 +304,7 @@ void command(String args[16], unsigned char argsLen)
 
       Serial.println("----> All bound slaves are now not bound anymore.");
     }
-    else if (argsLen >= 3 && argsLen <= 9 && args[1] == "bind")
+    else if (argsLen >= 3 && argsLen <= 9 &&  args[1] == "bind")
     {
       unsigned char ufid[7];
       memset(ufid, 0x0, sizeof(ufid));
@@ -353,7 +354,7 @@ bool requested(String path)
   for(int i = 1; i < path.length() && subCount < 20; i++)
   {
     char c = path[i];
-
+    
     if (c == '/')
     {
         subCount++;
@@ -390,7 +391,7 @@ bool requested(String path)
   }
   else if (sub[0] == "deviceList")
   {
-    for(unsigned char i = 0; i < 64; i++)
+    for(unsigned char i = 0; i < MAX_DEVICES; i++)
     {
       if (devices[i])
       {
@@ -558,7 +559,7 @@ bool bindSlave(unsigned char ufid[7], void* state)
 
 bool bindSlave(unsigned char ufid[7], unsigned char withAddress, void* state)
 {
-  for(unsigned char i = 0; i < 64; i++)
+  for(unsigned char i = 0; i < MAX_DEVICES; i++)
   {
     if (devices[i] && (devices[i]->address == withAddress || memcmp(ufid, devices[i]->uniqueFactoryId, 7) == 0))
     {
@@ -585,7 +586,7 @@ void unbindSlave(unsigned char withAddress, void * state)
   unsigned char data[1] = { 0x2 };
   sr.sendRequest(withAddress, unbindAnswer, data, sizeof(data), state);
 
-  for(unsigned char i = 0; i < 64; i++)
+  for(unsigned char i = 0; i < MAX_DEVICES; i++)
   {
     if (devices[i] && devices[i]->address == withAddress)
     {
@@ -604,10 +605,10 @@ void checkOnlineBinds()
 {
   static unsigned char i = 0;
 
-  if (i >= 64)
+  if (i >= MAX_DEVICES)
     i = 0;
 
-  for(; i < 64; i++)
+  for(; i < MAX_DEVICES; i++)
   {
     if (devices[i] && devices[i]->working)
     {
@@ -623,10 +624,10 @@ void retryNotWorkingBinds()
 {
   static unsigned char i = 0;
 
-  if (i >= 64)
+  if (i >= MAX_DEVICES)
     i = 0;
 
-  for(; i < 64; i++)
+  for(; i < MAX_DEVICES; i++)
   {
     if (devices[i] && !(devices[i]->working))
     {
@@ -689,7 +690,7 @@ void printDevices()
 {
   Serial.println("----> List of devices that are controlled by this master:");
   unsigned char deviceCount = 0;
-  for(unsigned char i = 0; i < 64; i++)
+  for(unsigned char i = 0; i < MAX_DEVICES; i++)
   {
     if (devices[i])
     {
@@ -708,7 +709,7 @@ void loadDevicesFromRom()
   Serial.println(sizeof(Device));*/
   unsigned char deviceCount = 0;
 
-  for (int i = 0; i < 64; i++)
+  for (int i = 0; i < MAX_DEVICES; i++)
   {
     if (EEPROM.read(i * 50 + 100 + 50 - 1) == 0xFF)
     {
@@ -728,7 +729,7 @@ void loadDevicesFromRom()
       deviceCount++;
     }
   }
-
+  
   Serial.print("\t-> ");
   Serial.print(deviceCount);
   Serial.println(" devices were loaded from ROM.");
@@ -736,9 +737,9 @@ void loadDevicesFromRom()
 
 void clearRomDevices()
 {
-  for (int i = 100; i < 100 + 64 * 50; i++)
+  for (int i = 100; i < 100 + MAX_DEVICES * 50; i++)
     EEPROM.write(i, 0xFF);
-  for(unsigned char i = 0; i < 64; i++)
+  for(unsigned char i = 0; i < MAX_DEVICES; i++)
   {
     if (devices[i])
     {
@@ -756,7 +757,7 @@ void saveDevicesToRom()
 {
   unsigned char deviceCount = 0;
 
-  for (int i = 0; i < 64; i++)
+  for (int i = 0; i < MAX_DEVICES; i++)
   {
     if (devices[i])
     {
@@ -785,7 +786,7 @@ void saveDevicesToRom()
 
 Device* registerNewDevice(unsigned char ufid[7], unsigned char addr)
 {
-  for(unsigned char i = 0; i < 64; i++)
+  for(unsigned char i = 0; i < MAX_DEVICES; i++)
   {
     if (!devices[i])
     {
@@ -800,7 +801,7 @@ Device* registerNewDevice(unsigned char ufid[7], unsigned char addr)
 
 Device* getDeviceWithAddress(unsigned char addr)
 {
-  for(unsigned char i = 0; i < 64; i++)
+  for(unsigned char i = 0; i < MAX_DEVICES; i++)
   {
     if (devices[i] && devices[i]->address == addr)
       return devices[i];

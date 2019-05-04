@@ -248,9 +248,21 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
   // Bind command while registered
   else if (data[0] == 0x10)
   {
-    unsigned char resp[] = DEVICE_INFO;
-    sr.answer(&temp, resp, sizeof(resp));
-    return;
+    Serial.print("Device bind request while bound: ");
+
+    unsigned char ufid[7] = UNIQUE_FACTORY_ID;
+    if (memcmp(&data[1], &ufid[0], 7) == 0)
+    {
+      Serial.println("for me.");
+      
+      unsigned char resp[] = DEVICE_INFO;
+      sr.answer(&temp, resp, sizeof(resp));
+      return;
+    }
+    else
+    {
+      Serial.println("not for me.");
+    }
   }
 
   // Mark request as failed.

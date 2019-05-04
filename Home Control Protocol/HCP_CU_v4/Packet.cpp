@@ -29,11 +29,6 @@ Packet::Packet(unsigned char slaveAddress, unsigned char masterAddress, unsigned
   this->data[1] |= getCurrentCRC() << 6;
 }
 
-bool Packet::hasValidIntegrity()
-{
-  return this->getCurrentCRC() == this->getCRC();
-}
-
 unsigned char Packet::getCurrentCRC()
 {
   unsigned char crc = ~Packet::identifier;
@@ -43,6 +38,11 @@ unsigned char Packet::getCurrentCRC()
   crc ^= this->data[1] & 0x3F;
 
   return (crc ^ (crc >> 2) ^ (crc >> 4) ^ (crc >> 6)) & 0x3;
+}
+
+bool Packet::hasValidIntegrity()
+{
+  return this->getCurrentCRC() == this->getCRC();
 }
 
 void Packet::sendViaSoftware(SoftwareSerial* ss)

@@ -1,7 +1,7 @@
 {
     "files.associations": {
-        "packet.h": "c",
-        "softwareserial.h": "c",
+        /*"packet.h": "c",
+        "softwareserial.h": "c",*/
         "typeinfo": "cpp",
         "array": "cpp",
         "initializer_list": "cpp",

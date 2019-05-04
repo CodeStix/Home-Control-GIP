@@ -26,13 +26,18 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/**",
+                "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/tools/**",
+                "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/**",
                 "/Users/stijnrogiest/Documents/Arduino/libraries",
                 "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/cores/esp8266",
                 "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries",
                 "/Applications/Arduino.app/Contents/Java/libraries",
                 "/Applications/Arduino.app/Contents/Java/hardware/arduino/avr/cores/arduino",
                 "/Applications/Arduino.app/Contents/Java/hardware/arduino/avr/libraries"
-            ]
+            ],
+            "forcedInclude": [],
+            "cStandard": "c11",
+            "cppStandard": "c++17"
         }
     ],
     "version": 4
