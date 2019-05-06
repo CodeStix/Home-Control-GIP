@@ -23,6 +23,7 @@
 */
 
 ///Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/
+#include "Shared.h"
 #include "PacketSenderReceiver.h"
 #include "Device.h"
 #include "Packet.h"
@@ -63,6 +64,49 @@ unsigned long lastPingMillis = 1;
 unsigned long lastLedBlink = 0;
 unsigned int ledBlinks = 0;
 unsigned int ledBlinkInterval = 200;
+#line 82 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+void setup();
+#line 127 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+void loop();
+#line 250 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+void command(String args[16], unsigned char argsLen);
+#line 344 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+bool requested(String path);
+#line 477 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+void setSlaveProperties(unsigned char addr, unsigned char startPos, unsigned char* values, unsigned char valueCount, void* state);
+#line 488 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+void propertySetAnswer(ResponseStatus status, Request* requested);
+#line 505 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+void pingSlave(unsigned char addr, bool silent, void* state);
+#line 521 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+void pingAnswer(ResponseStatus status, Request* requested);
+#line 551 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+bool bindSlave(unsigned char ufid[7], void* state);
+#line 556 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+bool bindSlave(unsigned char ufid[7], unsigned char withAddress, void* state);
+#line 590 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+void unbindSlave(unsigned char withAddress, void * state);
+#line 610 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+void checkOnlineBinds();
+#line 629 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+void retryNotWorkingBinds();
+#line 657 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+unsigned char getNewAddress();
+#line 664 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+void unbindAnswer(ResponseStatus status, Request* requested);
+#line 682 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+void printDevices();
+#line 699 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+void loadDevicesFromRom();
+#line 731 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+void clearRomDevices();
+#line 749 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+void saveDevicesToRom();
+#line 780 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+Device* registerNewDevice(unsigned char ufid[7], unsigned char addr);
+#line 795 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+Device* getDeviceWithAddress(unsigned char addr);
+#line 64 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 void led(int blinks, int interval = 200)
 {
   ledBlinks = blinks * 2;
@@ -79,6 +123,7 @@ void unbindSlave(unsigned char withAddress, void* state = nullptr);
 void setSlaveProperties(unsigned char addr, unsigned char startPos, unsigned char* values, unsigned char valueCount, void * state = nullptr);
 bool bindSlave(unsigned char ufid[7], unsigned char withAddress, void* state = nullptr);
 bool bindSlave(unsigned char ufid[7], void* state = nullptr);
+void rebindSlave(unsigned char ufid[7], unsigned char withAddress);
 
 void setup()
 {
@@ -566,16 +611,26 @@ bool bindSlave(unsigned char ufid[7], unsigned char withAddress, void* state)
     }
   }
 
-  unsigned char data[9];
+  /*unsigned char data[9];
   memcpy(&data[1], &ufid[0], 7);
   data[0] = 0x10;
   data[8] = withAddress;
-  sr.broadcast(data, sizeof(data), DataRequest, 130); // Multi-purpose-byte is 130, slave will return 130.
+  sr.broadcast(data, sizeof(data), DataRequest, 130);*/ // Multi-purpose-byte is 130, slave will return 130.
+  rebindSlave(ufid, withAddress);
   slaveBoundClient = state;
 
   registerNewDevice(ufid, withAddress);
   saveDevicesToRom();
   return true;
+}
+
+void rebindSlave(unsigned char ufid[7], unsigned char withAddress)
+{
+  unsigned char data[9];
+  memcpy(&data[1], &ufid[0], 7);
+  data[0] = 0x10;
+  data[8] = withAddress;
+  sr.broadcast(data, sizeof(data), DataRequest, 130);
 }
 
 void unbindSlave(unsigned char withAddress, void * state)
@@ -632,11 +687,12 @@ void retryNotWorkingBinds()
       devices[i]->printToSerial();
       Serial.println(" work...");
 
-      unsigned char data[9];
+      rebindSlave(devices[i]->uniqueFactoryId, devices[i]->address);
+      /*unsigned char data[9];
       memcpy(&data[1], devices[i]->uniqueFactoryId, 7);
       data[0] = 0x10;
       data[8] = devices[i]->address;
-      sr.broadcast(data, sizeof(data), DataRequest, 130);
+      sr.broadcast(data, sizeof(data), DataRequest, 130);*/
 
       i++;
       break;
@@ -668,20 +724,6 @@ void unbindAnswer(ResponseStatus status, Request* requested)
   }
 }
 
-void veryCoolSplashScreen()
-{
-  Serial.println();
-  Serial.println("    _   _      ____    ____    ");
-  Serial.println("   |'| |'|  U /\"___| U|  _\"\\ u ");
-  Serial.println("  /| |_| |\\ \\| | u   \\| |_) |/ ");
-  Serial.println("  U|  _  |u  | |/__   |  __/   ");
-  Serial.println("   |_| |_|    \\____|  |_|      ");
-  Serial.println("   //   \\\\   _// \\ \\  ||>>_    ");
-  Serial.println("  (_\") (\"_) (__)(__) (__)__)");
-  Serial.println("Home Control Protocol - v0.4.0");
-  Serial.println("\tby Stijn Rogiest (c) 2019");
-  Serial.println();
-}
 
 void printDevices()
 {

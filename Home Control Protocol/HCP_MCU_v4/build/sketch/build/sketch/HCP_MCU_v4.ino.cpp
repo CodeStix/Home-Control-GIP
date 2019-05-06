@@ -1,3 +1,6 @@
+#include <Arduino.h>
+#line 1 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+#line 1 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 /*
   Home Control Protocol v0.4.0
     by Stijn Rogiest (copyright 2019)
