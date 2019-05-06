@@ -19,6 +19,11 @@
     https://en.wikipedia.org/wiki/Cyclic_redundancy_check#CRC-32_algorithm
 */
 
+///Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/
+#include "PacketSenderReceiver.h"
+#include "Device.h"
+#include "Packet.h"
+
 #include <SoftwareSerial.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -26,15 +31,6 @@
 #include <ESP8266mDNS.h>
 #include <ESP8266WebServer.h>
 #include <EEPROM.h>
-
-///Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/
-#include "PacketSenderReceiver.h"
-#include "Device.h"
-#include "Packet.h"
-
-/*#include "PacketSenderReceiver.h"
-#include "Device.h"
-#include "Packet.h"*/
 
 #define DEBUG_PIN LED_BUILTIN
 // Note: HC12 TX to RX and RX to TX
@@ -87,6 +83,7 @@ void setup()
   digitalWrite(DEBUG_PIN, false);
 
   Serial.begin(19200);
+  delay(5000);
   veryCoolSplashScreen();
   Serial.print("----> My address (master): ");
   Serial.println(MASTER_addr);
@@ -636,7 +633,7 @@ void retryNotWorkingBinds()
       memcpy(&data[1], devices[i]->uniqueFactoryId, 7);
       data[0] = 0x10;
       data[8] = devices[i]->address;
-      sr.send(devices[i]->address, data, sizeof(data), DataRequest, 130);
+      sr.broadcast(data, sizeof(data), DataRequest, 130);
 
       i++;
       break;

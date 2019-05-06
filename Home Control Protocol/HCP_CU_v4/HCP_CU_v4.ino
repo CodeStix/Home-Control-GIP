@@ -7,9 +7,9 @@
 // COM7
 //#define SLAVE_NANO4LED
 // COM6
-//#define SLAVE_PROMINIBLUE
+#define SLAVE_PROMINIBLUE
 // COM7
-#define SLAVE_PROMINIBLACK
+//#define SLAVE_PROMINIBLACK
 
 /****** Unique for each slave ******/
 // UNIQUE_FACTORY_ID: An 7-byte integer to identify each slave node on the planet. (ufid)

@@ -1,3 +1,5 @@
+#!/bin/sh
+
 cp Packet.cpp ./../HCP_CU_v4/Packet.cpp
 cp Packet.h ./../HCP_CU_v4/Packet.h
 

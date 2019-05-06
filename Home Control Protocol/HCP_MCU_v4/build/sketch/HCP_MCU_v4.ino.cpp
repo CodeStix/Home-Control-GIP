@@ -22,6 +22,11 @@
     https://en.wikipedia.org/wiki/Cyclic_redundancy_check#CRC-32_algorithm
 */
 
+///Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/
+#include "PacketSenderReceiver.h"
+#include "Device.h"
+#include "Packet.h"
+
 #include <SoftwareSerial.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -29,15 +34,6 @@
 #include <ESP8266mDNS.h>
 #include <ESP8266WebServer.h>
 #include <EEPROM.h>
-
-///Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/
-#include "PacketSenderReceiver.h"
-#include "Device.h"
-#include "Packet.h"
-
-/*#include "PacketSenderReceiver.h"
-#include "Device.h"
-#include "Packet.h"*/
 
 #define DEBUG_PIN LED_BUILTIN
 // Note: HC12 TX to RX and RX to TX
@@ -67,51 +63,6 @@ unsigned long lastPingMillis = 1;
 unsigned long lastLedBlink = 0;
 unsigned int ledBlinks = 0;
 unsigned int ledBlinkInterval = 200;
-#line 84 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-void setup();
-#line 128 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-void loop();
-#line 251 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-void command(String args[16], unsigned char argsLen);
-#line 345 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-bool requested(String path);
-#line 478 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-void setSlaveProperties(unsigned char addr, unsigned char startPos, unsigned char* values, unsigned char valueCount, void* state);
-#line 489 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-void propertySetAnswer(ResponseStatus status, Request* requested);
-#line 506 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-void pingSlave(unsigned char addr, bool silent, void* state);
-#line 522 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-void pingAnswer(ResponseStatus status, Request* requested);
-#line 552 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-bool bindSlave(unsigned char ufid[7], void* state);
-#line 557 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-bool bindSlave(unsigned char ufid[7], unsigned char withAddress, void* state);
-#line 581 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-void unbindSlave(unsigned char withAddress, void * state);
-#line 601 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-void checkOnlineBinds();
-#line 620 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-void retryNotWorkingBinds();
-#line 647 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-unsigned char getNewAddress();
-#line 654 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-void unbindAnswer(ResponseStatus status, Request* requested);
-#line 671 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-void veryCoolSplashScreen();
-#line 686 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-void printDevices();
-#line 703 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-void loadDevicesFromRom();
-#line 735 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-void clearRomDevices();
-#line 753 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-void saveDevicesToRom();
-#line 784 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-Device* registerNewDevice(unsigned char ufid[7], unsigned char addr);
-#line 799 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-Device* getDeviceWithAddress(unsigned char addr);
-#line 67 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 void led(int blinks, int interval = 200)
 {
   ledBlinks = blinks * 2;
@@ -135,6 +86,7 @@ void setup()
   digitalWrite(DEBUG_PIN, false);
 
   Serial.begin(19200);
+  delay(5000);
   veryCoolSplashScreen();
   Serial.print("----> My address (master): ");
   Serial.println(MASTER_addr);
@@ -684,7 +636,7 @@ void retryNotWorkingBinds()
       memcpy(&data[1], devices[i]->uniqueFactoryId, 7);
       data[0] = 0x10;
       data[8] = devices[i]->address;
-      sr.send(devices[i]->address, data, sizeof(data), DataRequest, 130);
+      sr.broadcast(data, sizeof(data), DataRequest, 130);
 
       i++;
       break;
