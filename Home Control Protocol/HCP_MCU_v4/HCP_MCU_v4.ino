@@ -120,7 +120,7 @@ void setup()
   server.begin();
   Serial.println("----> Starting...");
   delay(500);
-  ss.begin(2400);
+  ss.begin(4800);
   Serial.println("\t-> OK");
 }
 

@@ -1,20 +1,19 @@
 #include <SoftwareSerial.h>
 #include <EEPROM.h>
+#include "Shared.h"
 #include "Packet.h"
 #include "PacketSenderReceiver.h"
 
 /****** Uncomment the current slave, comment others ******/
-// COM7
-//#define SLAVE_NANO4LED
-// COM6
-#define SLAVE_PROMINIBLUE
-// COM7
+#define SLAVE_NANO4LED_RELAY
+//#define SLAVE_PROMINIBLUE
 //#define SLAVE_PROMINIBLACK
+//#define SLAVE_PROMINIBLACK_LEDSTRIP
 
 /****** Unique for each slave ******/
 // UNIQUE_FACTORY_ID: An 7-byte integer to identify each slave node on the planet. (ufid)
 // DEVICE_INFO: Non-private information about this slave.
-#ifdef SLAVE_NANO4LED
+#ifdef SLAVE_NANO4LED_RELAY
 #define UNIQUE_FACTORY_ID {0xFF, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}
 #define DEVICE_INFO {0x11, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}
 #endif
@@ -24,6 +23,10 @@
 #endif
 #ifdef SLAVE_PROMINIBLACK
 #define UNIQUE_FACTORY_ID {0xFF, 0xB, 0x0, 0x0, 0x0, 0x0, 0x0}
+#define DEVICE_INFO {0x12, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}
+#endif
+#ifdef SLAVE_PROMINIBLACK_LEDSTRIP
+#define UNIQUE_FACTORY_ID {0xFF, 0x2, 0x2, 0x0, 0x0, 0x0, 0x0}
 #define DEVICE_INFO {0x12, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}
 #endif
 
@@ -56,11 +59,12 @@ void led(int blinks, int interval = 200)
 
 void setupSlave()
 {
-#ifdef SLAVE_NANO4LED
+#ifdef SLAVE_NANO4LED_RELAY
   pinMode(3, OUTPUT);
   pinMode(5, OUTPUT);
   pinMode(6, OUTPUT);
   pinMode(9, OUTPUT);
+  pinMode(8, OUTPUT);
 #endif
 #ifdef SLAVE_PROMINIBLUE
   for (unsigned char i = 2; i <= 9; i++)
@@ -69,15 +73,21 @@ void setupSlave()
     digitalWrite(i, true);
   }
 #endif
+#ifdef SLAVE_PROMINIBLACK_LEDSTRIP
+  pinMode(3, OUTPUT);
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
+#endif
 }
 
 void propertyUpdate()
 {
-#ifdef SLAVE_NANO4LED
+#ifdef SLAVE_NANO4LED_RELAY
   analogWrite(3, getProperty(0));
   analogWrite(5, getProperty(1));
   analogWrite(6, getProperty(2));
   analogWrite(9, getProperty(3));
+  analogWrite(8, getProperty(4));
 #endif
 #ifdef SLAVE_PROMINIBLUE
   for (unsigned char i = 2; i <= 9; i++)
@@ -85,6 +95,11 @@ void propertyUpdate()
     //digitalWrite(i, properties[i] > 0);
     digitalWrite(i, getProperty(i) > 0);
   }
+#endif
+#ifdef SLAVE_PROMINIBLACK_LEDSTRIP
+  analogWrite(3, getProperty(0));
+  analogWrite(5, getProperty(1));
+  analogWrite(6, getProperty(2));
 #endif
 }
 
@@ -116,7 +131,7 @@ void setup()
   setupSlave();
   propertyUpdate();
 
-  ss.begin(2400);
+  ss.begin(4800);
 
   if (!getRegistered())
     led(500000);
@@ -146,6 +161,16 @@ void loop()
       processRequest(temp.getMaster(),  temp.getData(), temp.getDataLength(), temp.getSlave() == 0);
     }
   }
+
+#ifdef NANO4LED_RELAY
+  if (getProperty(10) != 0)
+  {
+    analogWrite(3, random(256));
+    analogWrite(5, random(256));
+    analogWrite(6, random(256));
+    analogWrite(9, random(256));
+  }
+#endif
 }
 
 void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char len, bool isBroadcast)
@@ -321,19 +346,4 @@ void setProperties(unsigned char address, unsigned char* values, unsigned char l
   {
     EEPROM.update(i + 100, values[j]);
   }
-}
-
-void veryCoolSplashScreen()
-{
-  Serial.println();
-  Serial.println("    _   _      ____    ____    ");
-  Serial.println("   |'| |'|  U /\"___| U|  _\"\\ u ");
-  Serial.println("  /| |_| |\\ \\| | u   \\| |_) |/ ");
-  Serial.println("  U|  _  |u  | |/__   |  __/   ");
-  Serial.println("   |_| |_|    \\____|  |_|      ");
-  Serial.println("   //   \\\\   _// \\ \\  ||>>_    ");
-  Serial.println("  (_\") (\"_) (__)(__) (__)__)");
-  Serial.println("Home Control Protocol - v0.4.0");
-  Serial.println("\tby Stijn Rogiest 2019 (c)");
-  Serial.println();
 }
