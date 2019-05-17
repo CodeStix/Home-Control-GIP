@@ -458,7 +458,7 @@ bool requested(String path)
         client.print(devices[i]->online ? "true" : "false");
         client.print(',');
         client.print(devices[i]->working ? "true" : "false");
-        client.println();
+        client.print(';');
       }
     }
     return false;
