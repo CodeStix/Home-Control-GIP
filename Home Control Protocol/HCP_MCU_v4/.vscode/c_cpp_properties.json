@@ -3,6 +3,7 @@
         {
             "name": "Win32",
             "includePath": [
+                "${workspaceFolder}",
                 "${workspaceFolder}/**",
                 "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\tools\\**",
                 "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.0\\cores\\esp8266",
@@ -25,6 +26,7 @@
         {
             "name": "Mac",
             "includePath": [
+                "${workspaceFolder}",
                 "${workspaceFolder}/**",
                 "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/tools/**",
                 "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/**",
@@ -35,7 +37,7 @@
                 "/Applications/Arduino.app/Contents/Java/hardware/arduino/avr/cores/arduino",
                 "/Applications/Arduino.app/Contents/Java/hardware/arduino/avr/libraries"
             ],
-            "forcedInclude": [],
+            "forcedInclude": ["Shared.h"],
             "compilerPath": "/usr/bin/clang",
             "cStandard": "c11",
             "cppStandard": "c++17",

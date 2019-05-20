@@ -11,3 +11,5 @@ cp Logger.h ./../HCP_CU_v4/Logger.h
 
 cp Request.cpp ./../HCP_CU_v4/Request.cpp
 cp Request.h ./../HCP_CU_v4/Request.h
+
+cp Shared.h ./../HCP_CU_v4/Shared.h
