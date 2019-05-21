@@ -5,10 +5,10 @@
 #include "PacketSenderReceiver.h"
 
 /****** Uncomment the current slave, comment others ******/
-#define SLAVE_NANO4LED_RELAY
+//#define SLAVE_NANO4LED_RELAY
 //#define SLAVE_PROMINIBLUE
 //#define SLAVE_PROMINIBLACK
-//#define SLAVE_PROMINIBLACK_LEDSTRIP
+#define SLAVE_PROMINIBLACK_LEDSTRIP
 
 /****** Unique for each slave ******/
 // UNIQUE_FACTORY_ID: An 7-byte integer to identify each slave node on the planet. (ufid)
@@ -32,9 +32,10 @@
 
 /****** NOT Unique for each slave ******/
 #define DEBUG_PIN LED_BUILTIN
+#define STATUS_LED_PIN 13
 // Note: HC12 TX to RX and RX to TX.
-#define TX_PIN 10
-#define RX_PIN 11
+#define TX_PIN 11
+#define RX_PIN 10
 #define PROPERTY_COUNT 128
 #define MAX_CONCURRENT_REQUESTS 2
 
@@ -74,6 +75,8 @@ void setupSlave()
   }
 #endif
 #ifdef SLAVE_PROMINIBLACK_LEDSTRIP
+  pinMode(2, OUTPUT);
+  digitalWrite(2, false);
   pinMode(3, OUTPUT);
   pinMode(5, OUTPUT);
   pinMode(6, OUTPUT);
@@ -106,7 +109,9 @@ void propertyUpdate()
 void setup()
 {
   pinMode(DEBUG_PIN, OUTPUT);
+  pinMode(STATUS_LED_PIN, OUTPUT);
   digitalWrite(DEBUG_PIN, false);
+  digitalWrite(STATUS_LED_PIN, true);
 
   Serial.begin(19200);
   veryCoolSplashScreen();
@@ -133,8 +138,9 @@ void setup()
 
   ss.begin(4800);
 
+  //setAddress(0);
   if (!getRegistered())
-    led(500000);
+    led(5000000);
 
   Serial.println("\t-> OK");
 }
