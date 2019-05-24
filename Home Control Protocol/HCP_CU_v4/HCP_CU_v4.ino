@@ -36,7 +36,7 @@
 // Note: HC12 TX to RX and RX to TX.
 #define TX_PIN 11
 #define RX_PIN 10
-#define PROPERTY_COUNT 128
+#define PROPERTY_COUNT 64
 #define MAX_CONCURRENT_REQUESTS 2
 
 unsigned char getAddress();

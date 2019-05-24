@@ -133,7 +133,7 @@ void update()
   analogWrite(6, hcp.properties[0]);
   analogWrite(5, hcp.properties[1]);
   analogWrite(9, hcp.properties[2]);
-  enableFade = hcp.properties[3] >= 128;
+  enableFade = hcp.properties[3];
 #endif
 #ifdef MOD_46
   analogWrite(3, hcp.properties[0]);
