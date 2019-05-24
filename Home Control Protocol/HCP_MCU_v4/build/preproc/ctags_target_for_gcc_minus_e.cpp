@@ -74,7 +74,7 @@ WiFiClient client;
 String clientData;
 void* slaveBoundClient = nullptr;
 
-const unsigned int retryBindMillisInterval = 20000;
+const unsigned int retryBindMillisInterval = 9000;
 unsigned long lastRetryBindMillis = 1;
 const unsigned int pingMillisInterval = 5000;
 unsigned long lastPingMillis = 1;
@@ -119,6 +119,8 @@ void setup()
   Serial.print("----> Connecting to WiFi");
   wifiMulti.addAP("PollenPatatten", "Ziektes123");
   wifiMulti.addAP("RogiestHuis", "Vrijdag1!");
+  wifiMulti.addAP("pollenpattten", "ziektes123");
+  wifiMulti.addAP("Stijn Rogiest", "HoiDaag2");
   while (wifiMulti.run() != WL_CONNECTED)
   {
     delay(250);
@@ -291,6 +293,13 @@ void command(String args[16], unsigned char argsLen)
 
     sr.sendRequest(addr, propertySetAnswer, data, argsLen - 1);
   }
+  else if (args[0] == "wifi")
+  {
+    Serial.print("----> Connected to ");
+    Serial.println(WiFi.SSID());
+    Serial.print("----> IP addr: ");
+    Serial.println(WiFi.localIP());
+  }
   else if (argsLen == 2 && args[0] == "ping")
   {
     pingSlave(args[1].toInt(), false);
@@ -382,14 +391,15 @@ bool requested(String path)
   }
   subCount++;
 
+  // HEADER
+  client.println("HTTP/1.1 200 OK");
+  client.println("Connection: Keep-Alive");
+  client.println("Keep-Alive: timeout=15, max=1000");
+  client.println("Content-type: text/html");
+  client.println();
+
   if (sub[0] == "interface")
   {
-    // HEADER
-    client.println("HTTP/1.1 200 OK");
-    client.println("Connection: Keep-Alive");
-    client.println("Keep-Alive: timeout=15, max=1000");
-    client.println("Content-type: text/html");
-    client.println();
     // CSS + HTML HEAD
     client.println("<!DOCTYPE html><html>");
     client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
@@ -404,6 +414,11 @@ bool requested(String path)
     client.println("<p><a href=\"/nice\"><button class=\"button\">OKE COOL</button></a></p>");
     client.println("</body></html>");
     client.println();
+    return false;
+  }
+  else if (sub[0] == "test")
+  {
+    client.println("okey");
     return false;
   }
   else if (sub[0] == "deviceList")
@@ -488,7 +503,7 @@ bool requested(String path)
   }
   else
   {
-    client.println("404: Not found");
+    client.println("nope");
     return false;
   }
 
@@ -595,7 +610,7 @@ bool bindSlave(unsigned char ufid[7], unsigned char withAddress, void* state)
   data[8] = withAddress;
 
   sr.broadcast(data, sizeof(data), DataRequest, 130);*/
-# 572 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+# 587 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
                                                         // Multi-purpose-byte is 130, slave will return 130.
   rebindSlave(ufid, withAddress);
   slaveBoundClient = state;
@@ -678,7 +693,7 @@ void retryNotWorkingBinds()
       data[8] = devices[i]->address;
 
       sr.broadcast(data, sizeof(data), DataRequest, 130);*/
-# 651 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+# 666 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
       i++;
       break;
     }
@@ -734,7 +749,7 @@ void loadDevicesFromRom()
   /*Serial.print("Size of device: ");
 
   Serial.println(sizeof(Device));*/
-# 705 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+# 720 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
   unsigned char deviceCount = 0;
 
   for (int i = 0; i < 64; i++)
@@ -756,7 +771,7 @@ void loadDevicesFromRom()
       devices[i]->printToSerial();
 
       Serial.println();*/
-# 724 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+# 739 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
       deviceCount++;
     }
   }
@@ -801,7 +816,7 @@ void saveDevicesToRom()
       devices[i]->printToSerial();
 
       Serial.println();*/
-# 764 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+# 779 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
       unsigned char* bytes = devices[i]->getBytes();
       for(int j = 0; j < 50; j++)
           EEPROM.write(i * 50 + 100 + j, bytes[j]);

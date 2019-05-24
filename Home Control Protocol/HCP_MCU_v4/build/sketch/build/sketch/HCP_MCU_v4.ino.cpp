@@ -56,7 +56,7 @@ WiFiClient client;
 String clientData;
 void* slaveBoundClient = nullptr; 
 
-const unsigned int retryBindMillisInterval = 20000;
+const unsigned int retryBindMillisInterval = 9000;
 unsigned long lastRetryBindMillis = 1;
 const unsigned int pingMillisInterval = 5000;
 unsigned long lastPingMillis = 1;
@@ -101,6 +101,8 @@ void setup()
   Serial.print("----> Connecting to WiFi");
   wifiMulti.addAP("PollenPatatten", "Ziektes123");
   wifiMulti.addAP("RogiestHuis", "Vrijdag1!");
+  wifiMulti.addAP("pollenpattten", "ziektes123");
+  wifiMulti.addAP("Stijn Rogiest", "HoiDaag2");
   while (wifiMulti.run() != WL_CONNECTED) 
   {
     delay(250);
@@ -273,6 +275,13 @@ void command(String args[16], unsigned char argsLen)
 
     sr.sendRequest(addr, propertySetAnswer, data, argsLen - 1);
   }
+  else if (args[0] == "wifi")
+  {
+    Serial.print("----> Connected to ");
+    Serial.println(WiFi.SSID());
+    Serial.print("----> IP addr: ");
+    Serial.println(WiFi.localIP());
+  }
   else if (argsLen == 2 && args[0] == "ping")
   {
     pingSlave(args[1].toInt(), false);
@@ -364,14 +373,15 @@ bool requested(String path)
   }
   subCount++;
 
+  // HEADER
+  client.println("HTTP/1.1 200 OK");
+  client.println("Connection: Keep-Alive");
+  client.println("Keep-Alive: timeout=15, max=1000");
+  client.println("Content-type: text/html");
+  client.println();
+
   if (sub[0] == "interface")
   {
-    // HEADER
-    client.println("HTTP/1.1 200 OK");
-    client.println("Connection: Keep-Alive");
-    client.println("Keep-Alive: timeout=15, max=1000");
-    client.println("Content-type: text/html");
-    client.println();
     // CSS + HTML HEAD
     client.println("<!DOCTYPE html><html>");
     client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
@@ -386,6 +396,11 @@ bool requested(String path)
     client.println("<p><a href=\"/nice\"><button class=\"button\">OKE COOL</button></a></p>");
     client.println("</body></html>");
     client.println();
+    return false;
+  }
+  else if (sub[0] == "test")
+  {
+    client.println("okey");
     return false;
   }
   else if (sub[0] == "deviceList")
@@ -470,7 +485,7 @@ bool requested(String path)
   }
   else
   {
-    client.println("404: Not found");
+    client.println("nope");
     return false;
   }
 

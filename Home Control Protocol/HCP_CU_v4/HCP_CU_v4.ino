@@ -18,10 +18,10 @@
 #define DEVICE_INFO {0x11, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}
 #endif
 #ifdef SLAVE_PROMINIBLUE
-#define UNIQUE_FACTORY_ID {0xFF, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0}
+#define UNIQUE_FACTORY_ID {0xFF, 0x1, 0x0, 0x0,  0x0, 0x0, 0x0}
 #define DEVICE_INFO {0x12, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}
 #endif
-#ifdef SLAVE_PROMINIBLACK
+#ifdef SLAVE_PROMINIBLACK_LAMPS
 #define UNIQUE_FACTORY_ID {0xFF, 0xB, 0x0, 0x0, 0x0, 0x0, 0x0}
 #define DEVICE_INFO {0x12, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}
 #endif
@@ -74,6 +74,12 @@ void setupSlave()
     digitalWrite(i, true);
   }
 #endif
+#ifdef SLAVE_PROMINIBLACK_LAMPS
+  for(int i = 0; i < 8; i++)
+  {
+    pinMode(i + 2, OUTPUT);
+  }
+#endif
 #ifdef SLAVE_PROMINIBLACK_LEDSTRIP
   pinMode(2, OUTPUT);
   digitalWrite(2, false);
@@ -97,6 +103,12 @@ void propertyUpdate()
   {
     //digitalWrite(i, properties[i] > 0);
     digitalWrite(i, getProperty(i) > 0);
+  }
+#endif
+#ifdef SLAVE_PROMINIBLACK_LAMPS
+  for(int i = 0; i < 8; i++)
+  {
+    digitalWrite(i + 2, getProperty(i));
   }
 #endif
 #ifdef SLAVE_PROMINIBLACK_LEDSTRIP
