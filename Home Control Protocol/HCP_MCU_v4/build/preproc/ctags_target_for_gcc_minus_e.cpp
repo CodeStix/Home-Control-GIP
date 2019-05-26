@@ -1,58 +1,45 @@
 # 1 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 # 1 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 /*
-
   Home Control Protocol v0.4.0
-
     by Stijn Rogiest (copyright 2019)
 
-
-
   Random console characters legend: 
-
     _: The last packet was resent, caused by faulty integrity at the receiver.
-
     !: The last request did not get answered and was disposed.
-
     .: The last request was resent.
 
-
-
   Sources:
-
     https://tttapa.github.io/ESP8266/Chap10%20-%20Simple%20Web%20Server.html
-
     https://www.arduino.cc/en/Reference/EEPROM
-
     http://www.cplusplus.com/doc/tutorial/pointers/
-
     https://www.arduino.cc/en/Reference/softwareSerial
-
     https://stackoverflow.com/questions/3698043/static-variables-in-c
-
     https://randomnerdtutorials.com/esp8266-web-server/
-
     http://arduino.esp8266.com/stable/package_esp8266com_index.json
-
     https://en.wikipedia.org/wiki/Multicast_DNS
-
     https://en.wikipedia.org/wiki/Cyclic_redundancy_check#CRC-32_algorithm
 
+  Packet types/prefixes:
+    0x20: Set slave properties.
+    0x1: Ping slave.
+    0x15: Refresh slave live data.
+    0x10: Bind slave.
+    0x2: Unbind slave.
 */
-# 22 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-///Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/
-# 24 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-# 25 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-# 26 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
 
-
-# 29 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
 # 30 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
 # 31 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
 # 32 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-# 33 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-# 34 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
+
+
 # 35 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
+# 36 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
+# 37 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
+# 38 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
+# 39 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
+# 40 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
+# 41 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
 
 
 // Note: HC12 TX to RX and RX to TX
@@ -66,7 +53,7 @@
 SoftwareSerial ss = SoftwareSerial(12, 14);
 PacketSenderReceiver sr = PacketSenderReceiver(&ss, false, 2);
 Packet temp;
-Device* devices[64];
+Device* devices[32];
 
 ESP8266WiFiMulti wifiMulti;
 WiFiServer server(80);
@@ -74,10 +61,10 @@ WiFiClient client;
 String clientData;
 void* slaveBoundClient = nullptr;
 
-const unsigned int retryBindMillisInterval = 9000;
+const unsigned int retryBindMillisInterval = 400;
 unsigned long lastRetryBindMillis = 1;
-const unsigned int pingMillisInterval = 5000;
-unsigned long lastPingMillis = 1;
+const unsigned int refreshMillisInterval = 2220;
+unsigned long lastRefreshMillis = 1;
 
 unsigned long lastLedBlink = 0;
 unsigned int ledBlinks = 0;
@@ -93,7 +80,8 @@ unsigned char currentArg = 0;
 String args[16];
 
 // Prototypes
-void pingSlave(unsigned char addr, bool silent = true, void* state = nullptr);
+void refreshSlave(unsigned char addr, void* state = nullptr);
+void pingSlave(unsigned char addr, void* state = nullptr);
 void unbindSlave(unsigned char withAddress, void* state = nullptr);
 void setSlaveProperties(unsigned char addr, unsigned char startPos, unsigned char* values, unsigned char valueCount, void * state = nullptr);
 bool bindSlave(unsigned char ufid[7], unsigned char withAddress, void* state = nullptr);
@@ -201,7 +189,7 @@ void loop()
 
         bound->working = true;
         bound->online = true;
-        memcpy(bound->deviceInfo, temp.getData(), temp.getDataLength());
+        memcpy(bound->deviceType, temp.getData(), temp.getDataLength());
         saveDevicesToRom();
 
         Serial.print("----> Slave is now bound (2): ");
@@ -231,11 +219,11 @@ void loop()
     lastRetryBindMillis = millis();
   }
 
-  if ((millis() - lastPingMillis) > pingMillisInterval)
+  if ((millis() - lastRefreshMillis) > refreshMillisInterval)
   {
-    checkOnlineBinds();
+    refreshSlaves();
 
-    lastPingMillis = millis();
+    lastRefreshMillis = millis();
   }
 
   WiFiClient newClient = server.available();
@@ -302,7 +290,7 @@ void command(String args[16], unsigned char argsLen)
   }
   else if (argsLen == 2 && args[0] == "ping")
   {
-    pingSlave(args[1].toInt(), false);
+    pingSlave(args[1].toInt());
   }
   else if (args[0] == "device")
   {
@@ -314,7 +302,7 @@ void command(String args[16], unsigned char argsLen)
     {
       Serial.println("----> Unbinding all slaves, please wait...");
 
-      for(unsigned char i = 0; i < 64; i++)
+      for(unsigned char i = 0; i < 32; i++)
       {
         if (devices[i])
         {
@@ -423,7 +411,7 @@ bool requested(String path)
   }
   else if (sub[0] == "deviceList")
   {
-    for(unsigned char i = 0; i < 64; i++)
+    for(unsigned char i = 0; i < 32; i++)
     {
       if (devices[i])
       {
@@ -438,11 +426,11 @@ bool requested(String path)
           client.print(devices[i]->uniqueFactoryId[j]);
         }
         client.print(',');
-        for(unsigned char j = 0; j < 8; j++)
+        for(unsigned char j = 0; j < 4; j++)
         {
           if (j != 0)
             client.print(' ');
-          client.print(devices[i]->deviceInfo[j]);
+          client.print(devices[i]->deviceType[j]);
         }
         client.print(',');
         client.print(devices[i]->online ? "true" : "false");
@@ -473,7 +461,7 @@ bool requested(String path)
   else if (sub[0] == "ping" && subCount == 2)
   {
     unsigned char addr = sub[1].toInt();
-    pingSlave(addr, false, &client);
+    pingSlave(addr, &client);
     return true;
   }
   else if (sub[0] == "bind" && subCount > 1 && subCount <= 8)
@@ -528,6 +516,15 @@ void propertySetAnswer(ResponseStatus status, Request* requested)
     Serial.print("\t-> Propery for slave ");
     Serial.print(requested->fromAddress);
     Serial.println(" was set successfully!");
+
+    Device* setDevice = getDeviceWithAddress(requested->fromAddress);
+    if (setDevice)
+    {
+      unsigned char startPos = requested->sentData[1];
+      unsigned char valueCount = requested->sentDataLength - 2;
+      for(unsigned char i = 0; i < valueCount; i++)
+        setDevice->knownProperties[startPos + i] = requested->sentData[i + 2];
+    }
   }
 
   if (requested->state)
@@ -538,31 +535,19 @@ void propertySetAnswer(ResponseStatus status, Request* requested)
   }
 }
 
-void pingSlave(unsigned char addr, bool silent, void* state)
+void pingSlave(unsigned char addr, void* state)
 {
-  if (silent)
-  {
-    unsigned char data[1] = {0x1};
+  unsigned char data[1] = {0x1};
 
-    sr.sendRequest(addr, pingAnswer, data, sizeof(data), state);
-  }
-  else
-  {
-    unsigned char data[2] = {0x1, 0x0};
-
-    sr.sendRequest(addr, pingAnswer, data, sizeof(data), state);
-  }
+  sr.sendRequest(addr, pingAnswer, data, sizeof(data), state);
 }
 
 void pingAnswer(ResponseStatus status, Request* requested)
 {
-  if (requested->sentDataLength == 2)
-  {
-    Serial.print("\t-> Slave ");
-    Serial.print(requested->fromAddress);
-    Serial.print(" was pinged: ");
-    Serial.println(status == Okay ? "Okay" : (status == Failed ? "Failed" : "No response"));
-  }
+  Serial.print("\t-> Slave ");
+  Serial.print(requested->fromAddress);
+  Serial.print(" was pinged: ");
+  Serial.println(status == Okay ? "Okay" : (status == Failed ? "Failed" : "No response"));
 
   Device* dev = getDeviceWithAddress(requested->fromAddress);
   if (dev)
@@ -584,6 +569,39 @@ void pingAnswer(ResponseStatus status, Request* requested)
   }
 }
 
+void refreshSlave(unsigned char addr, void* state)
+{
+  unsigned char data[1] = {0x15};
+
+  sr.sendRequest(addr, refreshAnswer, data, sizeof(data), state);
+}
+
+void refreshAnswer(ResponseStatus status, Request* requested)
+{
+  Device* dev = getDeviceWithAddress(requested->fromAddress);
+
+  if (dev)
+  {
+    bool online = status != NoResponse;
+
+    if (online)
+    {
+      Serial.print("Received ");
+      Serial.print(requested->responseLength);
+      Serial.println(" bytes for live data.");
+
+      for(unsigned char i = 0; i < requested->responseLength; i++)
+        dev->liveDeviceInfo[i] = requested->response[i];
+    }
+
+    if (dev->online != online)
+    {
+      dev->online = online;
+      saveDevicesToRom();
+    }
+  }
+}
+
 bool bindSlave(unsigned char ufid[7], void* state)
 {
   return bindSlave(ufid, getNewAddress(), state);
@@ -591,7 +609,7 @@ bool bindSlave(unsigned char ufid[7], void* state)
 
 bool bindSlave(unsigned char ufid[7], unsigned char withAddress, void* state)
 {
-  for(unsigned char i = 0; i < 64; i++)
+  for(unsigned char i = 0; i < 32; i++)
   {
     if (devices[i] && (devices[i]->address == withAddress || memcmp(ufid, devices[i]->uniqueFactoryId, 7) == 0))
     {
@@ -602,16 +620,10 @@ bool bindSlave(unsigned char ufid[7], unsigned char withAddress, void* state)
   }
 
   /*unsigned char data[9];
-
   memcpy(&data[1], &ufid[0], 7);
-
   data[0] = 0x10;
-
   data[8] = withAddress;
-
-  sr.broadcast(data, sizeof(data), DataRequest, 130);*/
-# 587 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-                                                        // Multi-purpose-byte is 130, slave will return 130.
+  sr.broadcast(data, sizeof(data), DataRequest, 130);*/ // Multi-purpose-byte is 130, slave will return 130.
   rebindSlave(ufid, withAddress);
   slaveBoundClient = state;
 
@@ -634,7 +646,7 @@ void unbindSlave(unsigned char withAddress, void * state)
   unsigned char data[1] = { 0x2 };
   sr.sendRequest(withAddress, unbindAnswer, data, sizeof(data), state);
 
-  for(unsigned char i = 0; i < 64; i++)
+  for(unsigned char i = 0; i < 32; i++)
   {
     if (devices[i] && devices[i]->address == withAddress)
     {
@@ -649,18 +661,37 @@ void unbindSlave(unsigned char withAddress, void * state)
   }
 }
 
-void checkOnlineBinds()
+void refreshSlaves()
 {
   static unsigned char i = 0;
 
-  if (i >= 64)
+  if (i >= 32)
     i = 0;
 
-  for(; i < 64; i++)
+  for(; i < 32; i++)
   {
     if (devices[i] && devices[i]->working)
     {
-      pingSlave(devices[i]->address, true);
+      refreshSlave(devices[i]->address);
+
+      i++;
+      break;
+    }
+  }
+}
+
+void pingSlaves()
+{
+  static unsigned char i = 0;
+
+  if (i >= 32)
+    i = 0;
+
+  for(; i < 32; i++)
+  {
+    if (devices[i] && devices[i]->working)
+    {
+      pingSlave(devices[i]->address);
 
       i++;
       break;
@@ -672,10 +703,10 @@ void retryNotWorkingBinds()
 {
   static unsigned char i = 0;
 
-  if (i >= 64)
+  if (i >= 32)
     i = 0;
 
-  for(; i < 64; i++)
+  for(; i < 32; i++)
   {
     if (devices[i] && !(devices[i]->working))
     {
@@ -685,15 +716,11 @@ void retryNotWorkingBinds()
 
       rebindSlave(devices[i]->uniqueFactoryId, devices[i]->address);
       /*unsigned char data[9];
-
       memcpy(&data[1], devices[i]->uniqueFactoryId, 7);
-
       data[0] = 0x10;
-
       data[8] = devices[i]->address;
-
       sr.broadcast(data, sizeof(data), DataRequest, 130);*/
-# 666 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+
       i++;
       break;
     }
@@ -731,7 +758,7 @@ void printDevices()
 {
   Serial.println("----> List of devices that are controlled by this master:");
   unsigned char deviceCount = 0;
-  for(unsigned char i = 0; i < 64; i++)
+  for(unsigned char i = 0; i < 32; i++)
   {
     if (devices[i])
     {
@@ -747,14 +774,12 @@ void printDevices()
 void loadDevicesFromRom()
 {
   /*Serial.print("Size of device: ");
-
   Serial.println(sizeof(Device));*/
-# 720 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
   unsigned char deviceCount = 0;
 
-  for (int i = 0; i < 64; i++)
+  for (int i = 0; i < 32; i++)
   {
-    if (EEPROM.read(i * 50 + 100 + 50 - 1) == 0xFF)
+    if (EEPROM.read(i * 120 + 100 + 120 - 1) == 0xFF)
     {
       // Device save location is empty
       devices[i] = nullptr;
@@ -762,16 +787,13 @@ void loadDevicesFromRom()
     else
     {
       // Device save location is used, read it
-      unsigned char bytes[50];
-      for(int j = 0; j < 50; j++)
-          bytes[j] = EEPROM.read(i * 50 + 100 + j);
+      unsigned char bytes[120];
+      for(int j = 0; j < 120; j++)
+          bytes[j] = EEPROM.read(i * 120 + 100 + j);
       devices[i] = new Device(bytes);
       /*Serial.print("Red device: ");
-
       devices[i]->printToSerial();
-
       Serial.println();*/
-# 739 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
       deviceCount++;
     }
   }
@@ -783,9 +805,9 @@ void loadDevicesFromRom()
 
 void clearRomDevices()
 {
-  for (int i = 100; i < 100 + 64 * 50; i++)
+  for (int i = 100; i < 100 + 32 * 120; i++)
     EEPROM.write(i, 0xFF);
-  for(unsigned char i = 0; i < 64; i++)
+  for(unsigned char i = 0; i < 32; i++)
   {
     if (devices[i])
     {
@@ -803,28 +825,23 @@ void saveDevicesToRom()
 {
   unsigned char deviceCount = 0;
 
-  for (int i = 0; i < 64; i++)
+  for (int i = 0; i < 32; i++)
   {
     if (devices[i])
     {
       /*Serial.print("Saving device ");
-
       Serial.print(i);
-
       Serial.print(": ");
-
       devices[i]->printToSerial();
-
       Serial.println();*/
-# 779 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
       unsigned char* bytes = devices[i]->getBytes();
-      for(int j = 0; j < 50; j++)
-          EEPROM.write(i * 50 + 100 + j, bytes[j]);
+      for(int j = 0; j < 120; j++)
+          EEPROM.write(i * 120 + 100 + j, bytes[j]);
       deviceCount++;
     }
     else
     {
-      EEPROM.write(i * 50 + 100 + 50 - 1, 0xFF);
+      EEPROM.write(i * 120 + 100 + 120 - 1, 0xFF);
     }
   }
 
@@ -837,7 +854,7 @@ void saveDevicesToRom()
 
 Device* registerNewDevice(unsigned char ufid[7], unsigned char addr)
 {
-  for(unsigned char i = 0; i < 64; i++)
+  for(unsigned char i = 0; i < 32; i++)
   {
     if (!devices[i])
     {
@@ -852,7 +869,7 @@ Device* registerNewDevice(unsigned char ufid[7], unsigned char addr)
 
 Device* getDeviceWithAddress(unsigned char addr)
 {
-  for(unsigned char i = 0; i < 64; i++)
+  for(unsigned char i = 0; i < 32; i++)
   {
     if (devices[i] && devices[i]->address == addr)
       return devices[i];

@@ -36,9 +36,9 @@ void Device::printToSerial()
         Serial.print(' ');
     }
     Serial.print(", info: ");
-    for(unsigned char i = 0; i < 8; i++)
+    for(unsigned char i = 0; i < 4; i++)
     {
-        Serial.print(this->deviceInfo[i]);
+        Serial.print(this->deviceType[i]);
         Serial.print(' ');
     }
     Serial.print(this->working ? "" : ", NOT WORKING");

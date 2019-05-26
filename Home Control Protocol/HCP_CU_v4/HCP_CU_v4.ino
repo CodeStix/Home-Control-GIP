@@ -118,7 +118,7 @@ void propertyUpdate()
 #endif
 }
 
-unsigned char refreshLiveData(unsigned char[16] liveData)
+unsigned char refreshLiveData(unsigned char liveData[16])
 {
   return 0;
 }
@@ -264,7 +264,7 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
     }
   }
   // Ping command
-  else if (len == 1 data[0] == 0x1)
+  else if (len == 1 && data[0] == 0x1)
   {
     Serial.println("<-- Me is got being pinged, yay!");
     led(25, 50);
@@ -311,7 +311,7 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
     static unsigned char resp[16];
     memset(resp, 0, sizeof(resp));
 
-    unsigned char dataLen = refreshLiveData(liveData);
+    unsigned char dataLen = refreshLiveData(resp);
 
     sr.answer(&temp, resp, dataLen);
     return;
