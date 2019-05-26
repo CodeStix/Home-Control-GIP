@@ -37,3 +37,5 @@
 # Build/caching folders
 build/
 ipch/
+build\
+ipch\
