@@ -3,15 +3,16 @@
         {
             "name": "Win32",
             "includePath": [
-                "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\**",
                 "${workspaceFolder}",
                 "${workspaceFolder}/**",
-                "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\tools\\**",
-                "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\cores\\esp8266\\**",
-                "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\**",
-                "C:\\Program Files (x86)\\Arduino\\libraries\\**",
-                "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino",
-                "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\libraries\\**"
+                "C:/Users/Stijn Rogiest/AppData/Local/Arduino15/packages/esp8266/tools/**",
+                "C:/Users/Stijn Rogiest/AppData/Local/Arduino15/packages/esp8266/hardware/esp8266/2.5.2/**",
+                "H:/Documents/Arduino/libraries",
+                "C:/Users/Stijn Rogiest/AppData/Local/Arduino15/packages/esp8266/hardware/esp8266/2.5.2/cores/esp8266",
+                "C:/Users/Stijn Rogiest/AppData/Local/Arduino15/packages/esp8266/hardware/esp8266/2.5.2/libraries",
+                "C:/Program Files (x86)/Arduino/libraries",
+                "C:/Program Files (x86)/Arduino/hardware/arduino/avr/cores/arduino",
+                "C:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries"
             ],
             "defines": [
                 "_DEBUG",
