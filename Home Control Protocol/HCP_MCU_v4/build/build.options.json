@@ -1,11 +1,11 @@
 {
-  "additionalFiles": "/Device.cpp,/Device.h,/Logger.cpp,/Logger.h,/Packet.cpp,/Packet.h,/PacketSenderReceiver.cpp,/PacketSenderReceiver.h,/Request.cpp,/Request.h,/Shared.h,/WebRequest.cpp,/WebRequest.h,/build/sketch/HCP_MCU_v4.ino.cpp",
-  "builtInLibrariesFolders": "/Applications/Arduino.app/Contents/Java/libraries",
-  "customBuildProperties": "build.path=/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/build,build.warn_data_percentage=75,runtime.tools.xtensa-lx106-elf-gcc.path=/Users/stijnrogiest/Library/Arduino15/packages/esp8266/tools/xtensa-lx106-elf-gcc/2.5.0-3-20ed2b9,runtime.tools.xtensa-lx106-elf-gcc-2.5.0-3-20ed2b9.path=/Users/stijnrogiest/Library/Arduino15/packages/esp8266/tools/xtensa-lx106-elf-gcc/2.5.0-3-20ed2b9,runtime.tools.esptool.path=/Users/stijnrogiest/Library/Arduino15/packages/esp8266/tools/esptool/2.5.0-3-20ed2b9,runtime.tools.esptool-2.5.0-3-20ed2b9.path=/Users/stijnrogiest/Library/Arduino15/packages/esp8266/tools/esptool/2.5.0-3-20ed2b9,runtime.tools.mkspiffs.path=/Users/stijnrogiest/Library/Arduino15/packages/esp8266/tools/mkspiffs/2.5.0-3-20ed2b9,runtime.tools.mkspiffs-2.5.0-3-20ed2b9.path=/Users/stijnrogiest/Library/Arduino15/packages/esp8266/tools/mkspiffs/2.5.0-3-20ed2b9",
-  "fqbn": "esp8266:esp8266:generic:xtal=80,vt=flash,exception=disabled,ResetMethod=ck,CrystalFreq=26,FlashFreq=40,FlashMode=dout,eesz=2M1M,led=2,ip=lm2f,dbg=Disabled,lvl=None____,wipe=none,baud=115200",
-  "hardwareFolders": "/Applications/Arduino.app/Contents/Java/hardware,/Users/stijnrogiest/Library/Arduino15/packages",
-  "otherLibrariesFolders": "/Users/stijnrogiest/Documents/Arduino/libraries",
-  "runtime.ide.version": "10808",
-  "sketchLocation": "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino",
-  "toolsFolders": "/Applications/Arduino.app/Contents/Java/tools-builder,/Applications/Arduino.app/Contents/Java/hardware/tools/avr,/Users/stijnrogiest/Library/Arduino15/packages"
+  "additionalFiles": "\\Device.cpp,\\Device.h,\\Logger.cpp,\\Logger.h,\\Packet.cpp,\\Packet.h,\\PacketSenderReceiver.cpp,\\PacketSenderReceiver.h,\\Request.cpp,\\Request.h,\\Shared.h,\\WebRequest.cpp,\\WebRequest.h",
+  "builtInLibrariesFolders": "C:\\Program Files (x86)\\Arduino\\libraries",
+  "customBuildProperties": "build.path=h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\build,build.warn_data_percentage=75,runtime.tools.python.path=C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\tools\\python\\3.7.2-post1,runtime.tools.python-3.7.2-post1.path=C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\tools\\python\\3.7.2-post1,runtime.tools.xtensa-lx106-elf-gcc.path=C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\tools\\xtensa-lx106-elf-gcc\\2.5.0-3-20ed2b9,runtime.tools.xtensa-lx106-elf-gcc-2.5.0-3-20ed2b9.path=C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\tools\\xtensa-lx106-elf-gcc\\2.5.0-3-20ed2b9,runtime.tools.mkspiffs.path=C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\tools\\mkspiffs\\2.5.0-3-20ed2b9,runtime.tools.mkspiffs-2.5.0-3-20ed2b9.path=C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\tools\\mkspiffs\\2.5.0-3-20ed2b9",
+  "fqbn": "esp8266:esp8266:generic:xtal=80,vt=flash,exception=disabled,ssl=all,ResetMethod=ck,CrystalFreq=26,FlashFreq=40,FlashMode=dout,eesz=2M1M,led=2,sdk=nonosdk221,ip=lm2f,dbg=Disabled,lvl=None____,wipe=none,baud=115200",
+  "hardwareFolders": "C:\\Program Files (x86)\\Arduino\\hardware,C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages",
+  "otherLibrariesFolders": "H:\\Documents\\Arduino\\libraries",
+  "runtime.ide.version": "10809",
+  "sketchLocation": "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino",
+  "toolsFolders": "C:\\Program Files (x86)\\Arduino\\tools-builder,C:\\Program Files (x86)\\Arduino\\hardware\\tools\\avr,C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages"
 }

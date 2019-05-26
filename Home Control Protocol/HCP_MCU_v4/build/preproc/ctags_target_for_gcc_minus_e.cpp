@@ -1,45 +1,71 @@
-# 1 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
-# 1 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+# 1 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+# 1 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
 /*
+
   Home Control Protocol v0.4.0
+
     by Stijn Rogiest (copyright 2019)
 
+
+
   Random console characters legend: 
+
     _: The last packet was resent, caused by faulty integrity at the receiver.
+
     !: The last request did not get answered and was disposed.
+
     .: The last request was resent.
 
+
+
   Sources:
+
     https://tttapa.github.io/ESP8266/Chap10%20-%20Simple%20Web%20Server.html
+
     https://www.arduino.cc/en/Reference/EEPROM
+
     http://www.cplusplus.com/doc/tutorial/pointers/
+
     https://www.arduino.cc/en/Reference/softwareSerial
+
     https://stackoverflow.com/questions/3698043/static-variables-in-c
+
     https://randomnerdtutorials.com/esp8266-web-server/
+
     http://arduino.esp8266.com/stable/package_esp8266com_index.json
+
     https://en.wikipedia.org/wiki/Multicast_DNS
+
     https://en.wikipedia.org/wiki/Cyclic_redundancy_check#CRC-32_algorithm
 
+
+
   Packet types/prefixes:
+
     0x20: Set slave properties.
+
     0x1: Ping slave.
+
     0x15: Refresh slave live data.
+
     0x10: Bind slave.
+
     0x2: Unbind slave.
+
 */
+# 29 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+# 30 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
+# 31 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
+# 32 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
 
-# 30 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-# 31 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-# 32 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
 
-
-# 35 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-# 36 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-# 37 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-# 38 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-# 39 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-# 40 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
-# 41 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino" 2
+# 35 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
+# 36 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
+# 37 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
+# 38 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
+# 39 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
+# 40 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
+# 41 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino" 2
 
 
 // Note: HC12 TX to RX and RX to TX
@@ -50,7 +76,7 @@
 
 
 
-SoftwareSerial ss = SoftwareSerial(12, 14);
+SoftwareSerial ss(12, 14);
 PacketSenderReceiver sr = PacketSenderReceiver(&ss, false, 2);
 Packet temp;
 Device* devices[32];
@@ -620,10 +646,16 @@ bool bindSlave(unsigned char ufid[7], unsigned char withAddress, void* state)
   }
 
   /*unsigned char data[9];
+
   memcpy(&data[1], &ufid[0], 7);
+
   data[0] = 0x10;
+
   data[8] = withAddress;
-  sr.broadcast(data, sizeof(data), DataRequest, 130);*/ // Multi-purpose-byte is 130, slave will return 130.
+
+  sr.broadcast(data, sizeof(data), DataRequest, 130);*/
+# 624 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+                                                        // Multi-purpose-byte is 130, slave will return 130.
   rebindSlave(ufid, withAddress);
   slaveBoundClient = state;
 
@@ -716,11 +748,15 @@ void retryNotWorkingBinds()
 
       rebindSlave(devices[i]->uniqueFactoryId, devices[i]->address);
       /*unsigned char data[9];
-      memcpy(&data[1], devices[i]->uniqueFactoryId, 7);
-      data[0] = 0x10;
-      data[8] = devices[i]->address;
-      sr.broadcast(data, sizeof(data), DataRequest, 130);*/
 
+      memcpy(&data[1], devices[i]->uniqueFactoryId, 7);
+
+      data[0] = 0x10;
+
+      data[8] = devices[i]->address;
+
+      sr.broadcast(data, sizeof(data), DataRequest, 130);*/
+# 722 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
       i++;
       break;
     }
@@ -774,7 +810,9 @@ void printDevices()
 void loadDevicesFromRom()
 {
   /*Serial.print("Size of device: ");
+
   Serial.println(sizeof(Device));*/
+# 776 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
   unsigned char deviceCount = 0;
 
   for (int i = 0; i < 32; i++)
@@ -792,8 +830,11 @@ void loadDevicesFromRom()
           bytes[j] = EEPROM.read(i * 120 + 100 + j);
       devices[i] = new Device(bytes);
       /*Serial.print("Red device: ");
+
       devices[i]->printToSerial();
+
       Serial.println();*/
+# 795 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
       deviceCount++;
     }
   }
@@ -830,10 +871,15 @@ void saveDevicesToRom()
     if (devices[i])
     {
       /*Serial.print("Saving device ");
+
       Serial.print(i);
+
       Serial.print(": ");
+
       devices[i]->printToSerial();
+
       Serial.println();*/
+# 835 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
       unsigned char* bytes = devices[i]->getBytes();
       for(int j = 0; j < 120; j++)
           EEPROM.write(i * 120 + 100 + j, bytes[j]);

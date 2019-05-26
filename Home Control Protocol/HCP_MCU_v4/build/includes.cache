@@ -2,220 +2,220 @@
   {
     "Sourcefile": "",
     "Include": "",
-    "Includepath": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/cores/esp8266"
+    "Includepath": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\cores\\esp8266"
   },
   {
     "Sourcefile": "",
     "Include": "",
-    "Includepath": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/variants/generic"
+    "Includepath": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\variants\\generic"
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/build/sketch/HCP_MCU_v4.ino.cpp",
+    "Sourcefile": "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\build\\sketch\\HCP_MCU_v4.ino.cpp",
     "Include": "SoftwareSerial.h",
-    "Includepath": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/SoftwareSerial"
+    "Includepath": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\SoftwareSerial\\src"
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/build/sketch/HCP_MCU_v4.ino.cpp",
+    "Sourcefile": "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\build\\sketch\\HCP_MCU_v4.ino.cpp",
     "Include": "ESP8266WiFi.h",
-    "Includepath": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WiFi/src"
+    "Includepath": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WiFi\\src"
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/build/sketch/HCP_MCU_v4.ino.cpp",
+    "Sourcefile": "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\build\\sketch\\HCP_MCU_v4.ino.cpp",
     "Include": "ESP8266mDNS.h",
-    "Includepath": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266mDNS/src"
+    "Includepath": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266mDNS\\src"
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/build/sketch/HCP_MCU_v4.ino.cpp",
+    "Sourcefile": "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\build\\sketch\\HCP_MCU_v4.ino.cpp",
     "Include": "ESP8266WebServer.h",
-    "Includepath": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WebServer/src"
+    "Includepath": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WebServer\\src"
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/build/sketch/HCP_MCU_v4.ino.cpp",
+    "Sourcefile": "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\build\\sketch\\HCP_MCU_v4.ino.cpp",
     "Include": "EEPROM.h",
-    "Includepath": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/EEPROM"
+    "Includepath": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\EEPROM"
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/build/sketch/HCP_MCU_v4.ino.cpp",
+    "Sourcefile": "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\build\\sketch\\HCP_MCU_v4.ino.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/build/sketch/Device.cpp",
+    "Sourcefile": "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\build\\sketch\\Device.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/build/sketch/Logger.cpp",
+    "Sourcefile": "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\build\\sketch\\Logger.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/build/sketch/Packet.cpp",
+    "Sourcefile": "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\build\\sketch\\Packet.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/build/sketch/PacketSenderReceiver.cpp",
+    "Sourcefile": "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\build\\sketch\\PacketSenderReceiver.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/build/sketch/Request.cpp",
+    "Sourcefile": "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\build\\sketch\\Request.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/build/sketch/WebRequest.cpp",
+    "Sourcefile": "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\build\\sketch\\WebRequest.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/SoftwareSerial/SoftwareSerial.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\SoftwareSerial\\src\\SoftwareSerial.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WiFi/src/BearSSLHelpers.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WiFi\\src\\BearSSLHelpers.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WiFi/src/CertStoreBearSSL.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WiFi\\src\\CertStoreBearSSL.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WiFi/src/ESP8266WiFi.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WiFi\\src\\ESP8266WiFi.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WiFi/src/ESP8266WiFiAP.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WiFi\\src\\ESP8266WiFiAP.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WiFi/src/ESP8266WiFiGeneric.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WiFi\\src\\ESP8266WiFiGeneric.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WiFi/src/ESP8266WiFiMulti.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WiFi\\src\\ESP8266WiFiMulti.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WiFi/src/ESP8266WiFiSTA-WPS.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WiFi\\src\\ESP8266WiFiSTA-WPS.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WiFi/src/ESP8266WiFiSTA.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WiFi\\src\\ESP8266WiFiSTA.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WiFi/src/ESP8266WiFiScan.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WiFi\\src\\ESP8266WiFiScan.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WiFi/src/WiFiClient.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WiFi\\src\\WiFiClient.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WiFi/src/WiFiClientSecureAxTLS.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WiFi\\src\\WiFiClientSecureAxTLS.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WiFi/src/WiFiClientSecureBearSSL.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WiFi\\src\\WiFiClientSecureBearSSL.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WiFi/src/WiFiServer.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WiFi\\src\\WiFiServer.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WiFi/src/WiFiServerSecureAxTLS.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WiFi\\src\\WiFiServerSecureAxTLS.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WiFi/src/WiFiServerSecureBearSSL.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WiFi\\src\\WiFiServerSecureBearSSL.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WiFi/src/WiFiUdp.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WiFi\\src\\WiFiUdp.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266mDNS/src/ESP8266mDNS.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266mDNS\\src\\ESP8266mDNS.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266mDNS/src/ESP8266mDNS_Legacy.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266mDNS\\src\\ESP8266mDNS_Legacy.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266mDNS/src/LEAmDNS.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266mDNS\\src\\LEAmDNS.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266mDNS/src/LEAmDNS_Control.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266mDNS\\src\\LEAmDNS_Control.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266mDNS/src/LEAmDNS_Helpers.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266mDNS\\src\\LEAmDNS_Helpers.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266mDNS/src/LEAmDNS_Structs.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266mDNS\\src\\LEAmDNS_Structs.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266mDNS/src/LEAmDNS_Transfer.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266mDNS\\src\\LEAmDNS_Transfer.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WebServer/src/ESP8266WebServer.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WebServer\\src\\ESP8266WebServer.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WebServer/src/ESP8266WebServerSecureAxTLS.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WebServer\\src\\ESP8266WebServerSecureAxTLS.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WebServer/src/ESP8266WebServerSecureBearSSL.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WebServer\\src\\ESP8266WebServerSecureBearSSL.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WebServer/src/Parsing.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WebServer\\src\\Parsing.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/ESP8266WebServer/src/detail/mimetable.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\ESP8266WebServer\\src\\detail\\mimetable.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
-    "Sourcefile": "/Users/stijnrogiest/Library/Arduino15/packages/esp8266/hardware/esp8266/2.5.0/libraries/EEPROM/EEPROM.cpp",
+    "Sourcefile": "C:\\Users\\Stijn Rogiest\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\libraries\\EEPROM\\EEPROM.cpp",
     "Include": "",
     "Includepath": ""
   }

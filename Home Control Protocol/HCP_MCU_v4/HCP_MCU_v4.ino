@@ -48,7 +48,7 @@
 #define MAX_DEVICES 32
 #define WIFI_MDNS "homecontrol"
 
-SoftwareSerial ss = SoftwareSerial(RX_PIN, TX_PIN);
+SoftwareSerial ss(RX_PIN, TX_PIN);
 PacketSenderReceiver sr = PacketSenderReceiver(&ss, false, MASTER_ADDRESS);
 Packet temp;
 Device* devices[MAX_DEVICES];

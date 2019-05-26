@@ -15,7 +15,8 @@ Packet::Packet(unsigned char* data, unsigned char len)
   memcpy(this->data, data, len);
 }
 
-Packet::Packet(unsigned char slaveAddress, unsigned char masterAddress, unsigned char* data, unsigned char len, PacketType type, unsigned char multiPurposeByte)
+Packet::Packet(unsigned char slaveAddress, unsigned char masterAddress, unsigned char* data, 
+  unsigned char len, PacketType type, unsigned char multiPurposeByte)
 {
   memset(this->data, 0, 20);
   if (len > 0)
