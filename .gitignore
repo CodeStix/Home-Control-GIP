@@ -35,7 +35,5 @@
 *.DS_Store
 
 # Build/caching folders
-build/
-ipch/
-build\
-ipch\
+build
+ipch
