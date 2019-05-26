@@ -1,8 +1,6 @@
 #include "Device.h"
 #include "Arduino.h"
 
-#define DEVICE_BYTE_SIZE 120
-
 Device::Device(unsigned char fromBytes[118])
 {
     memcpy(this->name, &fromBytes[0], 25);

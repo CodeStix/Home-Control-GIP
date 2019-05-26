@@ -95,7 +95,7 @@ void setup()
   delay(5000);
   veryCoolSplashScreen();
   Serial.print("----> My address (master): ");
-  Serial.println(MASTER_addr);
+  Serial.println(MASTER_ADDRESS);
   Serial.println("----> Loading devices...");
   EEPROM.begin(4096);
   //clearRomDevices();
@@ -217,7 +217,7 @@ void loop()
     lastRetryBindMillis = millis();
   }
 
-  if ((millis() - lastPingMillis) > refreshMillisInterval)
+  if ((millis() - lastRefreshMillis) > refreshMillisInterval)
   {
     refreshSlaves();
 
@@ -424,11 +424,11 @@ bool requested(String path)
           client.print(devices[i]->uniqueFactoryId[j]);
         }
         client.print(',');
-        for(unsigned char j = 0; j < 8; j++)
+        for(unsigned char j = 0; j < 4; j++)
         {
           if (j != 0)
             client.print(' ');
-          client.print(devices[i]->deviceInfo[j]);
+          client.print(devices[i]->deviceType[j]);
         }
         client.print(',');
         client.print(devices[i]->online ? "true" : "false");
@@ -576,15 +576,27 @@ void refreshSlave(unsigned char addr, void* state)
 
 void refreshAnswer(ResponseStatus status, Request* requested)
 {
-  Serial.print("Received ");
-  Serial.print(requested->responseLength);
-  Serial.println(" bytes for live data.");
-
   Device* dev = getDeviceWithAddress(requested->fromAddress);
+
   if (dev)
   {
-    for(unsigned char i = 0; i < requested->responseLength; i++)
-      dev->liveDeviceInfo[i] = requested->response[i];
+    bool online = status != NoResponse;
+
+    if (online)
+    {
+      Serial.print("Received ");
+      Serial.print(requested->responseLength);
+      Serial.println(" bytes for live data.");
+
+      for(unsigned char i = 0; i < requested->responseLength; i++)
+        dev->liveDeviceInfo[i] = requested->response[i];
+    }
+
+    if (dev->online != online)
+    {
+      dev->online = online;
+      saveDevicesToRom();
+    }
   }
 }
 
