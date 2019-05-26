@@ -31,5 +31,9 @@
 *.out
 *.app
 
+# Mac file storage info
 *.DS_Store
-.vscode/ipch/7bcde7dac3ac8504/mmap_address.bin
+
+# Build/caching folders
+build/
+ipch/
