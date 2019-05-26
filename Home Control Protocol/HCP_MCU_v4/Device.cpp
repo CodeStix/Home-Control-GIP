@@ -1,20 +1,24 @@
 #include "Device.h"
 #include "Arduino.h"
 
-Device::Device(unsigned char fromBytes[50])
+#define DEVICE_BYTE_SIZE 120
+
+Device::Device(unsigned char fromBytes[118])
 {
     memcpy(this->name, &fromBytes[0], 25);
-    memcpy(this->deviceInfo, &fromBytes[25], 8);
-    memcpy(this->uniqueFactoryId, &fromBytes[33], 7);
-    this->address = fromBytes[40];
-    this->working = (fromBytes[41] & 0x1) == 0x1;
-    this->online = (fromBytes[41] & 0x2) == 0x2;
+    memcpy(this->liveDeviceInfo, &fromBytes[25], 16);
+    memcpy(this->uniqueFactoryId, &fromBytes[41], 7);
+    memcpy(this->knownProperties, &fromBytes[48], 64);
+    memcpy(&this->deviceType, &fromBytes[112], 4);
+    this->address = fromBytes[116];
+    this->working = (fromBytes[117] & 0x1) == 0x1;
+    this->online = (fromBytes[117] & 0x2) == 0x2;   
 }
 
 Device::Device(unsigned char uniqueFactoryId[7], unsigned char address, char name[25])
 {
     memcpy(this->name, name, sizeof(this->name));
-    memset(this->deviceInfo, 0, sizeof(this->deviceInfo));
+    memset(this->liveDeviceInfo, 0, sizeof(this->liveDeviceInfo));
     memcpy(this->uniqueFactoryId, uniqueFactoryId, 7);
     this->address = address;
     this->working = false;
@@ -46,15 +50,17 @@ void Device::printToSerial()
 
 unsigned char* Device::getBytes()
 {
-    static unsigned char bytes[50];
+    static unsigned char bytes[118];
 
     memset(bytes, 0x0, sizeof(bytes));
     memcpy(&bytes[0], this->name, 25);
-    memcpy(&bytes[25], this->deviceInfo, 8);
-    memcpy(&bytes[33], this->uniqueFactoryId, 7);
-    bytes[40] = this->address;
-    bytes[41] |= this->working ? 0x1 : 0x0;
-    bytes[41] |= this->online ? 0x2 : 0x0;
+    memcpy(&bytes[25], this->liveDeviceInfo, 16);
+    memcpy(&bytes[41], this->uniqueFactoryId, 7);
+    memcpy(&bytes[48], this->knownProperties, 64);
+    memcpy(&bytes[112], &this->deviceType, 4);
+    bytes[116] = this->address;
+    bytes[117] |= this->working ? 0x1 : 0x0;
+    bytes[117] |= this->online ? 0x2 : 0x0;
 
     return bytes;
 }

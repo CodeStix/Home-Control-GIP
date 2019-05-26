@@ -17,9 +17,15 @@
     http://arduino.esp8266.com/stable/package_esp8266com_index.json
     https://en.wikipedia.org/wiki/Multicast_DNS
     https://en.wikipedia.org/wiki/Cyclic_redundancy_check#CRC-32_algorithm
+
+  Packet types/prefixes:
+    0x20: Set slave properties.
+    0x1: Ping slave.
+    0x15: Refresh slave live data.
+    0x10: Bind slave.
+    0x2: Unbind slave.
 */
 
-///Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/
 #include "Shared.h"
 #include "PacketSenderReceiver.h"
 #include "Device.h"
@@ -38,12 +44,12 @@
 #define TX_PIN 14
 #define RX_PIN 12
 // This masters addr, can be 1, 2 or 3.
-#define MASTER_addr 2
-#define MAX_DEVICES 64
+#define MASTER_ADDRESS 2
+#define MAX_DEVICES 32
 #define WIFI_MDNS "homecontrol"
 
 SoftwareSerial ss = SoftwareSerial(RX_PIN, TX_PIN);
-PacketSenderReceiver sr = PacketSenderReceiver(&ss, false, MASTER_addr);
+PacketSenderReceiver sr = PacketSenderReceiver(&ss, false, MASTER_ADDRESS);
 Packet temp;
 Device* devices[MAX_DEVICES];
 
@@ -53,10 +59,10 @@ WiFiClient client;
 String clientData;
 void* slaveBoundClient = nullptr; 
 
-const unsigned int retryBindMillisInterval = 9000;
+const unsigned int retryBindMillisInterval = 400;
 unsigned long lastRetryBindMillis = 1;
-const unsigned int pingMillisInterval = 5000;
-unsigned long lastPingMillis = 1;
+const unsigned int refreshMillisInterval = 2220;
+unsigned long lastRefreshMillis = 1;
 
 unsigned long lastLedBlink = 0;
 unsigned int ledBlinks = 0;
@@ -72,7 +78,8 @@ unsigned char currentArg = 0;
 String args[16];
 
 // Prototypes
-void pingSlave(unsigned char addr, bool silent = true, void* state = nullptr);
+void refreshSlave(unsigned char addr, void* state = nullptr);
+void pingSlave(unsigned char addr, void* state = nullptr);
 void unbindSlave(unsigned char withAddress, void* state = nullptr);
 void setSlaveProperties(unsigned char addr, unsigned char startPos, unsigned char* values, unsigned char valueCount, void * state = nullptr);
 bool bindSlave(unsigned char ufid[7], unsigned char withAddress, void* state = nullptr);
@@ -180,7 +187,7 @@ void loop()
 
         bound->working = true;
         bound->online = true;
-        memcpy(bound->deviceInfo, temp.getData(), temp.getDataLength());
+        memcpy(bound->deviceType, temp.getData(), temp.getDataLength());
         saveDevicesToRom();
 
         Serial.print("----> Slave is now bound (2): ");
@@ -210,11 +217,11 @@ void loop()
     lastRetryBindMillis = millis();
   }
 
-  if ((millis() - lastPingMillis) > pingMillisInterval)
+  if ((millis() - lastPingMillis) > refreshMillisInterval)
   {
-    checkOnlineBinds();
+    refreshSlaves();
 
-    lastPingMillis = millis();
+    lastRefreshMillis = millis();
   }
 
   WiFiClient newClient = server.available();
@@ -281,7 +288,7 @@ void command(String args[16], unsigned char argsLen)
   }
   else if (argsLen == 2 && args[0] == "ping")
   {
-    pingSlave(args[1].toInt(), false);
+    pingSlave(args[1].toInt());
   }
   else if (args[0] == "device")
   {
@@ -452,7 +459,7 @@ bool requested(String path)
   else if (sub[0] == "ping" && subCount == 2)
   {
     unsigned char addr = sub[1].toInt();
-    pingSlave(addr, false, &client);
+    pingSlave(addr, &client);
     return true;
   }
   else if (sub[0] == "bind" && subCount > 1 && subCount <= 8)
@@ -507,6 +514,15 @@ void propertySetAnswer(ResponseStatus status, Request* requested)
     Serial.print("\t-> Propery for slave ");
     Serial.print(requested->fromAddress);
     Serial.println(" was set successfully!");
+
+    Device* setDevice = getDeviceWithAddress(requested->fromAddress);
+    if (setDevice)
+    {
+      unsigned char startPos = requested->sentData[1];
+      unsigned char valueCount = requested->sentDataLength - 2;
+      for(unsigned char i = 0; i < valueCount; i++)
+        setDevice->knownProperties[startPos + i] = requested->sentData[i + 2];
+    }
   }
 
   if (requested->state)
@@ -517,31 +533,19 @@ void propertySetAnswer(ResponseStatus status, Request* requested)
   }
 }
 
-void pingSlave(unsigned char addr, bool silent, void* state)
+void pingSlave(unsigned char addr, void* state)
 {
-  if (silent)
-  {
-    unsigned char data[1] = {0x1};
+  unsigned char data[1] = {0x1};
 
-    sr.sendRequest(addr, pingAnswer, data, sizeof(data), state);
-  }
-  else
-  {
-    unsigned char data[2] = {0x1, 0x0};
-
-    sr.sendRequest(addr, pingAnswer, data, sizeof(data), state);
-  }
+  sr.sendRequest(addr, pingAnswer, data, sizeof(data), state);
 }
 
 void pingAnswer(ResponseStatus status, Request* requested)
 {
-  if (requested->sentDataLength == 2)
-  {
-    Serial.print("\t-> Slave ");
-    Serial.print(requested->fromAddress);
-    Serial.print(" was pinged: ");
-    Serial.println(status == Okay ? "Okay" : (status == Failed ? "Failed" : "No response"));
-  }
+  Serial.print("\t-> Slave ");
+  Serial.print(requested->fromAddress);
+  Serial.print(" was pinged: ");
+  Serial.println(status == Okay ? "Okay" : (status == Failed ? "Failed" : "No response"));
 
   Device* dev = getDeviceWithAddress(requested->fromAddress);
   if (dev)
@@ -560,6 +564,27 @@ void pingAnswer(ResponseStatus status, Request* requested)
     WiFiClient* wc = (WiFiClient*)requested->state;
     wc->println(status);
     wc->stop();
+  }
+}
+
+void refreshSlave(unsigned char addr, void* state)
+{
+  unsigned char data[1] = {0x15};
+
+  sr.sendRequest(addr, refreshAnswer, data, sizeof(data), state);
+}
+
+void refreshAnswer(ResponseStatus status, Request* requested)
+{
+  Serial.print("Received ");
+  Serial.print(requested->responseLength);
+  Serial.println(" bytes for live data.");
+
+  Device* dev = getDeviceWithAddress(requested->fromAddress);
+  if (dev)
+  {
+    for(unsigned char i = 0; i < requested->responseLength; i++)
+      dev->liveDeviceInfo[i] = requested->response[i];
   }
 }
 
@@ -622,7 +647,7 @@ void unbindSlave(unsigned char withAddress, void * state)
   }
 }
 
-void checkOnlineBinds()
+void refreshSlaves()
 {
   static unsigned char i = 0;
 
@@ -633,7 +658,26 @@ void checkOnlineBinds()
   {
     if (devices[i] && devices[i]->working)
     {
-      pingSlave(devices[i]->address, true);
+      refreshSlave(devices[i]->address);
+
+      i++;
+      break;
+    }
+  }
+}
+
+void pingSlaves()
+{
+  static unsigned char i = 0;
+
+  if (i >= MAX_DEVICES)
+    i = 0;
+
+  for(; i < MAX_DEVICES; i++)
+  {
+    if (devices[i] && devices[i]->working)
+    {
+      pingSlave(devices[i]->address);
 
       i++;
       break;
@@ -721,7 +765,7 @@ void loadDevicesFromRom()
 
   for (int i = 0; i < MAX_DEVICES; i++)
   {
-    if (EEPROM.read(i * 50 + 100 + 50 - 1) == 0xFF)
+    if (EEPROM.read(i * DEVICE_BYTE_SIZE + 100 + DEVICE_BYTE_SIZE - 1) == 0xFF)
     {
       // Device save location is empty
       devices[i] = nullptr;
@@ -729,9 +773,9 @@ void loadDevicesFromRom()
     else
     {
       // Device save location is used, read it
-      unsigned char bytes[50];
-      for(int j = 0; j < 50; j++)
-          bytes[j] = EEPROM.read(i * 50 + 100 + j);
+      unsigned char bytes[DEVICE_BYTE_SIZE];
+      for(int j = 0; j < DEVICE_BYTE_SIZE; j++)
+          bytes[j] = EEPROM.read(i * DEVICE_BYTE_SIZE + 100 + j);
       devices[i] = new Device(bytes);
       /*Serial.print("Red device: ");
       devices[i]->printToSerial();
@@ -747,7 +791,7 @@ void loadDevicesFromRom()
 
 void clearRomDevices()
 {
-  for (int i = 100; i < 100 + MAX_DEVICES * 50; i++)
+  for (int i = 100; i < 100 + MAX_DEVICES * DEVICE_BYTE_SIZE; i++)
     EEPROM.write(i, 0xFF);
   for(unsigned char i = 0; i < MAX_DEVICES; i++)
   {
@@ -777,13 +821,13 @@ void saveDevicesToRom()
       devices[i]->printToSerial();
       Serial.println();*/
       unsigned char* bytes = devices[i]->getBytes();
-      for(int j = 0; j < 50; j++)
-          EEPROM.write(i * 50 + 100 + j, bytes[j]);
+      for(int j = 0; j < DEVICE_BYTE_SIZE; j++)
+          EEPROM.write(i * DEVICE_BYTE_SIZE + 100 + j, bytes[j]);
       deviceCount++;
     }
     else
     {
-      EEPROM.write(i * 50 + 100 + 50 - 1, 0xFF);
+      EEPROM.write(i * DEVICE_BYTE_SIZE + 100 + DEVICE_BYTE_SIZE - 1, 0xFF);
     }
   }
 

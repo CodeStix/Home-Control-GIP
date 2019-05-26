@@ -15,19 +15,19 @@
 // DEVICE_INFO: Non-private information about this slave.
 #ifdef SLAVE_NANO4LED_RELAY
 #define UNIQUE_FACTORY_ID {0xFF, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}
-#define DEVICE_INFO {0x11, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}
+#define DEVICE_TYPE {0x11, 0x0, 0x0, 0x0}
 #endif
 #ifdef SLAVE_PROMINIBLUE
-#define UNIQUE_FACTORY_ID {0xFF, 0x1, 0x0, 0x0,  0x0, 0x0, 0x0}
-#define DEVICE_INFO {0x12, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}
+#define UNIQUE_FACTORY_ID {0xFF, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0}
+#define DEVICE_TYPE {0x12, 0x0, 0x0, 0x0}
 #endif
 #ifdef SLAVE_PROMINIBLACK_LAMPS
 #define UNIQUE_FACTORY_ID {0xFF, 0xB, 0x0, 0x0, 0x0, 0x0, 0x0}
-#define DEVICE_INFO {0x12, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}
+#define DEVICE_TYPE {0x12, 0x0, 0x0, 0x0}
 #endif
 #ifdef SLAVE_PROMINIBLACK_LEDSTRIP
 #define UNIQUE_FACTORY_ID {0xFF, 0x2, 0x2, 0x0, 0x0, 0x0, 0x0}
-#define DEVICE_INFO {0x12, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}
+#define DEVICE_TYPE {0x12, 0x0, 0x0, 0x0}
 #endif
 
 /****** NOT Unique for each slave ******/
@@ -116,6 +116,11 @@ void propertyUpdate()
   analogWrite(5, getProperty(1));
   analogWrite(6, getProperty(2));
 #endif
+}
+
+unsigned char refreshLiveData(unsigned char[16] liveData)
+{
+  return 0;
 }
 
 void setup()
@@ -213,7 +218,7 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
     Serial.println(getAddress());
     led(10, 50);
 
-    unsigned char resp[] = DEVICE_INFO;
+    unsigned char resp[] = DEVICE_TYPE;
     sr.answer(&temp, resp, sizeof(resp));
     return;
   }
@@ -259,17 +264,10 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
     }
   }
   // Ping command
-  else if ((len == 1 || len == 2) && data[0] == 0x1)
+  else if (len == 1 data[0] == 0x1)
   {
-    if (len == 2)
-    {
-      Serial.println("<-- Me is got being pinged, yay!");
-      led(25, 50);
-    }
-    else
-    {
-      led(2, 50);
-    }
+    Serial.println("<-- Me is got being pinged, yay!");
+    led(25, 50);
 
     unsigned char resp[] = {0xFF};
     sr.answer(&temp, resp, sizeof(resp));
@@ -289,7 +287,7 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
     return;
   }
   // Bind command while registered
-  else if (data[0] == 0x10)
+  else if (len == 9 && data[0] == 0x10)
   {
     Serial.print("Device bind request while bound: ");
 
@@ -298,7 +296,7 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
     {
       Serial.println("for me.");
       
-      unsigned char resp[] = DEVICE_INFO;
+      unsigned char resp[] = DEVICE_TYPE;
       sr.answer(&temp, resp, sizeof(resp));
       return;
     }
@@ -306,6 +304,17 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
     {
       Serial.println("not for me.");
     }
+  }
+  // Refresh command.
+  else if (len == 1 && data[0] == 0x15)
+  {
+    static unsigned char resp[16];
+    memset(resp, 0, sizeof(resp));
+
+    unsigned char dataLen = refreshLiveData(liveData);
+
+    sr.answer(&temp, resp, dataLen);
+    return;
   }
 
   // Mark request as failed.
