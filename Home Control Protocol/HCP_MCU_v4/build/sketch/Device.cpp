@@ -29,20 +29,38 @@ void Device::printToSerial()
     Serial.print(this->address);
     Serial.print(", name: ");
     Serial.print(this->name);
-    Serial.print(", ufid: ");
+    Serial.print(" (");
+    Serial.print(this->working ? "" : "NOT WORKING, ");
+    Serial.print(this->online ? "ONLINE" : "OFFLINE");
+    Serial.print("), ufid: ");
     for(unsigned char i = 0; i < 7; i++)
     {
         Serial.print(this->uniqueFactoryId[i], DEC);
         Serial.print(' ');
     }
-    Serial.print(", info: ");
+    Serial.print(", type: ");
     for(unsigned char i = 0; i < 4; i++)
     {
         Serial.print(this->deviceType[i]);
         Serial.print(' ');
     }
-    Serial.print(this->working ? "" : ", NOT WORKING");
-    Serial.print(this->online ? ", ONLINE" : ", OFFLINE");
+    Serial.print(", live: ");
+    for(unsigned char i = 0; i < 16; i++)
+    {
+        Serial.print(this->liveDeviceInfo[i]);
+        Serial.print(' ');
+    }
+    Serial.print(", prop: ");
+    for(unsigned char i = 0; i < 64; i++)
+    {
+        if (this->knownProperties[i] != 0x0)
+        {
+            Serial.print(i);
+            Serial.print('=');
+            Serial.print(this->knownProperties[i]);
+            Serial.print(' ');
+        }
+    }
     Serial.print(')');
 }
 

@@ -50,6 +50,7 @@ void Request::answered(unsigned char* respData, unsigned char respLen)
 {
   memset(this->response, 0 , sizeof(this->response));
   memcpy(this->response, respData, respLen);
+  this->responseLength = respLen;
   
   if (respLen == 0)
   {

@@ -120,7 +120,11 @@ void propertyUpdate()
 
 unsigned char refreshLiveData(unsigned char liveData[16])
 {
-  return 0;
+  for(unsigned char i = 1; i <= 4; i++)
+    liveData[i - 1] = i;
+  
+  
+  return 4;
 }
 
 void setup()
@@ -312,6 +316,10 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
     memset(resp, 0, sizeof(resp));
 
     unsigned char dataLen = refreshLiveData(resp);
+
+    Serial.print("Sending ");
+    Serial.print(dataLen);
+    Serial.println(" bytes of live data.");
 
     sr.answer(&temp, resp, dataLen);
     return;

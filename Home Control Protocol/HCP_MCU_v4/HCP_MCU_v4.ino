@@ -413,10 +413,13 @@ bool requested(String path)
     {
       if (devices[i])
       {
+        // [0]: name
         client.print(devices[i]->name);
         client.print(',');
+        // [1]: address
         client.print(devices[i]->address);
         client.print(',');
+        // [2]: uniqueFactoryId
         for(unsigned char j = 0; j < 7; j++)
         {
           if (j != 0)
@@ -424,15 +427,34 @@ bool requested(String path)
           client.print(devices[i]->uniqueFactoryId[j]);
         }
         client.print(',');
-        for(unsigned char j = 0; j < 4; j++)
+        // [3]: deviceType
+        for(unsigned char j = 4; j < 4; j++)
         {
           if (j != 0)
             client.print(' ');
           client.print(devices[i]->deviceType[j]);
         }
         client.print(',');
+        // [4]: knownProperties
+        for(unsigned char j = 0; j < 64; j++)
+        {
+          if (j != 0)
+            client.print(' ');
+          client.print(devices[i]->knownProperties[j]);
+        }
+        client.print(',');
+        // [5]: liveDeviceInfo
+        for(unsigned char j = 0; j < 16; j++)
+        {
+          if (j != 0)
+            client.print(' ');
+          client.print(devices[i]->liveDeviceInfo[j]);
+        }
+        client.print(',');
+        // [6]: online
         client.print(devices[i]->online ? "true" : "false");
         client.print(',');
+        // [7]: working
         client.print(devices[i]->working ? "true" : "false");
         client.print(';');
       }
