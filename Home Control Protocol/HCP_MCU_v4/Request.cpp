@@ -10,12 +10,12 @@ Request::Request()
   this->used = false;
 }
 
-Request::Request(unsigned char fromAddress, ResponseHandler handler, unsigned char* data, unsigned char len, void* state)
+Request::Request(unsigned char fromAddress, ResponseHandler handler, unsigned char* data, unsigned char len)
 {
-  this->use(fromAddress, handler, data, len, state);
+  this->use(fromAddress, handler, data, len);
 }
 
-void Request::use(unsigned char fromAddress, ResponseHandler handler, unsigned char* data, unsigned char len, void* state)
+void Request::use(unsigned char fromAddress, ResponseHandler handler, unsigned char* data, unsigned char len)
 {
   this->handler = handler;
   this->fromAddress = fromAddress;
@@ -27,7 +27,6 @@ void Request::use(unsigned char fromAddress, ResponseHandler handler, unsigned c
   this->createdMillis = this->sentMillis;
   this->used = true;
   this->resendTries = 0;
-  this->state = state;
   memset(this->sentData, 0, 20);
   memcpy(this->sentData, data, len);
   this->sentDataLength = len;

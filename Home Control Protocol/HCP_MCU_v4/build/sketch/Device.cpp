@@ -1,5 +1,6 @@
 #include "Device.h"
 #include "Arduino.h"
+#include "Print.h"
 
 Device::Device(unsigned char fromBytes[118])
 {
@@ -23,45 +24,92 @@ Device::Device(unsigned char uniqueFactoryId[7], unsigned char address, char nam
     this->online = false;
 }
 
-void Device::printToSerial()
+void Device::printTo(Print& dest)
 {
-    Serial.print("(address: ");
-    Serial.print(this->address);
-    Serial.print(", name: ");
-    Serial.print(this->name);
-    Serial.print(" (");
-    Serial.print(this->working ? "" : "NOT WORKING, ");
-    Serial.print(this->online ? "ONLINE" : "OFFLINE");
-    Serial.print("), ufid: ");
+    dest.print("(address: ");
+    dest.print(this->address);
+    dest.print(", name: ");
+    dest.print(this->name);
+    dest.print(" (");
+    dest.print(this->working ? "" : "NOT WORKING, ");
+    dest.print(this->online ? "ONLINE" : "OFFLINE");
+    dest.print("), ufid: ");
     for(unsigned char i = 0; i < 7; i++)
     {
-        Serial.print(this->uniqueFactoryId[i], DEC);
-        Serial.print(' ');
+        dest.print(this->uniqueFactoryId[i], DEC);
+        dest.print(' ');
     }
-    Serial.print(", type: ");
+    dest.print(", type: ");
     for(unsigned char i = 0; i < 4; i++)
     {
-        Serial.print(this->deviceType[i]);
-        Serial.print(' ');
+        dest.print(this->deviceType[i]);
+        dest.print(' ');
     }
-    Serial.print(", live: ");
+    dest.print(", live: ");
     for(unsigned char i = 0; i < 16; i++)
     {
-        Serial.print(this->liveDeviceInfo[i]);
-        Serial.print(' ');
+        dest.print(this->liveDeviceInfo[i]);
+        dest.print(' ');
     }
-    Serial.print(", prop: ");
+    dest.print(", prop: ");
     for(unsigned char i = 0; i < 64; i++)
     {
         if (this->knownProperties[i] != 0x0)
         {
-            Serial.print(i);
-            Serial.print('=');
-            Serial.print(this->knownProperties[i]);
-            Serial.print(' ');
+            dest.print(i);
+            dest.print('=');
+            dest.print(this->knownProperties[i]);
+            dest.print(' ');
         }
     }
-    Serial.print(')');
+    dest.print(')');
+}
+
+void Device::printAsListTo(Print& dest)
+{
+    // [0]: name
+    dest.print(this->name);
+    dest.print(',');
+    // [1]: address
+    dest.print(this->address);
+    dest.print(',');
+    // [2]: uniqueFactoryId
+    for(unsigned char j = 0; j < 7; j++)
+    {
+        if (j != 0)
+        dest.print(' ');
+        dest.print(this->uniqueFactoryId[j]);
+    }
+    dest.print(',');
+    // [3]: deviceType
+    for(unsigned char j = 4; j < 4; j++)
+    {
+        if (j != 0)
+        dest.print(' ');
+        dest.print(this->deviceType[j]);
+    }
+    dest.print(',');
+    // [4]: knownProperties
+    for(unsigned char j = 0; j < 64; j++)
+    {
+        if (j != 0)
+        dest.print(' ');
+        dest.print(this->knownProperties[j]);
+    }
+    dest.print(',');
+    // [5]: liveDeviceInfo
+    for(unsigned char j = 0; j < 16; j++)
+    {
+        if (j != 0)
+        dest.print(' ');
+        dest.print(this->liveDeviceInfo[j]);
+    }
+    dest.print(',');
+    // [6]: online
+    dest.print(this->online ? "true" : "false");
+    dest.print(',');
+    // [7]: working
+    dest.print(this->working ? "true" : "false");
 }
 
 unsigned char* Device::getBytes()

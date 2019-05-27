@@ -1,6 +1,8 @@
 #ifndef Device_h
 #define Device_h
 
+#include "Print.h"
+
 #define DEVICE_BYTE_SIZE 120
 
 class Device
@@ -16,8 +18,9 @@ class Device
         unsigned char address;
         bool working;
         bool online;
-        void printToSerial();
         unsigned char* getBytes();
+        void printTo(Print& dest);
+        void printAsListTo(Print& dest);
 };
 
 #endif

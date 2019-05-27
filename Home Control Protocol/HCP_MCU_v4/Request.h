@@ -32,7 +32,7 @@ class Request
 {
     public:
         Request();
-        Request(unsigned char fromAddress, ResponseHandler handler, unsigned char* data, unsigned char len, void* state = nullptr);
+        Request(unsigned char fromAddress, ResponseHandler handler, unsigned char* data, unsigned char len);
         ResponseHandler handler;
         unsigned char fromAddress;
         unsigned char id;
@@ -43,7 +43,7 @@ class Request
         bool shouldGetResend();
         bool used;
         bool mayGetDisposed();
-        void use(unsigned char fromAddress, ResponseHandler handler, unsigned char* data, unsigned char len, void* state = nullptr);
+        void use(unsigned char fromAddress, ResponseHandler handler, unsigned char* data, unsigned char len);
         void answered(unsigned char* respData, unsigned char respLen);
         void noAnswer();
         unsigned char sentData[20];
@@ -51,7 +51,6 @@ class Request
         unsigned char response[16];
         unsigned char responseLength;
         unsigned char resendTries;
-        void* state;
 };
 
 
