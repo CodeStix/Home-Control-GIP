@@ -16,4 +16,20 @@ void veryCoolSplashScreen()
   Serial.println();
 }
 
+unsigned char temperatureToByte(float floatTemp)
+{
+  float f = (floatTemp - 10.0f) * 10.0f;
+  if (f > 255)
+    f = 255;
+  else if (f < 0)
+    f = 0
+
+  return (unsigned char)f;
+}
+
+float byteToTemperature(unsigned char byteTemp)
+{
+  return (byteTemp / 10.0f) + 10.0f;
+}
+
 #endif
