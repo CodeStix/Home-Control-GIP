@@ -32,4 +32,9 @@ float byteToTemperature(unsigned char byteTemp)
   return (byteTemp / 10.0f) + 10.0f;
 }
 
+unsigned char currentFlowToByte(float floatCurrent)
+{
+  return 0;
+}
+
 #endif
