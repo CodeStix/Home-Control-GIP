@@ -460,14 +460,29 @@ bool requested(WebRequest* webRequest, String path)
   }
   else if (sub[0] == "deviceList")
   {
+    client.print("{\n\"devices\": [");
     for(unsigned char i = 0; i < MAX_DEVICES; i++)
     {
       if (devices[i])
       {
-        devices[i]->printAsListTo(client);
-        client.print(';');
+        if (i != 0)
+          client.print(",\n");
+        devices[i]->printJSONTo(client);
       }
     }
+    client.print("],\n\"deviceNames\": [");
+    for(unsigned char i = 0; i < MAX_DEVICES; i++)
+    {
+      if (devices[i])
+      {
+        if (i != 0)
+          client.print(",");
+        client.print('\"');
+        client.print(devices[i]->name);
+        client.print('\"');
+      }
+    }
+    client.print("]\n}");
     return false;
   }
   else if (sub[0] == "device" && subCount == 2)
@@ -477,7 +492,7 @@ bool requested(WebRequest* webRequest, String path)
     Device* d = getDeviceWithAddress(addr);
     if (d)
     {
-      d->printAsListTo(client);
+      d->printJSONTo(client);
     }
   
     return false;

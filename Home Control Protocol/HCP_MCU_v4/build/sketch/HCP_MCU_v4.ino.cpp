@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#line 1 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
-#line 1 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 1 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
+#line 1 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 /*
   Home Control Protocol v0.4.0
     by Stijn Rogiest (copyright 2019)
@@ -70,45 +70,45 @@ unsigned long lastRefreshMillis = 1;
 unsigned long lastLedBlink = 0;
 unsigned int ledBlinks = 0;
 unsigned int ledBlinkInterval = 200;
-#line 89 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 89 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 void setup();
-#line 136 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 136 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 void loop();
-#line 308 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 308 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 void command(String args[16], unsigned char argsLen);
-#line 409 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 409 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 bool requested(WebRequest* webRequest, String path);
-#line 553 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 568 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 void propertySetAnswer(ResponseStatus status, Request* requested);
-#line 586 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 601 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 void pingAnswer(ResponseStatus status, Request* requested);
-#line 626 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 641 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 void refreshAnswer(ResponseStatus status, Request* requested);
-#line 715 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 730 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 void unbindAnswer(ResponseStatus status, Request* requested);
-#line 732 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 747 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 void refreshSlaves();
-#line 751 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 766 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 void pingSlaves();
-#line 770 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 785 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 void retryNotWorkingBinds();
-#line 798 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 813 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 unsigned char getNewAddress();
-#line 807 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 822 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 void printDevices();
-#line 824 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 839 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 void loadDevicesFromRom();
-#line 856 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 871 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 void clearRomDevices();
-#line 874 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 889 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 void saveDevicesToRom();
-#line 905 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 920 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 Device* registerNewDevice(unsigned char ufid[7], unsigned char addr);
-#line 920 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 935 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 Device* getDeviceWithAddress(unsigned char addr);
-#line 931 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 946 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 WebRequest* getWebRequestFor(unsigned char requestId);
-#line 70 "h:\\Documents\\GitHub\\Home-Control-GIP\\Home Control Protocol\\HCP_MCU_v4\\HCP_MCU_v4.ino"
+#line 70 "/Users/stijnrogiest/Documents/GitHub/Home-Control-GIP/Home Control Protocol/HCP_MCU_v4/HCP_MCU_v4.ino"
 void led(int blinks, int interval = 200)
 {
   ledBlinks = blinks * 2;
@@ -502,14 +502,29 @@ bool requested(WebRequest* webRequest, String path)
   }
   else if (sub[0] == "deviceList")
   {
+    client.print("{\n\"devices\": [");
     for(unsigned char i = 0; i < MAX_DEVICES; i++)
     {
       if (devices[i])
       {
-        devices[i]->printAsListTo(client);
-        client.print(';');
+        if (i != 0)
+          client.print(",\n");
+        devices[i]->printJSONTo(client);
       }
     }
+    client.print("],\n\"deviceNames\": [");
+    for(unsigned char i = 0; i < MAX_DEVICES; i++)
+    {
+      if (devices[i])
+      {
+        if (i != 0)
+          client.print(",");
+        client.print('\"');
+        client.print(devices[i]->name);
+        client.print('\"');
+      }
+    }
+    client.print("]\n}");
     return false;
   }
   else if (sub[0] == "device" && subCount == 2)
@@ -519,7 +534,7 @@ bool requested(WebRequest* webRequest, String path)
     Device* d = getDeviceWithAddress(addr);
     if (d)
     {
-      d->printAsListTo(client);
+      d->printJSONTo(client);
     }
   
     return false;

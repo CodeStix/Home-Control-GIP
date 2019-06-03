@@ -65,51 +65,53 @@ void Device::printTo(Print& dest)
     dest.print(')');
 }
 
-void Device::printAsListTo(Print& dest)
+void Device::printJSONTo(Print& dest)
 {
     // [0]: name
+    dest.print("{\n\"name\":\"");
     dest.print(this->name);
-    dest.print(',');
+    dest.print("\",\n\"address\":");
     // [1]: address
     dest.print(this->address);
-    dest.print(',');
+    dest.print(",\n\"ufid\": [");
     // [2]: uniqueFactoryId
     for(unsigned char j = 0; j < 7; j++)
     {
         if (j != 0)
-        dest.print(' ');
+            dest.print(',');
         dest.print(this->uniqueFactoryId[j]);
     }
-    dest.print(',');
+    dest.print("],\n\"type\": [");
     // [3]: deviceType
-    for(unsigned char j = 4; j < 4; j++)
+    for(unsigned char j = 0; j < 4; j++)
     {
         if (j != 0)
-        dest.print(' ');
+            dest.print(',');
         dest.print(this->deviceType[j]);
     }
-    dest.print(',');
+    dest.print("],\n\"knownProperties\": [");
     // [4]: knownProperties
     for(unsigned char j = 0; j < 64; j++)
     {
         if (j != 0)
-        dest.print(' ');
+            dest.print(',');
         dest.print(this->knownProperties[j]);
     }
-    dest.print(',');
+    dest.print("],\n\"liveData\": [");
     // [5]: liveDeviceInfo
     for(unsigned char j = 0; j < 16; j++)
     {
         if (j != 0)
-        dest.print(' ');
+            dest.print(',');
         dest.print(this->liveDeviceInfo[j]);
     }
-    dest.print(',');
+    dest.print("],\n\"online\": ");
     // [6]: online
     dest.print(this->online ? "true" : "false");
-    dest.print(',');
+    dest.print(",\n\"working\": ");
     // [7]: working
     dest.print(this->working ? "true" : "false");
+    dest.print("\n}");
 }
 
 unsigned char* Device::getBytes()

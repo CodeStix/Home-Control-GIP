@@ -20,7 +20,7 @@ class Device
         bool online;
         unsigned char* getBytes();
         void printTo(Print& dest);
-        void printAsListTo(Print& dest);
+        void printJSONTo(Print& dest);
 };
 
 #endif
