@@ -112,9 +112,9 @@ void propertyUpdate()
   }
 #endif
 #ifdef SLAVE_PROMINIBLACK_LEDSTRIP
-  analogWrite(3, getProperty(0));
-  analogWrite(5, getProperty(1));
-  analogWrite(6, getProperty(2));
+  analogWrite(3, getProperty(2));
+  analogWrite(5, getProperty(0));
+  analogWrite(6, getProperty(1));
 #endif
 }
 
