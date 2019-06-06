@@ -5,29 +5,40 @@
 #include "PacketSenderReceiver.h"
 
 /****** Uncomment the current slave, comment others ******/
-//#define SLAVE_NANO4LED_RELAY
-//#define SLAVE_PROMINIBLUE
-//#define SLAVE_PROMINIBLACK
-#define SLAVE_PROMINIBLACK_LEDSTRIP
+#define SLAVE_5
 
 /****** Unique for each slave ******/
 // UNIQUE_FACTORY_ID: An 7-byte integer to identify each slave node on the planet. (ufid)
-// DEVICE_INFO: Non-private information about this slave.
-#ifdef SLAVE_NANO4LED_RELAY
-#define UNIQUE_FACTORY_ID {0xFF, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}
-#define DEVICE_TYPE {0x11, 0x0, 0x0, 0x0}
+// DEVICE_TYPE: [switch button count] [push button count] [slider count] [nothing]
+/* Ledstrip */
+#ifdef SLAVE_1
+#define UNIQUE_FACTORY_ID {0xEE, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0}
+#define DEVICE_TYPE {0, 0, 3, 0}
+#include <FastLED.h>
+#define LEDSTRIP_NUM_LEDS 30
+CRGB leds[LEDSTRIP_NUM_LEDS];
 #endif
-#ifdef SLAVE_PROMINIBLUE
-#define UNIQUE_FACTORY_ID {0xFF, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0}
-#define DEVICE_TYPE {0x12, 0x0, 0x0, 0x0}
+/* Addressable Ledstrip */
+#ifdef SLAVE_2
+#define UNIQUE_FACTORY_ID {0xEE, 0x2, 0x0, 0x0, 0x0, 0x0, 0x0}
+#define DEVICE_TYPE {0, 0, 5, 0}
 #endif
-#ifdef SLAVE_PROMINIBLACK_LAMPS
-#define UNIQUE_FACTORY_ID {0xFF, 0xB, 0x0, 0x0, 0x0, 0x0, 0x0}
-#define DEVICE_TYPE {0x12, 0x0, 0x0, 0x0}
+/* Relay module 1 */
+#ifdef SLAVE_3
+#define UNIQUE_FACTORY_ID {0xEE, 0x3, 0x0, 0x0, 0x0, 0x0, 0x0}
+#define DEVICE_TYPE {8, 0, 0, 0}
 #endif
-#ifdef SLAVE_PROMINIBLACK_LEDSTRIP
-#define UNIQUE_FACTORY_ID {0xFF, 0x2, 0x2, 0x0, 0x0, 0x0, 0x0}
-#define DEVICE_TYPE {0x12, 0x0, 0x0, 0x0}
+/* Relay module 2 */
+#ifdef SLAVE_4
+#define UNIQUE_FACTORY_ID {0xEE, 0x4, 0x0, 0x0, 0x0, 0x0, 0x0}
+#define DEVICE_TYPE {8, 0, 0, 0}
+#endif
+/* Led Matrix */
+#ifdef SLAVE_5
+#define UNIQUE_FACTORY_ID {0xEE, 0x5, 0x0, 0x0, 0x0, 0x0, 0x0}
+#define DEVICE_TYPE {0, 0, 1, 0}
+#include "LedControl.h"
+LedControl lc = LedControl(3, 5, 6, 4);
 #endif
 
 /****** NOT Unique for each slave ******/
@@ -60,71 +71,85 @@ void led(int blinks, int interval = 200)
 
 void setupSlave()
 {
-#ifdef SLAVE_NANO4LED_RELAY
+#ifdef SLAVE_1
+  FastLED.addLeds<WS2812B, 3, GRB>(leds, LEDSTRIP_NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.setBrightness(100);
+#endif
+#ifdef SLAVE_2
   pinMode(3, OUTPUT);
   pinMode(5, OUTPUT);
   pinMode(6, OUTPUT);
-  pinMode(9, OUTPUT);
-  pinMode(8, OUTPUT);
 #endif
-#ifdef SLAVE_PROMINIBLUE
-  for (unsigned char i = 2; i <= 9; i++)
-  {
-    pinMode(i, OUTPUT);
-    digitalWrite(i, true);
-  }
-#endif
-#ifdef SLAVE_PROMINIBLACK_LAMPS
-  for(int i = 0; i < 8; i++)
+#ifdef SLAVE_3
+  for (int i = 0; i < 8; i++)
   {
     pinMode(i + 2, OUTPUT);
   }
 #endif
-#ifdef SLAVE_PROMINIBLACK_LEDSTRIP
-  pinMode(2, OUTPUT);
-  digitalWrite(2, false);
-  pinMode(3, OUTPUT);
-  pinMode(5, OUTPUT);
-  pinMode(6, OUTPUT);
+#ifdef SLAVE_4
+  for (int i = 0; i < 8; i++)
+  {
+    pinMode(i + 2, OUTPUT);
+  }
+#endif
+#ifdef SLAVE_5
+  for (int i = 0; i < 4; i++)
+  {
+    lc.shutdown(i, false);
+    /* Set the brightness to a medium values */
+    lc.setIntensity(i, 8);
+    /* and clear the display */
+    lc.clearDisplay(i);
+  }
 #endif
 }
 
 void propertyUpdate()
 {
-#ifdef SLAVE_NANO4LED_RELAY
+#ifdef SLAVE_1
   analogWrite(3, getProperty(0));
   analogWrite(5, getProperty(1));
   analogWrite(6, getProperty(2));
-  analogWrite(9, getProperty(3));
-  analogWrite(8, getProperty(4));
 #endif
-#ifdef SLAVE_PROMINIBLUE
-  for (unsigned char i = 2; i <= 9; i++)
-  {
-    //digitalWrite(i, properties[i] > 0);
-    digitalWrite(i, getProperty(i) > 0);
-  }
+#ifdef SLAVE_2
+  // Set adressable ledstrip
 #endif
-#ifdef SLAVE_PROMINIBLACK_LAMPS
-  for(int i = 0; i < 8; i++)
+#ifdef SLAVE_3
+  for (int i = 0; i < 8; i++)
   {
     digitalWrite(i + 2, getProperty(i));
   }
 #endif
-#ifdef SLAVE_PROMINIBLACK_LEDSTRIP
-  analogWrite(3, getProperty(2));
-  analogWrite(5, getProperty(0));
-  analogWrite(6, getProperty(1));
+#ifdef SLAVE_4
+  for (int i = 0; i < 8; i++)
+  {
+    digitalWrite(i + 2, getProperty(i));
+  }
 #endif
+#ifdef SLAVE_5
+  lc.setLed(0, 0, 0, true);
+#endif
+}
+
+void slaveLoop()
+{
+  // Do not delay!
+
+#ifdef SLAVE_1
+  static unsigned char hue = 0;
+  fill_rainbow(leds, LEDSTRIP_NUM_LEDS, hue++, 7);
+  FastLED.show();  
+#endif
+
 }
 
 unsigned char refreshLiveData(unsigned char liveData[16])
 {
-  for(unsigned char i = 1; i <= 4; i++)
+  for (unsigned char i = 1; i <= 4; i++)
     liveData[i - 1] = i;
-  
-  
-  return 4;
+
+
+  return 0;
 }
 
 void setup()
@@ -189,15 +214,7 @@ void loop()
     }
   }
 
-#ifdef NANO4LED_RELAY
-  if (getProperty(10) != 0)
-  {
-    analogWrite(3, random(256));
-    analogWrite(5, random(256));
-    analogWrite(6, random(256));
-    analogWrite(9, random(256));
-  }
-#endif
+  slaveLoop();
 }
 
 void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char len, bool isBroadcast)
@@ -299,7 +316,7 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
     if (memcmp(&data[1], &ufid[0], 7) == 0)
     {
       Serial.println("for me.");
-      
+
       unsigned char resp[] = DEVICE_TYPE;
       sr.answer(&temp, resp, sizeof(resp));
       return;
