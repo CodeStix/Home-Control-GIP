@@ -46,6 +46,8 @@
 // Note: HC12 TX to RX and RX to TX
 
 
+
+
 // This masters addr, can be 1, 2 or 3.
 
 
@@ -61,7 +63,7 @@ ESP8266WiFiMulti wifiMulti;
 WiFiServer server(80);
 WebRequest* requesters[8];
 
-const unsigned int retryBindMillisInterval = 400;
+const unsigned int retryBindMillisInterval = 880;
 unsigned long lastRetryBindMillis = 1;
 const unsigned int refreshMillisInterval = 2220;
 unsigned long lastRefreshMillis = 1;
@@ -94,7 +96,7 @@ void setup()
   digitalWrite(2, false);
 
   Serial.begin(19200);
-  delay(5000);
+  delay(3000);
   veryCoolSplashScreen();
   Serial.print("----> My address (master): ");
   Serial.println(2);
@@ -131,7 +133,7 @@ void setup()
   server.begin();
   Serial.println("----> Starting...");
   delay(500);
-  ss.begin(4800);
+  ss.begin(2400);
   Serial.println("\t-> OK");
 }
 

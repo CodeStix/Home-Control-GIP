@@ -5,7 +5,7 @@
 #include "PacketSenderReceiver.h"
 
 /****** Uncomment the current slave, comment others ******/
-#define SLAVE_5
+#define SLAVE_1
 
 /****** Unique for each slave ******/
 // UNIQUE_FACTORY_ID: An 7-byte integer to identify each slave node on the planet. (ufid)
@@ -14,9 +14,9 @@
 #ifdef SLAVE_1
 #define UNIQUE_FACTORY_ID {0xEE, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0}
 #define DEVICE_TYPE {0, 0, 3, 0}
-#include <FastLED.h>
-#define LEDSTRIP_NUM_LEDS 30
-CRGB leds[LEDSTRIP_NUM_LEDS];
+//#include <FastLED.h>
+//#define LEDSTRIP_NUM_LEDS 30
+//CRGB leds[LEDSTRIP_NUM_LEDS];
 #endif
 /* Addressable Ledstrip */
 #ifdef SLAVE_2
@@ -49,6 +49,8 @@ LedControl lc = LedControl(3, 5, 6, 4);
 #define RX_PIN 10
 #define PROPERTY_COUNT 64
 #define MAX_CONCURRENT_REQUESTS 2
+#define BAUD_COMMUNICATE 2400
+#define BAUD_SERIAL 19200
 
 unsigned char getAddress();
 
@@ -72,8 +74,8 @@ void led(int blinks, int interval = 200)
 void setupSlave()
 {
 #ifdef SLAVE_1
-  FastLED.addLeds<WS2812B, 3, GRB>(leds, LEDSTRIP_NUM_LEDS).setCorrection(TypicalLEDStrip);
-  FastLED.setBrightness(100);
+  //FastLED.addLeds<WS2812B, 3, GRB>(leds, LEDSTRIP_NUM_LEDS).setCorrection(TypicalLEDStrip);
+  //FastLED.setBrightness(100);
 #endif
 #ifdef SLAVE_2
   pinMode(3, OUTPUT);
@@ -107,12 +109,12 @@ void setupSlave()
 void propertyUpdate()
 {
 #ifdef SLAVE_1
+  // Set adressable ledstrip
+#endif
+#ifdef SLAVE_2
   analogWrite(3, getProperty(0));
   analogWrite(5, getProperty(1));
   analogWrite(6, getProperty(2));
-#endif
-#ifdef SLAVE_2
-  // Set adressable ledstrip
 #endif
 #ifdef SLAVE_3
   for (int i = 0; i < 8; i++)
@@ -136,9 +138,9 @@ void slaveLoop()
   // Do not delay!
 
 #ifdef SLAVE_1
-  static unsigned char hue = 0;
-  fill_rainbow(leds, LEDSTRIP_NUM_LEDS, hue++, 7);
-  FastLED.show();  
+  //static unsigned char hue = 0;
+  //fill_rainbow(leds, LEDSTRIP_NUM_LEDS, hue++, 7);
+  //FastLED.show();  
 #endif
 
 }
@@ -159,7 +161,7 @@ void setup()
   digitalWrite(DEBUG_PIN, false);
   digitalWrite(STATUS_LED_PIN, true);
 
-  Serial.begin(19200);
+  Serial.begin(BAUD_SERIAL);
   veryCoolSplashScreen();
   Serial.print("----> My address (slave): ");
   Serial.println(getAddress());
@@ -182,7 +184,7 @@ void setup()
   setupSlave();
   propertyUpdate();
 
-  ss.begin(4800);
+  ss.begin(BAUD_COMMUNICATE);
 
   //setAddress(0);
   if (!getRegistered())

@@ -49,6 +49,7 @@ bool Packet::hasValidIntegrity()
 void Packet::sendViaSoftware(SoftwareSerial* ss)
 {
   ss->write(this->data, this->getDataLength() + 4);
+  ss->flush();
 }
 
 void Packet::printToSerial()

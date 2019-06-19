@@ -22,7 +22,7 @@ unsigned char temperatureToByte(float floatTemp)
   if (f > 255)
     f = 255;
   else if (f < 0)
-    f = 0
+    f = 0;
 
   return (unsigned char)f;
 }

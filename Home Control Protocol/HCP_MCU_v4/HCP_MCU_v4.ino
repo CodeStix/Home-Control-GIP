@@ -44,6 +44,8 @@
 // Note: HC12 TX to RX and RX to TX
 #define TX_PIN 14
 #define RX_PIN 12
+#define BAUD_COMMUNICATE 2400
+#define BAUD_SERIAL 19200
 // This masters addr, can be 1, 2 or 3.
 #define MASTER_ADDRESS 2
 #define MAX_DEVICES 32
@@ -59,7 +61,7 @@ ESP8266WiFiMulti wifiMulti;
 WiFiServer server(80);
 WebRequest* requesters[8];
 
-const unsigned int retryBindMillisInterval = 400;
+const unsigned int retryBindMillisInterval = 880;
 unsigned long lastRetryBindMillis = 1;
 const unsigned int refreshMillisInterval = 2220;
 unsigned long lastRefreshMillis = 1;
@@ -91,8 +93,8 @@ void setup()
   pinMode(DEBUG_PIN, OUTPUT);
   digitalWrite(DEBUG_PIN, false);
 
-  Serial.begin(19200);
-  delay(5000);
+  Serial.begin(BAUD_SERIAL);
+  delay(3000);
   veryCoolSplashScreen();
   Serial.print("----> My address (master): ");
   Serial.println(MASTER_ADDRESS);
@@ -129,7 +131,7 @@ void setup()
   server.begin();
   Serial.println("----> Starting...");
   delay(500);
-  ss.begin(4800);
+  ss.begin(BAUD_COMMUNICATE);
   Serial.println("\t-> OK");
 }
 

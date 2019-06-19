@@ -8,7 +8,7 @@ Device::Device(unsigned char fromBytes[118])
     memcpy(this->liveDeviceInfo, &fromBytes[25], 16);
     memcpy(this->uniqueFactoryId, &fromBytes[41], 7);
     memcpy(this->knownProperties, &fromBytes[48], 64);
-    memcpy(&this->deviceType, &fromBytes[112], 4);
+    memcpy(this->deviceType, &fromBytes[112], 4);
     this->address = fromBytes[116];
     this->working = (fromBytes[117] & 0x1) == 0x1;
     this->online = (fromBytes[117] & 0x2) == 0x2;   
@@ -19,6 +19,8 @@ Device::Device(unsigned char uniqueFactoryId[7], unsigned char address, char nam
     memcpy(this->name, name, sizeof(this->name));
     memset(this->liveDeviceInfo, 0, sizeof(this->liveDeviceInfo));
     memcpy(this->uniqueFactoryId, uniqueFactoryId, 7);
+    memset(this->knownProperties, 0, sizeof(this->knownProperties));
+    memset(this->deviceType, 0, sizeof(this->deviceType));
     this->address = address;
     this->working = false;
     this->online = false;

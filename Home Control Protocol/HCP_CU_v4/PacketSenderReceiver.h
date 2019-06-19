@@ -29,7 +29,7 @@ class PacketSenderReceiver : public Logger
         static Request nullRequest;
         Request requests[MAX_CONCURRENT_REQUESTS];
         unsigned char sendRequest(Request* request);
-        unsigned char sendRequest(unsigned char to, ResponseHandler handler, unsigned char* data, unsigned char len, void* state = nullptr);
+        unsigned char sendRequest(unsigned char to, ResponseHandler handler, unsigned char* data, unsigned char len);
         void resendUnansweredRequests();
         Request* getRequestWithId(unsigned char id);    
         void answer(Packet* toAnswer, unsigned char* respData, unsigned char respLen);
@@ -38,7 +38,7 @@ class PacketSenderReceiver : public Logger
         bool receiving;
         unsigned char dataPosition;
         unsigned char incomingLength;
-        Request* getNewRequest(unsigned char fromAddress, ResponseHandler handler, unsigned char* data, unsigned char len, void* state = nullptr);
+        Request* getNewRequest(unsigned char fromAddress, ResponseHandler handler, unsigned char* data, unsigned char len);
 };
 
 #endif
