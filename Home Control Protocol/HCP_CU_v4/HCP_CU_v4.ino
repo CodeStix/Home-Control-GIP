@@ -1,66 +1,75 @@
+/****** Uncomment the current slave, comment others ******/
+#define SLAVE_4
+//#define LOW_MEM
+
+
+
+
+
+/****** Unique for each slave ******/
+// UNIQUE_FACTORY_ID: An 7-byte integer to identify each slave node on the planet. (ufid)
+// DEVICE_TYPE: [switch button count] [push button count] [slider count] [nothing]
+/* Addressable Ledstrip */
+#ifdef SLAVE_1
+#define UNIQUE_FACTORY_ID {0xEE, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0}
+#define DEVICE_TYPE {1, 0, 0, 0}
+#include <FastLED.h>
+#define LEDSTRIP_NUM_LEDS 30
+CRGB leds[LEDSTRIP_NUM_LEDS];
+unsigned char ledMode = 0;
+#define LOW_MEM
+#endif
+/* Ledstrip */
+#ifdef SLAVE_2
+#define UNIQUE_FACTORY_ID {0xEE, 0x2, 0x0, 0x0, 0x0, 0x0, 0x0}
+#define DEVICE_TYPE {2, 0, 0, 0}
+#endif
+/* Led Matrix */
+#ifdef SLAVE_3
+#define UNIQUE_FACTORY_ID {0xEE, 0x3, 0x0, 0x0, 0x0, 0x0, 0x0}
+#define DEVICE_TYPE {3, 0, 0, 0}
+#include "LedControl.h"
+#define MATRIX_COUNT 4
+LedControl lc = LedControl(3, 6, 5, MATRIX_COUNT);
+#endif
+/* Relay module */
+#ifdef SLAVE_4
+#define UNIQUE_FACTORY_ID {0xEE, 0x4, 0x0, 0x0, 0x0, 0x0, 0x0}
+#define DEVICE_TYPE {4, 0, 0, 0}
+#endif
+/* Relay module 2 */
+/*#ifdef SLAVE_5
+  #define UNIQUE_FACTORY_ID {0xEE, 0x5, 0x0, 0x0, 0x0, 0x0, 0x0}
+  #define DEVICE_TYPE {0, 0, 1, 0}
+  #endif*/
+
+
+/****** Global slave settings ******/
+#define DEBUG_PIN LED_BUILTIN
+#define STATUS_LED_PIN 13
+// Note: HC12 TX to RX and RX to TX.
+#define TX_PIN 11
+#define RX_PIN 10
+#define UNBIND_PIN 12
+#define CURRENT_SENSE_PIN A0
+#define PROPERTY_COUNT 64
+#define BAUD_COMMUNICATE 2400
+#define BAUD_SERIAL 19200
+
+
+/****** Including stuff ******/
 #include <SoftwareSerial.h>
 #include <EEPROM.h>
 #include "Shared.h"
 #include "Packet.h"
 #include "PacketSenderReceiver.h"
 
-/****** Uncomment the current slave, comment others ******/
-#define SLAVE_1
-
-/****** Unique for each slave ******/
-// UNIQUE_FACTORY_ID: An 7-byte integer to identify each slave node on the planet. (ufid)
-// DEVICE_TYPE: [switch button count] [push button count] [slider count] [nothing]
-/* Ledstrip */
-#ifdef SLAVE_1
-#define UNIQUE_FACTORY_ID {0xEE, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0}
-#define DEVICE_TYPE {0, 0, 3, 0}
-//#include <FastLED.h>
-//#define LEDSTRIP_NUM_LEDS 30
-//CRGB leds[LEDSTRIP_NUM_LEDS];
-#endif
-/* Addressable Ledstrip */
-#ifdef SLAVE_2
-#define UNIQUE_FACTORY_ID {0xEE, 0x2, 0x0, 0x0, 0x0, 0x0, 0x0}
-#define DEVICE_TYPE {0, 0, 5, 0}
-#endif
-/* Relay module 1 */
-#ifdef SLAVE_3
-#define UNIQUE_FACTORY_ID {0xEE, 0x3, 0x0, 0x0, 0x0, 0x0, 0x0}
-#define DEVICE_TYPE {8, 0, 0, 0}
-#endif
-/* Relay module 2 */
-#ifdef SLAVE_4
-#define UNIQUE_FACTORY_ID {0xEE, 0x4, 0x0, 0x0, 0x0, 0x0, 0x0}
-#define DEVICE_TYPE {8, 0, 0, 0}
-#endif
-/* Led Matrix */
-#ifdef SLAVE_5
-#define UNIQUE_FACTORY_ID {0xEE, 0x5, 0x0, 0x0, 0x0, 0x0, 0x0}
-#define DEVICE_TYPE {0, 0, 1, 0}
-#include "LedControl.h"
-LedControl lc = LedControl(3, 5, 6, 4);
-#endif
-
-/****** NOT Unique for each slave ******/
-#define DEBUG_PIN LED_BUILTIN
-#define STATUS_LED_PIN 13
-// Note: HC12 TX to RX and RX to TX.
-#define TX_PIN 11
-#define RX_PIN 10
-#define PROPERTY_COUNT 64
-#define MAX_CONCURRENT_REQUESTS 2
-#define BAUD_COMMUNICATE 2400
-#define BAUD_SERIAL 19200
 
 unsigned char getAddress();
 
 SoftwareSerial ss = SoftwareSerial(RX_PIN, TX_PIN);
 PacketSenderReceiver sr = PacketSenderReceiver(&ss, true, getAddress());
 Packet temp;
-
-//__attribute__((section(".noinit")))
-unsigned char startupMode = 0;
-//unsigned char properties[PROPERTY_COUNT];
 
 unsigned long lastLedBlink = 0;
 unsigned int ledBlinks = 0;
@@ -74,8 +83,9 @@ void led(int blinks, int interval = 200)
 void setupSlave()
 {
 #ifdef SLAVE_1
-  //FastLED.addLeds<WS2812B, 3, GRB>(leds, LEDSTRIP_NUM_LEDS).setCorrection(TypicalLEDStrip);
-  //FastLED.setBrightness(100);
+  FastLED.addLeds<WS2812B, 3, GRB>(leds, LEDSTRIP_NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.setBrightness(150);
+  ledMode = getProperty(3);
 #endif
 #ifdef SLAVE_2
   pinMode(3, OUTPUT);
@@ -83,19 +93,7 @@ void setupSlave()
   pinMode(6, OUTPUT);
 #endif
 #ifdef SLAVE_3
-  for (int i = 0; i < 8; i++)
-  {
-    pinMode(i + 2, OUTPUT);
-  }
-#endif
-#ifdef SLAVE_4
-  for (int i = 0; i < 8; i++)
-  {
-    pinMode(i + 2, OUTPUT);
-  }
-#endif
-#ifdef SLAVE_5
-  for (int i = 0; i < 4; i++)
+  for (unsigned char i = 0; i < 4; i++)
   {
     lc.shutdown(i, false);
     /* Set the brightness to a medium values */
@@ -104,12 +102,38 @@ void setupSlave()
     lc.clearDisplay(i);
   }
 #endif
+#ifdef SLAVE_4
+  for (unsigned char i = 0; i < 8; i++)
+  {
+    pinMode(i + 2, OUTPUT);
+  }
+#endif
+#ifdef SLAVE_5
+  for (unsigned char i = 0; i < 8; i++)
+  {
+    pinMode(i + 2, OUTPUT);
+  }
+#endif
 }
 
 void propertyUpdate()
 {
+  led(2, 100);
 #ifdef SLAVE_1
-  // Set adressable ledstrip
+  ledMode = getProperty(3);
+  if (ledMode == 0)
+  {
+    for (unsigned char i = 0; i < LEDSTRIP_NUM_LEDS; i++)
+    {
+      leds[i] = CRGB::Black;
+    }
+    CRGB color(getProperty(0), getProperty(1), getProperty(2));
+    for (unsigned char i = 0; i < getProperty(4) && i < LEDSTRIP_NUM_LEDS; i++)
+    {
+      leds[i] = color;
+    }
+  }
+  FastLED.show();
 #endif
 #ifdef SLAVE_2
   analogWrite(3, getProperty(0));
@@ -117,19 +141,22 @@ void propertyUpdate()
   analogWrite(6, getProperty(2));
 #endif
 #ifdef SLAVE_3
-  for (int i = 0; i < 8; i++)
+  for (unsigned char i = 0; i < MATRIX_COUNT * 8; i++)
   {
-    digitalWrite(i + 2, getProperty(i));
+    lc.setColumn(i / 8, 7 - (i % 8), getProperty(i));
   }
 #endif
 #ifdef SLAVE_4
-  for (int i = 0; i < 8; i++)
+  for (unsigned char i = 0; i < 8; i++)
   {
     digitalWrite(i + 2, getProperty(i));
   }
 #endif
 #ifdef SLAVE_5
-  lc.setLed(0, 0, 0, true);
+  for (unsigned char i = 0; i < 8; i++)
+  {
+    digitalWrite(i + 2, getProperty(i));
+  }
 #endif
 }
 
@@ -138,26 +165,35 @@ void slaveLoop()
   // Do not delay!
 
 #ifdef SLAVE_1
-  //static unsigned char hue = 0;
-  //fill_rainbow(leds, LEDSTRIP_NUM_LEDS, hue++, 7);
-  //FastLED.show();  
+  if (ledMode == 1)
+  {
+    static unsigned char hue = 0;
+    fill_rainbow(leds, LEDSTRIP_NUM_LEDS, hue++, 7);
+    if (ss.available() == 0)
+      FastLED.show();
+  }
 #endif
 
 }
 
 unsigned char refreshLiveData(unsigned char liveData[16])
 {
-  for (unsigned char i = 1; i <= 4; i++)
-    liveData[i - 1] = i;
+  int a = analogRead(CURRENT_SENSE_PIN);
+  liveData[0] = a / 256;
+  liveData[1] = a % 256;
 
-
-  return 0;
+  Serial.print("Current value: ");
+  Serial.println(a);
+  
+  return 2;
 }
 
 void setup()
 {
   pinMode(DEBUG_PIN, OUTPUT);
   pinMode(STATUS_LED_PIN, OUTPUT);
+  pinMode(UNBIND_PIN, INPUT_PULLUP);
+  pinMode(CURRENT_SENSE_PIN, INPUT);
   digitalWrite(DEBUG_PIN, false);
   digitalWrite(STATUS_LED_PIN, true);
 
@@ -177,8 +213,6 @@ void setup()
     Serial.print(' ');
   }
   Serial.println();
-  Serial.print("----> Starting mode: ");
-  Serial.println(++startupMode);
   Serial.println("----> Starting...");
 
   setupSlave();
@@ -216,30 +250,56 @@ void loop()
     }
   }
 
+  if (!digitalRead(UNBIND_PIN) && getRegistered())
+  {
+    Serial.println("Unbinding...");
+
+    setMaster(0);
+    setAddress(0);
+
+    delay(1000);
+
+    Serial.println("\t-> OK, please reset.");
+
+    while (true);
+  }
+
   slaveLoop();
+
+  delay(1);
 }
 
 void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char len, bool isBroadcast)
 {
   bool reg = getRegistered();
 
-  // Bind command when unregistered
-  if (!reg && len == 9 && data[0] == 0x10)
+  // Bind command
+  if (len == 9 && data[0] == 0x10)
   {
+    //unsigned char ufid[7] = UNIQUE_FACTORY_ID;
+    //if (memcmp(&data[1], &ufid[0], 7) == 0)
     unsigned char ufid[7] = UNIQUE_FACTORY_ID;
-    for (int i = 0; i < 7; i++)
+    for (unsigned char i = 0; i < 7; i++)
       if (data[i + 1] != ufid[i])
         return false;
 
-    setMaster(fromMaster);
-    setAddress(data[8]);
-    sr = PacketSenderReceiver(&ss, true, getAddress());
+    if (reg)
+    {
+      if (fromMaster != getMaster())
+        return;
+    }
+    else
+    {
+      setMaster(fromMaster);
+      setAddress(data[8]);
+      sr = PacketSenderReceiver(&ss, true, getAddress());
 
-    Serial.print("Registered master: ");
-    Serial.println(getMaster());
-    Serial.print("My address: ");
-    Serial.println(getAddress());
-    led(10, 50);
+      Serial.print("Registered master: ");
+      Serial.println(getMaster());
+      Serial.print("My address: ");
+      Serial.println(getAddress());
+      led(10, 50);
+    }
 
     unsigned char resp[] = DEVICE_TYPE;
     sr.answer(&temp, resp, sizeof(resp));
@@ -308,25 +368,6 @@ void processRequest(unsigned char fromMaster, unsigned char* data, unsigned char
     Serial.println("Device is now unbound.");
     led(500000);
     return;
-  }
-  // Bind command while registered
-  else if (len == 9 && data[0] == 0x10)
-  {
-    Serial.print("Device bind request while bound: ");
-
-    unsigned char ufid[7] = UNIQUE_FACTORY_ID;
-    if (memcmp(&data[1], &ufid[0], 7) == 0)
-    {
-      Serial.println("for me.");
-
-      unsigned char resp[] = DEVICE_TYPE;
-      sr.answer(&temp, resp, sizeof(resp));
-      return;
-    }
-    else
-    {
-      Serial.println("not for me.");
-    }
   }
   // Refresh command.
   else if (len == 1 && data[0] == 0x15)

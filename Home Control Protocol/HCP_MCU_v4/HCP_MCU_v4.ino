@@ -40,7 +40,7 @@
 #include <ESP8266WebServer.h>
 #include <EEPROM.h>
 
-#define DEBUG_PIN LED_BUILTIN
+#define DEBUG_PIN 2
 // Note: HC12 TX to RX and RX to TX
 #define TX_PIN 14
 #define RX_PIN 12
@@ -61,9 +61,9 @@ ESP8266WiFiMulti wifiMulti;
 WiFiServer server(80);
 WebRequest* requesters[8];
 
-const unsigned int retryBindMillisInterval = 880;
-unsigned long lastRetryBindMillis = 1;
-const unsigned int refreshMillisInterval = 2220;
+const unsigned int retryBindMillisInterval = 1212;
+unsigned long lastRetryBindMillis = 1;\
+const unsigned int refreshMillisInterval = 5100;
 unsigned long lastRefreshMillis = 1;
 
 unsigned long lastLedBlink = 0;
@@ -75,11 +75,11 @@ void led(int blinks, int interval = 200)
   ledBlinkInterval = interval;
 }
 
-// Console
+// Console/monitor
 unsigned char currentArg = 0;
 String args[16];
 
-// Prototypes
+// Forward definitions
 unsigned char refreshSlave(unsigned char addr);
 unsigned char pingSlave(unsigned char addr);
 unsigned char unbindSlave(unsigned char withAddress);

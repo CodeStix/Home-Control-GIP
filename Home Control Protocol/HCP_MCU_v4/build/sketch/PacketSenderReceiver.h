@@ -2,7 +2,7 @@
 #define PacketSenderReceiver_h
 
 #ifndef MAX_CONCURRENT_REQUESTS
-#define MAX_CONCURRENT_REQUESTS 10
+#define MAX_CONCURRENT_REQUESTS 5
 #endif
 
 #include "Request.h"
@@ -26,7 +26,6 @@ class PacketSenderReceiver : public Logger
         bool isSlave;
         Packet lastSentPacket;
         unsigned long lastSentMillis;
-        static Request nullRequest;
         Request requests[MAX_CONCURRENT_REQUESTS];
         unsigned char sendRequest(Request* request);
         unsigned char sendRequest(unsigned char to, ResponseHandler handler, unsigned char* data, unsigned char len);

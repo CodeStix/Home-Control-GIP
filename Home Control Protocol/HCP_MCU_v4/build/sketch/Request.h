@@ -2,15 +2,15 @@
 #define Request_h
 
 #ifndef REQUEST_MAX_RESENDS
-#define REQUEST_MAX_RESENDS 10
+#define REQUEST_MAX_RESENDS 8
 #endif
 
 #ifndef REQUEST_TRY_INTERVAL
-#define REQUEST_TRY_INTERVAL 350
+#define REQUEST_TRY_INTERVAL 400
 #endif
 
 #ifndef REQUEST_MAX_LIFETIME
-#define REQUEST_MAX_LIFETIME 30000
+#define REQUEST_MAX_LIFETIME 60000
 #endif
 
 #include "Packet.h"

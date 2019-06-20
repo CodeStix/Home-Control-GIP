@@ -1,8 +1,26 @@
 #ifndef Shared_h
 #define Shared_h
 
+#define HCP_VERSION "0.4.1"
+/*
+Version 0.4.0:
+  - Core components, everything, initial commit.
+Version 0.4.1.*:
+  - Flush sending buffer after write.
+  - Fixed led not working properly on ESP8266.
+  - Fixed baud 2800 -> 2400.
+  - Low memory mode: LOW_MEM
+  - Fixed rebind not working.
+  - ...
+*/
+
+#ifdef LOW_MEM
+#define MAX_CONCURRENT_RE QUESTS 2
+#endif
+
 void veryCoolSplashScreen()
 {
+#ifndef LOW_MEM
   Serial.println();
   Serial.println("    _   _      ____    ____    ");
   Serial.println("   |'| |'|  U /\"___| U|  _\"\\ u ");
@@ -11,7 +29,9 @@ void veryCoolSplashScreen()
   Serial.println("   |_| |_|    \\____|  |_|      ");
   Serial.println("   //   \\\\   _// \\ \\  ||>>_    ");
   Serial.println("  (_\") (\"_) (__)(__) (__)__)");
-  Serial.println("Home Control Protocol - v0.4.0");
+#endif
+  Serial.print("Home Control Protocol - v");
+  Serial.println(HCP_VERSION);
   Serial.println("\tby Stijn Rogiest (c) 2019");
   Serial.println();
 }
